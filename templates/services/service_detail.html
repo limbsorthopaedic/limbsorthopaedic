@@ -14,7 +14,7 @@
         overflow: hidden;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-    
+
     .swiper-slide {
         text-align: center;
         background: #f9f9f9;
@@ -23,7 +23,7 @@
         align-items: center;
         max-height: 500px;
     }
-    
+
     .swiper-slide img {
         display: block;
         width: 100%;
@@ -31,11 +31,11 @@
         max-height: 500px;
         object-fit: contain;
     }
-    
+
     .swiper-pagination-bullet-active {
         background-color: #34bdf2 !important; /* Primary brand color */
     }
-    
+
     .swiper-button-next, 
     .swiper-button-prev {
         color: #fff;
@@ -43,12 +43,12 @@
         padding: 30px 20px;
         border-radius: 5px;
     }
-    
+
     .swiper-button-next:hover, 
     .swiper-button-prev:hover {
         background-color: rgba(0, 0, 0, 0.5);
     }
-    
+
     .image-description {
         position: absolute;
         bottom: 0;
@@ -99,11 +99,11 @@
                             </div>
                             {% endfor %}
                         </div>
-                        
+
                         {% if all_images|length > 1 %}
                         <!-- Add Pagination -->
                         <div class="swiper-pagination"></div>
-                        
+
                         <!-- Add Navigation -->
                         <div class="swiper-button-next"></div>
                         <div class="swiper-button-prev"></div>
@@ -115,13 +115,13 @@
                     </div>
                     {% endif %}
                     {% endwith %}
-                    
+
                     <!-- Service Description -->
-                    <div class="prose max-w-none mb-8">
+                    <div class="service-description prose max-w-none mb-8">
                         <h2 class="text-2xl font-bold mb-6 gradient-heading">Service Overview</h2>
                         <div class="whitespace-pre-line">{{ service.description|safe }}</div>
                     </div>
-                    
+
                     <!-- Call to Action -->
                     <div class="bg-gray-50 p-6 rounded-lg shadow-sm mb-8">
                         <h3 class="text-xl font-bold mb-4">Interested in this Service?</h3>
@@ -144,13 +144,13 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Sidebar -->
                 <div>
                     <!-- Contact Card -->
                     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                         <h3 class="text-xl font-bold mb-4">Get in Touch</h3>
-                        
+
                         <div class="space-y-4 mb-6">
                             <div class="flex items-start">
                                 <div class="text-primary mr-3 mt-1"><i class="fas fa-phone-alt"></i></div>
@@ -160,7 +160,7 @@
                                     <a href="tel:+254714663594" class="text-gray-700 hover:text-primary transition-colors">+254 714 663 594 (Kelvine)</a>
                                 </div>
                             </div>
-                            
+
                             <div class="flex items-start">
                                 <div class="text-primary mr-3 mt-1"><i class="fas fa-envelope"></i></div>
                                 <div>
@@ -168,7 +168,7 @@
                                     <a href="mailto:LimbsOrthopaedic@gmail.com" class="text-gray-700 hover:text-primary transition-colors">LimbsOrthopaedic@gmail.com</a>
                                 </div>
                             </div>
-                            
+
                             <div class="flex items-start">
                                 <div class="text-primary mr-3 mt-1"><i class="fas fa-map-marker-alt"></i></div>
                                 <div>
@@ -177,16 +177,16 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <a href="{% url 'contact' %}" class="btn-outline py-2 px-4 rounded-md hover:text-white transition-colors w-full text-center block">
                             Send a Message
                         </a>
                     </div>
-                    
+
                     <!-- Other Services -->
                     <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                         <h3 class="text-xl font-bold mb-4">More Services</h3>
-                        
+
                         <ul class="space-y-3">
                             {% for related in related_services %}
                             <li>
@@ -203,7 +203,7 @@
                             <li class="text-gray-500 text-center py-4">No related services</li>
                             {% endfor %}
                         </ul>
-                        
+
                         <div class="mt-4 text-center">
                             <a href="{% url 'services' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
                                 View All Services <i class="fas fa-arrow-right ml-1"></i>
@@ -246,33 +246,33 @@
   document.addEventListener('DOMContentLoaded', function() {
     // Count number of slides
     const slideCount = document.querySelectorAll('.service-swiper .swiper-slide').length;
-    
+
     const swiper = new Swiper('.service-swiper', {
       // Optional parameters
       loop: slideCount > 1, // Only enable loop when more than one slide
       speed: 500,
       effect: 'slide',
       autoHeight: true,
-      
+
       // If we need pagination (dots)
       pagination: {
         el: '.swiper-pagination',
         clickable: true,
       },
-      
+
       // Navigation arrows
       navigation: {
         nextEl: '.swiper-button-next',
         prevEl: '.swiper-button-prev',
       },
-      
+
       // Auto-play settings (only for multiple slides)
       autoplay: slideCount > 1 ? {
         delay: 5000,
         disableOnInteraction: false,
         pauseOnMouseEnter: true
       } : false,
-      
+
       // Responsive breakpoints
       breakpoints: {
         // when window width is >= 320px

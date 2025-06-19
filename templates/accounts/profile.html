@@ -31,6 +31,9 @@
                     <button class="tab-btn inline-block p-4 border-b-2 border-transparent hover:text-primary hover:border-primary-light" data-tab="appointments">
                         <i class="far fa-calendar-alt mr-2"></i> My Appointments
                     </button>
+                    <button class="tab-btn inline-block p-4 border-b-2 border-transparent hover:text-primary hover:border-primary-light" data-tab="products">
+                        <i class="fas fa-box mr-2"></i> My Products
+                    </button>
                     <button class="tab-btn inline-block p-4 border-b-2 border-transparent hover:text-primary hover:border-primary-light" data-tab="medical-info">
                         <i class="fas fa-notes-medical mr-2"></i> Medical Information
                     </button>
@@ -259,6 +262,106 @@
                         <p class="text-gray-600 mb-6">You haven't scheduled any appointments yet.</p>
                         <a href="{% url 'appointment' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">
                             Book Your First Appointment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- My Products Tab -->
+            <div id="products" class="tab-content hidden">
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">My Products</h3>
+                        <a href="{% url 'products' %}" class="btn-primary py-2 px-4 rounded-md text-white hover:bg-primary-dark transition-colors text-sm">
+                            <i class="fas fa-shopping-cart mr-2"></i> Shop Products
+                        </a>
+                    </div>
+                    
+                    {% if orders %}
+                    <div class="space-y-6">
+                        {% for order in orders %}
+                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                            <div class="bg-gray-100 px-6 py-4 border-b border-gray-200">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">Order #{{ order.order_number }}</h4>
+                                        <p class="text-sm text-gray-600">{{ order.created_at|date:"F d, Y g:i A" }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="px-3 py-1 text-xs font-medium rounded-full
+                                            {% if order.status == 'completed' %}bg-green-100 text-green-800
+                                            {% elif order.status == 'confirmed' %}bg-blue-100 text-blue-800
+                                            {% elif order.status == 'processing' %}bg-yellow-100 text-yellow-800
+                                            {% elif order.status == 'shipping' %}bg-purple-100 text-purple-800
+                                            {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                        <p class="text-lg font-bold text-gray-900 mt-1">KSh {{ order.total_amount|floatformat:2 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6">
+                                <h5 class="text-md font-semibold mb-4 text-gray-800">Products Ordered:</h5>
+                                <div class="space-y-3">
+                                    {% for item in order.items.all %}
+                                    <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                                        <div class="flex items-center space-x-4">
+                                            {% if item.product.get_image %}
+                                            <div class="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                <img src="{{ item.product.get_image }}" alt="{{ item.product.title }}" class="w-full h-full object-cover">
+                                            </div>
+                                            {% else %}
+                                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-box text-gray-400 text-xl"></i>
+                                            </div>
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="font-medium text-gray-900">{{ item.product.title }}</h6>
+                                                <p class="text-sm text-gray-600">{{ item.product.category.name }}</p>
+                                                {% if item.notes %}
+                                                <p class="text-xs text-gray-500 mt-1">Notes: {{ item.notes }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="font-medium text-gray-900">Qty: {{ item.quantity }}</p>
+                                            {% if item.price %}
+                                            <p class="text-sm text-gray-600">KSh {{ item.price|floatformat:2 }} each</p>
+                                            <p class="font-semibold text-primary">KSh {{ item.get_total_price|floatformat:2 }} total</p>
+                                            {% else %}
+                                            <p class="text-sm text-gray-600">Price on Request</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if order.status == 'completed' %}
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Need support with these products?</span>
+                                        <a href="{% url 'contact' %}" class="text-primary hover:text-primary-dark transition-colors text-sm font-medium">
+                                            <i class="fas fa-headset mr-1"></i> Contact Support
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-8">
+                        <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-box text-2xl text-primary"></i>
+                        </div>
+                        <h4 class="text-lg font-bold mb-2">No Products Ordered Yet</h4>
+                        <p class="text-gray-600 mb-6">You haven't ordered any products yet.</p>
+                        <a href="{% url 'products' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">
+                            Browse Our Products
                         </a>
                     </div>
                     {% endif %}

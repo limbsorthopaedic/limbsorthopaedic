@@ -72,6 +72,10 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
         context['appointments'] = Appointment.objects.filter(user=self.request.user).order_by('-preferred_date')
         context['social_media'] = SocialMedia.objects.filter(is_active=True)
         
+        # Get user's orders and products
+        from products.models import Order
+        context['orders'] = Order.objects.filter(user=self.request.user).order_by('-created_at')
+        
         # Get active surveys with question counts
         context['available_surveys'] = Survey.objects.filter(is_active=True).annotate(
             question_count=Count('questions')

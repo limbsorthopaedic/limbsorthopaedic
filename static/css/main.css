@@ -333,8 +333,11 @@ p {
   display: block;
 }
 
-/* Blog Content Styling */
-.blog-content {
+/* Professional Content Styling for CKEditor (Products, Services, Blog) */
+.blog-content,
+.product-description,
+.service-description,
+.professional-content {
   line-height: 1.8;
   color: var(--gray-800);
   font-size: 1.05rem;
@@ -348,7 +351,25 @@ p {
 .blog-content h3,
 .blog-content h4,
 .blog-content h5,
-.blog-content h6 {
+.blog-content h6,
+.product-description h1,
+.product-description h2,
+.product-description h3,
+.product-description h4,
+.product-description h5,
+.product-description h6,
+.service-description h1,
+.service-description h2,
+.service-description h3,
+.service-description h4,
+.service-description h5,
+.service-description h6,
+.professional-content h1,
+.professional-content h2,
+.professional-content h3,
+.professional-content h4,
+.professional-content h5,
+.professional-content h6 {
   margin-top: 2em;
   margin-bottom: 0.75em;
   font-weight: 700;
@@ -362,28 +383,87 @@ p {
 .blog-content h3:first-child,
 .blog-content h4:first-child,
 .blog-content h5:first-child,
-.blog-content h6:first-child {
+.blog-content h6:first-child,
+.product-description h1:first-child,
+.product-description h2:first-child,
+.product-description h3:first-child,
+.product-description h4:first-child,
+.product-description h5:first-child,
+.product-description h6:first-child,
+.service-description h1:first-child,
+.service-description h2:first-child,
+.service-description h3:first-child,
+.service-description h4:first-child,
+.service-description h5:first-child,
+.service-description h6:first-child,
+.professional-content h1:first-child,
+.professional-content h2:first-child,
+.professional-content h3:first-child,
+.professional-content h4:first-child,
+.professional-content h5:first-child,
+.professional-content h6:first-child {
   margin-top: 0;
 }
 
-.blog-content h1 {
+.blog-content h1,
+.product-description h1,
+.service-description h1,
+.professional-content h1 {
   font-size: 2.25rem;
-  border-bottom: 2px solid var(--gray-200);
+  border-bottom: 3px solid var(--primary-color);
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
+  color: var(--primary-dark);
+  position: relative;
 }
 
-.blog-content h2 {
+.blog-content h1::before,
+.product-description h1::before,
+.service-description h1::before,
+.professional-content h1::before {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+}
+
+.blog-content h2,
+.product-description h2,
+.service-description h2,
+.professional-content h2 {
   font-size: 1.8rem;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 2px solid var(--primary-light);
   padding-bottom: 0.3rem;
   margin-bottom: 1rem;
   color: var(--primary-dark);
+  position: relative;
 }
 
-.blog-content h3 {
+.blog-content h2::before,
+.product-description h2::before,
+.service-description h2::before,
+.professional-content h2::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--primary-color);
+}
+
+.blog-content h3,
+.product-description h3,
+.service-description h3,
+.professional-content h3 {
   font-size: 1.5rem;
   color: var(--primary-dark);
+  border-left: 4px solid var(--primary-color);
+  padding-left: 1rem;
+  margin-left: -1rem;
 }
 
 .blog-content h4 {
@@ -427,9 +507,42 @@ p {
 }
 
 .blog-content strong,
-.blog-content b {
+.blog-content b,
+.product-description strong,
+.product-description b,
+.service-description strong,
+.service-description b,
+.professional-content strong,
+.professional-content b {
   font-weight: 700;
-  color: var(--gray-900);
+  color: var(--primary-dark);
+  background: linear-gradient(120deg, rgba(52, 189, 242, 0.1) 0%, rgba(52, 189, 242, 0.05) 100%);
+  padding: 0.1em 0.3em;
+  border-radius: 0.2em;
+}
+
+.blog-content em,
+.blog-content i,
+.product-description em,
+.product-description i,
+.service-description em,
+.service-description i,
+.professional-content em,
+.professional-content i {
+  font-style: italic;
+  color: var(--gray-700);
+}
+
+/* Highlighted text styling */
+.blog-content mark,
+.product-description mark,
+.service-description mark,
+.professional-content mark {
+  background: linear-gradient(120deg, var(--primary-light) 0%, rgba(52, 189, 242, 0.3) 100%);
+  padding: 0.2em 0.4em;
+  border-radius: 0.3em;
+  color: var(--primary-dark);
+  font-weight: 600;
 }
 
 .blog-content em,
@@ -438,23 +551,70 @@ p {
 }
 
 .blog-content ul,
-.blog-content ol {
+.blog-content ol,
+.product-description ul,
+.product-description ol,
+.service-description ul,
+.service-description ol,
+.professional-content ul,
+.professional-content ol {
   padding-left: 2rem;
   margin-top: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.blog-content ul {
-  list-style-type: disc;
+.blog-content ul,
+.product-description ul,
+.service-description ul,
+.professional-content ul {
+  list-style: none;
 }
 
-.blog-content ol {
+.blog-content ul li,
+.product-description ul li,
+.service-description ul li,
+.professional-content ul li {
+  position: relative;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.blog-content ul li::before,
+.product-description ul li::before,
+.service-description ul li::before,
+.professional-content ul li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.blog-content ol,
+.product-description ol,
+.service-description ol,
+.professional-content ol {
   list-style-type: decimal;
+  counter-reset: item;
 }
 
-.blog-content li {
+.blog-content ol li,
+.product-description ol li,
+.service-description ol li,
+.professional-content ol li {
   margin-bottom: 0.75rem;
   padding-left: 0.5rem;
+  position: relative;
+}
+
+.blog-content ol li::marker,
+.product-description ol li::marker,
+.service-description ol li::marker,
+.professional-content ol li::marker {
+  color: var(--primary-color);
+  font-weight: bold;
 }
 
 /* Search Suggestions Dropdown Styles */
@@ -693,16 +853,62 @@ p {
   margin-bottom: 1rem;
 }
 
-/* Special elements styling */
+/* Professional callout boxes */
 .blog-content .note,
 .blog-content .info,
 .blog-content .warning,
-.blog-content .tip {
-  padding: 1rem 1.5rem;
-  margin: 1.5rem 0;
-  border-radius: 0.5rem;
+.blog-content .tip,
+.product-description .note,
+.product-description .info,
+.product-description .warning,
+.product-description .tip,
+.service-description .note,
+.service-description .info,
+.service-description .warning,
+.service-description .tip,
+.professional-content .note,
+.professional-content .info,
+.professional-content .warning,
+.professional-content .tip {
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  border-radius: 0.75rem;
   position: relative;
-  padding-left: 3.5rem;
+  padding-left: 4rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-left: 6px solid;
+}
+
+/* Key features and benefits styling */
+.blog-content .key-feature,
+.product-description .key-feature,
+.service-description .key-feature,
+.professional-content .key-feature {
+  background: linear-gradient(135deg, rgba(52, 189, 242, 0.08) 0%, rgba(52, 189, 242, 0.03) 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.blog-content .key-feature::before,
+.product-description .key-feature::before,
+.service-description .key-feature::before,
+.professional-content .key-feature::before {
+  content: '★';
+  position: absolute;
+  top: -8px;
+  left: 1rem;
+  background: var(--primary-color);
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
 }
 
 .blog-content .note::before,
@@ -775,21 +981,35 @@ p {
     padding: 4rem 0;
   }
 
-  .blog-content {
+  .blog-content,
+  .product-description,
+  .service-description,
+  .professional-content {
     font-size: 1rem;
     padding: 0 0.5rem;
   }
 
-  .blog-content h1 {
+  .blog-content h1,
+  .product-description h1,
+  .service-description h1,
+  .professional-content h1 {
     font-size: 1.8rem;
   }
 
-  .blog-content h2 {
+  .blog-content h2,
+  .product-description h2,
+  .service-description h2,
+  .professional-content h2 {
     font-size: 1.5rem;
   }
 
-  .blog-content h3 {
+  .blog-content h3,
+  .product-description h3,
+  .service-description h3,
+  .professional-content h3 {
     font-size: 1.3rem;
+    margin-left: 0;
+    padding-left: 0.75rem;
   }
 
   .blog-content h4 {
@@ -836,6 +1056,70 @@ p {
     font-size: 20px;
     font-weight: bold;
     line-height: 1;
+}
+
+/* Professional Content Utility Classes */
+.content-highlight {
+  background: linear-gradient(120deg, rgba(52, 189, 242, 0.1) 0%, rgba(52, 189, 242, 0.05) 100%);
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid var(--primary-color);
+  margin: 1rem 0;
+}
+
+.content-badge {
+  display: inline-block;
+  background: var(--primary-color);
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.content-separator {
+  border: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  margin: 2rem 0;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.feature-card {
+  background: white;
+  border: 2px solid var(--primary-light);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(52, 189, 242, 0.1);
+  border-color: var(--primary-color);
+}
+
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: white;
+  font-size: 1.5rem;
 }
 
 /* Social Media Icons */
