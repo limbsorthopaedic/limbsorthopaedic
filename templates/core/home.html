@@ -1,0 +1,946 @@
+{% extends 'base.html' %}
+
+{% block title %}LIMBS Orthopaedic - Premier Orthopaedic Care in Nairobi, Kenya{% endblock %}
+{% block meta_description %}Leading orthopaedic facility in Nairobi, Kenya specializing in prosthetics, orthotic devices, Aeroplane splint, AFO, Arch support, Axillary crutch, Calcaneal spur insole, Cockup splint, Derotator Harness, Elbow conformer, Elbow crutch, bow legs, knock knees, Genu Varus, Genu Valgum, Hand resting splint, HKAFO, HTHKAFO, KAFO, Lateral and Medial wedges, Neck collar, Prosthetic Socket replacement, SMAFO, Spinal Brace, Wheelchair, Standing And Sitting AID, THKAFO, Transfemoral prosthesis, Transtibial Prosthesis, Walking crutches, GRAFO, and mobility aids. Professional care for independence and enhanced mobility.{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+
+{% block content %}
+<style>
+/* Hero Section Responsive Typography */
+.hero-slide h1 {
+    font-size: 3.5rem; /* 56px default */
+    line-height: 1.2;
+}
+
+.hero-slide h2 {
+    font-size: 2rem; /* 32px default */
+    line-height: 1.3;
+}
+
+/* Typing Animation */
+.typing-animation {
+    display: inline-block;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border-right: 3px solid rgba(255, 255, 255, 0.8);
+    animation: blink-caret 0.8s step-end infinite;
+    min-height: 1.3em;
+    max-width: 100%;
+    line-height: 1.4;
+}
+
+@keyframes blink-caret {
+    0%, 100% {
+        border-color: transparent;
+    }
+    50% {
+        border-color: rgba(255, 255, 255, 0.8);
+    }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .hero-slide h1 {
+        font-size: 2.75rem; /* 44px */
+    }
+    .hero-slide h2 {
+        font-size: 1.75rem; /* 28px */
+    }
+}
+
+/* Mobile Large */
+@media (max-width: 768px) {
+    .hero-slide h1 {
+        font-size: 2.25rem; /* 36px */
+    }
+    .hero-slide h2 {
+        font-size: 1.5rem; /* 24px */
+    }
+}
+
+/* Mobile Small */
+@media (max-width: 480px) {
+    .hero-slide h1 {
+        font-size: 1.875rem; /* 30px */
+    }
+    .hero-slide h2 {
+        font-size: 1.25rem; /* 20px */
+        line-height: 1.5;
+    }
+
+    .typing-animation {
+        animation: blink-caret 0.8s step-end infinite;
+        font-size: 1.125rem; /* 18px for better mobile readability */
+        line-height: 1.5;
+        word-break: break-word;
+    }
+    
+    .hero-slide .bg-black {
+        padding: 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .hero-slide h1 {
+        font-size: 1.5rem; /* 24px */
+    }
+    .hero-slide h2 {
+        font-size: 1.125rem; /* 18px */
+    }
+
+    .typing-animation {
+        font-size: 1rem; /* 16px */
+        line-height: 1.6;
+    }
+}
+</style>
+
+<!-- Hero Section - Carousel -->
+<section class="hero-carousel relative">
+    <div class="splide" id="hero-splide">
+        <div class="splide__track">
+            <ul class="splide__list">
+                {% if hero_slides %}
+                    {% for slide in hero_slides %}
+                    <li class="splide__slide">
+                        <div class="hero-slide relative" style="background-image: url('{{ slide.get_image }}'); background-size: cover; background-position: center;">
+                            <div class="hero-overlay"></div>
+                            <div class="container mx-auto px-4 py-16 md:py-24">
+                                <div class="max-w-4xl mx-auto text-center relative z-10">
+                                    <div class="bg-black bg-opacity-15 p-6 rounded-lg">
+                                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">{{ slide.title }}</h1>
+                                        <h2 class="text-xl md:text-2xl text-white mb-6 typing-animation" data-text="{{ slide.subtitle }}"></h2>
+                                        <div class="text-white mb-8">
+                                            {{ slide.content|linebreaks }}
+                                        </div>
+                                        <a href="/appointments/" class="btn-primary py-3 px-8 rounded-md text-lg hover:bg-primary-dark transition-colors inline-block">{{ slide.cta_text }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <!-- Default hero slide if no slides are defined -->
+                    <li class="splide__slide">
+                        <div class="hero-slide relative" style="background-image: url('https://i.imgur.com/miBt3Vd.jpg'); background-size: cover; background-position: center;">
+                            <div class="hero-overlay"></div>
+                            <div class="container mx-auto px-4 py-16 md:py-24">
+                                <div class="max-w-4xl mx-auto text-center relative z-10">
+                                    <div class="bg-black bg-opacity-15 p-6 rounded-lg">
+                                        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Welcome to LIMBS Orthopaedic</h1>
+                                        <h2 class="text-xl md:text-2xl text-white mb-6 typing-animation" data-text="Improving Mobility & Quality of Life for Kenyans from Kasarani, Nairobi."></h2>
+                                        <p class="text-white mb-4">
+                                            Limbs Orthopaedic Ltd is an orthopaedic rehabilitation medical clinic that deals with the provision of orthosis, prosthesis and rehabilitation aid in treatment of orthopaedic conditions.
+                                        </p>
+                                        <p class="text-white mb-8">
+                                            Discover our range of services—from custom-made prosthetic limbs to specialized footwear for diabetic patients—and join the community that's transforming lives one step at a time.
+                                        </p>
+                                        <a href="{% url 'appointment' %}" class="btn-primary py-3 px-8 rounded-md text-lg hover:bg-primary-dark transition-colors inline-block">Book an Appointment</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Initialize Hero Carousel -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Splide carousel
+    const splide = new Splide('#hero-splide', {
+        type: 'loop',
+        perPage: 1,
+        perMove: 1,
+        autoplay: true,
+        interval: 12000,
+        pauseOnHover: true,
+        arrows: true,
+        pagination: true,
+        lazyLoad: 'nearby',
+        height: 'auto',
+        cover: true,
+        breakpoints: {
+            640: {
+                arrows: false
+            }
+        }
+    });
+
+    // Typing animation class
+    class TypingAnimation {
+        constructor() {
+            this.activeAnimations = new Map();
+            this.isPageVisible = true;
+            
+            // Handle page visibility changes
+            document.addEventListener('visibilitychange', () => {
+                this.isPageVisible = !document.hidden;
+            });
+        }
+
+        startTyping(element, text, delay = 1200) {
+            if (!element || !text) return;
+            
+            // Clear any existing animation for this element
+            this.stopTyping(element);
+            
+            // Clear element content and ensure cursor is visible
+            element.textContent = '';
+            element.style.borderRight = '3px solid rgba(255, 255, 255, 0.8)';
+            
+            const animationData = {
+                element: element,
+                text: text,
+                currentIndex: 0,
+                isComplete: false
+            };
+            
+            this.activeAnimations.set(element, animationData);
+            
+            // Start typing after delay
+            setTimeout(() => {
+                if (this.activeAnimations.has(element) && this.isPageVisible) {
+                    this.typeCharacter(animationData);
+                }
+            }, delay);
+        }
+
+        typeCharacter(animationData) {
+            const { element, text } = animationData;
+            
+            if (!this.activeAnimations.has(element) || !this.isPageVisible) {
+                return;
+            }
+
+            if (animationData.currentIndex < text.length) {
+                // Add next character
+                element.textContent = text.substring(0, animationData.currentIndex + 1);
+                animationData.currentIndex++;
+                
+                // Continue typing next character
+                setTimeout(() => {
+                    if (this.activeAnimations.has(element)) {
+                        this.typeCharacter(animationData);
+                    }
+                }, 70); // 70ms per character for smooth typing
+            } else {
+                // Typing complete - mark as finished
+                animationData.isComplete = true;
+            }
+        }
+
+        stopTyping(element) {
+            if (this.activeAnimations.has(element)) {
+                this.activeAnimations.delete(element);
+            }
+        }
+
+        resetAllAnimations() {
+            // Stop all current animations
+            this.activeAnimations.clear();
+        }
+
+        startVisibleAnimation() {
+            // Find the currently visible slide and start its typing animation
+            const activeSlide = document.querySelector('.splide__slide.is-active, .splide__slide.is-visible');
+            if (activeSlide) {
+                const typingElement = activeSlide.querySelector('.typing-animation');
+                if (typingElement) {
+                    const text = typingElement.getAttribute('data-text');
+                    if (text) {
+                        this.startTyping(typingElement, text, 1200);
+                    }
+                }
+            }
+        }
+    }
+
+    // Initialize typing animation
+    const typingAnimator = new TypingAnimation();
+
+    // Mount Splide and set up event listeners
+    splide.mount();
+
+    // Start initial animation for the first slide
+    setTimeout(() => {
+        typingAnimator.startVisibleAnimation();
+    }, 100);
+
+    // Handle slide changes
+    splide.on('moved', function(newIndex, prevIndex) {
+        // Reset all animations when slide changes
+        typingAnimator.resetAllAnimations();
+        
+        // Start new animation for the current slide after a short delay
+        setTimeout(() => {
+            const currentSlide = splide.Components.Slides.getAt(newIndex);
+            if (currentSlide) {
+                const typingElement = currentSlide.slide.querySelector('.typing-animation');
+                if (typingElement) {
+                    const text = typingElement.getAttribute('data-text');
+                    if (text) {
+                        typingAnimator.startTyping(typingElement, text, 800);
+                    }
+                }
+            }
+        }, 200);
+    });
+
+    // Handle when carousel is destroyed/recreated
+    splide.on('destroy', function() {
+        typingAnimator.resetAllAnimations();
+    });
+
+    // Restart animations when page becomes visible again
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            setTimeout(() => {
+                typingAnimator.startVisibleAnimation();
+            }, 500);
+        }
+    });
+
+    // Handle window resize - restart current animation
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            typingAnimator.startVisibleAnimation();
+        }, 300);
+    });
+});
+</script>
+
+<!-- Hero section styles -->
+<style>
+.hero-carousel {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.hero-slide {
+    height: calc(100vh - 80px);
+    min-height: 500px;
+    max-height: 800px;
+    width: 100vw !important;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.25); /* Updated opacity for full slide overlay */
+}
+
+.splide__track {
+    overflow: hidden !important;
+}
+
+@media (max-width: 768px) {
+    .hero-slide {
+        height: calc(100vh - 60px);
+        min-height: 600px;
+    }
+
+    .hero-slide .bg-black {
+        overflow-y: auto;
+        max-height: 85vh;
+        margin: 0 10px;
+    }
+
+    .splide__arrow {
+        display: none !important;
+    }
+}
+</style>
+
+<!-- About Us Section (Short) -->
+<section class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">About Us</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+
+        <div class="md:flex items-center">
+            <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8">
+                <img src="https://i.imgur.com/V6XTdBi.jpg" alt="LIMBS Orthopaedic Team" class="rounded-lg shadow-xl w-full">
+            </div>
+            <div class="md:w-1/2 md:pl-8">
+                <h3 class="text-2xl font-bold mb-4 text-primary">Our Detailed Information</h3>
+                <p class="mb-4">
+                    Limbs Orthopaedic Ltd is an orthopaedic rehabilitation medical clinic that deals with the provision of orthosis, prosthesis and rehabilitation aid in treatment of orthopaedic conditions.
+                </p>
+                <p class="mb-6">
+                    We also offer Physiotherapy and Management of orthopaedic trauma cases. It was established in the year 2018 in Nairobi as sole proprietor, due to patient influx there was need for expansion of healthcare service and therefore in the year 2021 it was incorporated under the company act of Kenya as privately owned limited company.
+                </p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="bg-gray-50 p-4 rounded-lg shadow">
+                        <div class="text-primary text-3xl font-bold">4+</div>
+                        <div class="text-gray-600">Years Experience</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow">
+                        <div class="text-primary text-3xl font-bold">2,450+</div>
+                        <div class="text-gray-600">Happy Patients</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow">
+                        <div class="text-primary text-3xl font-bold">6</div>
+                        <div class="text-gray-600">Specialists</div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow">
+                        <div class="text-primary text-3xl font-bold">20+</div>
+                        <div class="text-gray-600">Services</div>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <a href="{% url 'about' %}" class="btn-outline py-2 px-6 rounded-md hover:text-white transition-colors inline-block">Learn More About Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Frequently Asked Questions</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="max-w-3xl mx-auto text-gray-600">
+                Find answers to common questions about our services, procedures, and care approach.
+            </p>
+        </div>
+
+        <div class="max-w-3xl mx-auto">
+            <div class="faq-container">
+                <!-- FAQ Item 1 -->
+                <div class="faq-card active" id="faq-1">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">1.</span> What types of prosthetic services do you offer?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                We offer a comprehensive range of prosthetic services including upper and lower limb prosthetics, custom-designed prosthetic limbs, activity-specific prosthetics for sports and recreation, and advanced prosthetic technologies like microprocessor knees and myoelectric hands.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-2">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="faq-card hidden" id="faq-2">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">2.</span> How long does it take to get fitted for a prosthetic limb?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                The fitting process typically takes 4-6 weeks from initial consultation to final delivery. This includes measurement sessions, test fittings, and adjustments to ensure optimal comfort and function. Complex cases may require additional time, while simpler devices can sometimes be completed more quickly.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-3">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="faq-card hidden" id="faq-3">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">3.</span> What are orthotic devices, and how do they help?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                Orthotic devices are external supports applied to the body to improve function, restrict or assist movement, reduce pain, or correct deformities. They include braces, splints, and specialized footwear. These devices can help manage conditions like foot drop, scoliosis, arthritis, and sports injuries by providing stability and proper alignment.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-4">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="faq-card hidden" id="faq-4">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">4.</span> Are your services covered by insurance?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                As a Private Limited Clinic, our services are not covered by insurance. We offer various payment options and flexible payment plans to help make our services more accessible. Our administrative team can discuss available payment options and help create a payment plan that works for you.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-5">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="faq-card hidden" id="faq-5">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">5.</span> How long do prosthetic limbs last?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                Prosthetic limbs typically last 3-5 years with proper care and maintenance. Factors affecting lifespan include activity level, body changes, growth (for pediatric patients), and general wear and tear. Components like sockets may need replacement more frequently than structural components. We provide regular maintenance services to extend the life of your prosthetic.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-6">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="faq-card hidden" id="faq-6">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">6.</span> Do you offer services for pediatric patients?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                Yes, we have specialized pediatric orthopaedic services for children of all ages. Our pediatric team understands the unique challenges of treating growing children and creates devices that can be adjusted as they develop. We provide supportive care for conditions like clubfoot, limb differences, scoliosis, and developmental issues.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-7">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 7 -->
+                <div class="faq-card hidden" id="faq-7">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">7.</span> What specialized footwear options do you provide?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                We offer custom diabetic footwear, therapeutic shoes for arthritis and foot deformities, orthopedic inserts and arch supports, post-surgical footwear, and sports-specific orthotics. Each option is designed to address specific conditions while ensuring comfort and reducing risk of injury or complication.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-8">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 8 -->
+                <div class="faq-card hidden" id="faq-8">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">8.</span> What should I expect during my first appointment?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                Your first appointment will include a comprehensive evaluation of your condition, medical history review, physical assessment, discussion of goals and expectations, and explanation of treatment options. We may take measurements, photographs, or casts if needed. The initial consultation typically lasts 60-90 minutes, allowing time for questions and concerns.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-9">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 9 -->
+                <div class="faq-card hidden" id="faq-9">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">9.</span> Do you provide rehabilitation services with prosthetic fittings?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                Yes, we offer comprehensive rehabilitation programs tailored to help patients adapt to their new prosthetic devices. This includes gait training, balance exercises, strength building, and daily living skills. Our physical therapists work closely with prosthetists to ensure optimal comfort and function through the adaptation process.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-10">
+                                    Read Next <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 10 -->
+                <div class="faq-card hidden" id="faq-10">
+                    <div class="p-6 bg-white rounded-lg shadow-sm">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold text-gray-800"><span class="text-primary text-2xl font-bold mr-2">10.</span> How do I care for my prosthetic or orthotic device?</h3>
+                        </div>
+                        <div class="faq-content">
+                            <p class="text-gray-600 mb-4">
+                                Proper care includes daily cleaning with mild soap and water, regular socket hygiene, keeping devices dry, checking for wear and damage, avoiding extreme temperatures, following weight limits, scheduling regular maintenance checks, and contacting us immediately if you experience discomfort or fit issues. We provide detailed care instructions specific to your device.
+                            </p>
+                            <div class="text-right">
+                                <button class="next-faq inline-flex items-center text-primary hover:text-primary-dark font-medium" data-target="faq-1">
+                                    Back to First <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Services -->
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Our Services</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="max-w-3xl mx-auto text-gray-600">
+                We offer a comprehensive range of prosthetic and orthotic solutions tailored to meet the unique needs of each patient.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for service in featured_services %}
+            <div class="card hover:shadow-lg bg-white">
+                {% if service.get_image %}
+                <img src="{{ service.get_image }}" alt="{{ service.title }}" class="card-img h-48 w-full object-cover">
+                {% else %}
+                <div class="bg-gray-200 h-48 flex items-center justify-center">
+                    <i class="{{ service.icon_class|default:'fas fa-medkit' }} text-5xl text-primary"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-3">{{ service.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ service.description|truncatewords:20 }}</p>
+                    <div class="flex justify-between items-center">
+                        <a href="{{ service.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                            Learn More <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                        </a>
+                        <button class="whatsapp-btn text-sm px-3 py-1" 
+                                data-phone="254719628276"
+                                data-service="{{ service.title }}"
+                                data-url="{{ service.get_absolute_url }}">
+                            <i class="fab fa-whatsapp"></i> Inquire
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="lg:col-span-3 text-center py-8">
+                <p class="text-gray-500">Our featured services will be available soon.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-10">
+            <a href="{% url 'services' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">View All Services</a>
+        </div>
+    </div>
+</section>
+
+<!-- Our Products -->
+<section class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Our Products</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="max-w-3xl mx-auto text-gray-600">
+                Discover our range of high-quality orthopaedic products designed to enhance comfort, mobility, and independence.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <div class="card hover:shadow-lg bg-white">
+                {% if product.get_image %}
+                <img src="{{ product.get_image }}" alt="{{ product.title }}" class="card-img h-48 w-full object-cover">
+                {% else %}
+                <div class="bg-gray-200 h-48 flex items-center justify-center">
+                    <i class="fas fa-box-open text-5xl text-primary"></i>
+                </div>
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="text-lg font-bold mb-2">{{ product.title }}</h3>
+                    <p class="text-gray-500 text-sm mb-2">{{ product.formatted_price }}</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <a href="{{ product.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors text-sm">
+                            View Details
+                        </a>
+                        <button class="whatsapp-btn text-sm px-3 py-1" 
+                                data-phone="254719628276"
+                                data-message="{{ product.whatsapp_message }}">
+                            <i class="fab fa-whatsapp"></i> Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="lg:col-span-4 text-center py-8">
+                <p class="text-gray-500">Our featured products will be available soon.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-10">
+            <a href="{% url 'products' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Our Blog -->
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Latest Articles</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="max-w-3xl mx-auto text-gray-600">
+                Stay informed with the latest news, information, and insights about orthopaedic care.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for post in recent_blogs %}
+            <div class="card hover:shadow-lg bg-white">
+                {% if post.get_image %}
+                <img src="{{ post.get_image }}" alt="{{ post.title }}" class="card-img h-48 w-full object-cover">
+                {% elif post.featured_image_url %}
+                <img src="{{ post.featured_image_url }}" alt="{{ post.title }}" class="card-img h-48 w-full object-cover">
+                {% else %}
+                <div class="bg-gray-200 h-48 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-5xl text-primary"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <div class="flex items-center mb-3 text-sm text-gray-500">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>{{ post.published_date|date:"F d, Y" }}</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">{{ post.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ post.summary|truncatewords:15 }}</p>
+                    <a href="{{ post.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                        Read More <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="md:col-span-3 text-center py-8">
+                <p class="text-gray-500">New blog posts will be available soon.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-10">
+            <a href="{% url 'blog' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">View All Articles</a>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Why Choose Us?</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-md text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Experienced Professionals</h3>
+                <p class="text-gray-600">
+                    Our team consists of highly qualified specialists with years of experience in orthopaedic care.
+                </p>
+            </div>
+
+            <div class="text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-cogs text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Custom Solutions</h3>
+                <p class="text-gray-600">
+                    We provide personalized treatment plans and custom-made devices tailored to each patient's unique needs.
+                </p>
+            </div>
+
+            <div class="text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-heart text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Patient-First Care</h3>
+                <p class="text-gray-600">
+                    We prioritize patient comfort, dignity, and well-being throughout the treatment process.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">What Our Patients Say</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+
+        <div class="max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {% for testimonial in testimonials|slice:":4" %}
+                <div class="testimonial-card">
+                    <div class="flex items-center mb-6">
+                    {% if testimonial.get_image %}
+                    <img src="{{ testimonial.get_image }}" alt="{{ testimonial.name }}" class="w-12 h-12 rounded-full mr-4 object-cover">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full bg-primary-light text-primary flex items-center justify-center mr-4">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="font-bold">{{ testimonial.name }}</p>
+                        {% if testimonial.title %}
+                        <p class="text-sm text-gray-500">{{ testimonial.title }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="testimonial-rating mb-4">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= testimonial.rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <p class="italic text-gray-700">"{{ testimonial.content|truncatewords:30 }}"</p>
+                </div>
+                {% empty %}
+                <div class="md:col-span-2 text-center py-8">
+                    <p class="text-gray-500">Testimonials will be available soon.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-10">
+                <a href="{% url 'testimonials' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">View All Testimonials</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact & Location -->
+<section class="py-12 md:py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Find Us</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+                <h3 class="text-2xl font-bold mb-6">Contact Information</h3>
+
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start">
+                        <div class="bg-primary-light bg-opacity-20 w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Address</h4>
+                            <p class="text-gray-600">ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="bg-primary-light bg-opacity-20 w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-phone-alt text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Phone</h4>
+                            <p class="text-gray-600"><a href="tel:+254719628276" class="hover:text-primary transition-colors">+254 719 628 276</a></p>
+                            <p class="text-gray-600"><a href="tel:+254714663594" class="hover:text-primary transition-colors">+254 714 663 594</a></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="bg-primary-light bg-opacity-20 w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-envelope text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Email</h4>
+                            <p class="text-gray-600"><a href="mailto:LimbsOrthopaedic@gmail.com" class="hover:text-primary transition-colors">LimbsOrthopaedic@gmail.com</a></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <div class="bg-primary-light bg-opacity-20 w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-clock text-primary"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold">Hours</h4>
+                            <p class="text-gray-600">Monday - Friday: 8:00 AM - 5:00 PM</p>
+                            <p class="text-gray-600">Saturday: 9:00 AM - 1:00 PM</p>
+                            <p class="text-gray-600">Sunday: Closed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <a href="{% url 'contact' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">Contact Us</a>
+                    <a href="{% url 'appointment' %}" class="btn-outline py-2 px-6 rounded-md hover:text-white transition-colors">Book an Appointment</a>
+                </div>
+            </div>
+
+            <div>
+                <div class="h-96 w-full rounded-lg shadow-md bg-gray-100 p-6 flex flex-col items-center justify-center">
+                    <div class="text-5xl text-primary mb-6">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Find Us In Kasarani</h3>
+                    <p class="text-gray-600 mb-6 text-center">
+                        LIMBS Orthopaedic is located in ICIPE Road, Kasarani, Nairobi, Kenya.<br>
+                        We're easily accessible and ready to welcome you!
+                    </p>
+                    <a href="https://maps.app.goo.gl/nGq6tDea9xBby4m49" target="_blank" class="btn-primary py-3 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">
+                        <i class="fas fa-directions mr-2"></i> Get Directions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

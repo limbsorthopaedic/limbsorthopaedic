@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}Get in touch with LIMBS Orthopaedic for appointments, inquiries, or feedback. We're here to answer your questions and help with your orthopaedic needs.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
+            <p class="text-xl mb-6">
+                We're here to answer your questions and help you get the care you need.
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Information -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-map-marker-alt text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Our Location</h3>
+                <p class="text-gray-600 mb-4">
+                    ICIPE Road, Kasarani, Nairobi, Kenya
+                </p>
+                <a href="https://maps.app.goo.gl/nGq6tDea9xBby4m49" target="_blank" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                    Get Directions <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                </a>
+            </div>
+            
+            <div class="text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-phone-alt text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Phone & WhatsApp</h3>
+                <p class="text-gray-600 mb-2">
+                    <a href="tel:+254719628276" class="hover:text-primary transition-colors">+254 719 628 276</a>
+                </p>
+                <p class="text-gray-600 mb-2">
+                    <a href="tel:+254714663594" class="hover:text-primary transition-colors">+254 714 663 594</a>
+                </p>
+                <p class="text-gray-600 mb-4">
+                    <a href="tel:+254705347657" class="hover:text-primary transition-colors">+254 705 347 657 (Office)</a>
+                </p>
+                <a href="https://wa.me/254719628276" target="_blank" class="whatsapp-btn inline-block">
+                    <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                </a>
+            </div>
+            
+            <div class="text-center p-6 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-envelope text-2xl text-primary"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Email</h3>
+                <p class="text-gray-600 mb-4">
+                    <a href="mailto:LimbsOrthopaedic@gmail.com" class="hover:text-primary transition-colors">LimbsOrthopaedic@gmail.com</a>
+                </p>
+                <p class="text-gray-500">
+                    We'll respond as soon as possible
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form and Map -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Contact Form -->
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-6 gradient-heading">Send Us a Message</h2>
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <div>
+                            <label for="{{ form.name.id_for_label }}" class="block text-gray-700 font-medium mb-2">Your Name*</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.email.id_for_label }}" class="block text-gray-700 font-medium mb-2">Your Email*</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.phone.id_for_label }}" class="block text-gray-700 font-medium mb-2">Your Phone*</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.subject.id_for_label }}" class="block text-gray-700 font-medium mb-2">Subject*</label>
+                            {{ form.subject }}
+                            {% if form.subject.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.subject.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.message.id_for_label }}" class="block text-gray-700 font-medium mb-2">Your Message*</label>
+                            {{ form.message }}
+                            {% if form.message.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ form.message.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <button type="submit" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                                Send Message <i class="fas fa-paper-plane ml-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Map -->
+                <div>
+                    <h2 class="text-2xl font-bold mb-6 gradient-heading">Find Us</h2>
+                    
+                    <div class="h-80 w-full rounded-lg shadow-md mb-6 bg-gray-100 p-4 flex flex-col items-center justify-center">
+                        <div class="text-5xl text-primary mb-4">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">LIMBS Orthopaedic</h3>
+                        <p class="text-gray-600 mb-4">ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                        <a href="https://maps.app.goo.gl/nGq6tDea9xBby4m49" target="_blank" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors inline-block">
+                            <i class="fas fa-map-marker-alt mr-2"></i> Open in Google Maps
+                        </a>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-4">Business Hours</h3>
+                        
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="font-medium">Monday - Friday</span>
+                                <span>8:00 AM - 5:00 PM</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">Saturday</span>
+                                <span>9:00 AM - 1:00 PM</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-medium">Sunday</span>
+                                <span>Closed</span>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p class="mb-4">Need urgent assistance?</p>
+                            <a href="{% url 'appointment' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors inline-block">Book an Appointment</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-12 bg-primary bg-gradient-to-r from-primary to-primary-dark text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Connect With Us on Social Media</h2>
+        <p class="text-xl mb-8 max-w-3xl mx-auto">
+            Follow us for the latest updates, news, and information about our services.
+        </p>
+        
+        <div class="flex justify-center flex-wrap">
+            {% for social in social_media %}
+            <a href="{{ social.url }}" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="{{ social.platform }}">
+                <i class="{{ social.icon_class }}"></i>
+            </a>
+            {% empty %}
+            <!-- Default social media icons if none are in the database -->
+            <a href="https://www.facebook.com/limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://www.instagram.com/limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/LimpbsOrth" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="X (Twitter)">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

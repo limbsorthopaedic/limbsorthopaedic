@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Dashboard | LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+
+<!-- Doctor Dashboard Section -->
+<section class="bg-gray-50 py-10">
+    <div class="container mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Dashboard Header -->
+            <div class="bg-blue-600 text-white p-6 flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div class="mr-4">
+                        {% if doctor.profile_image %}
+                            <img src="{{ doctor.profile_image.url }}" alt="{{ doctor.user.get_full_name }}" class="w-16 h-16 rounded-full object-cover border-2 border-white">
+                        {% elif doctor.profile_image_url %}
+                            <img src="{{ doctor.profile_image_url }}" alt="{{ doctor.user.get_full_name }}" class="w-16 h-16 rounded-full object-cover border-2 border-white">
+                        {% else %}
+                            <div class="w-16 h-16 rounded-full bg-blue-700 flex items-center justify-center text-white text-2xl font-bold">
+                                {{ doctor.user.first_name|first }}{{ doctor.user.last_name|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Welcome, Dr. {{ doctor.user.get_full_name }}</h1>
+                        <p class="text-blue-100">{{ doctor.specialty }} | {% if doctor.gender %}{{ doctor.get_gender_display }}{% endif %}</p>
+                    </div>
+                </div>
+                <a href="{% url 'doctor_profile' %}" class="bg-white text-blue-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-md transition duration-300">
+                    Edit Profile
+                </a>
+            </div>
+            
+            <!-- Dashboard Stats -->
+            <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-blue-50 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Upcoming Appointments</p>
+                            <h4 class="text-3xl font-bold text-blue-800">{{ upcoming_appointments.count }}</h4>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Completed</p>
+                            <h4 class="text-3xl font-bold text-green-800">{{ completed_appointments.count }}</h4>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-purple-50 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Office</p>
+                            <h4 class="text-xl font-bold text-purple-800">{{ doctor.office_location|default:"Not set" }}</h4>
+                        </div>
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="{% url 'staff_chat:staff_chat' %}" class="bg-yellow-50 rounded-lg p-6 shadow-sm hover:bg-yellow-100 transition duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Staff Chat</p>
+                            <h4 class="text-xl font-bold text-yellow-800">Communication</h4>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Appointment Table -->
+            <div class="p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Upcoming Appointments</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Patient
+                                </th>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Service
+                                </th>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Date & Time
+                                </th>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Notes
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for appointment in upcoming_appointments %}
+                                <tr>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ appointment.full_name }}</div>
+                                                <div class="text-sm text-gray-500">{{ appointment.email }}</div>
+                                                <div class="text-sm text-gray-500">{{ appointment.phone }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">
+                                            {% if appointment.service %}
+                                                {{ appointment.service.title }}
+                                            {% elif appointment.other_service %}
+                                                {{ appointment.other_service }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ appointment.preferred_date|date:"M d, Y" }}</div>
+                                        <div class="text-sm text-gray-500">{{ appointment.preferred_time|time:"g:i A" }}</div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        {% if appointment.status == 'pending' %}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Pending
+                                            </span>
+                                        {% elif appointment.status == 'confirmed' %}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Confirmed
+                                            </span>
+                                        {% elif appointment.status == 'completed' %}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                Completed
+                                            </span>
+                                        {% elif appointment.status == 'cancelled' %}
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Cancelled
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="py-4 px-4">
+                                        <div class="text-sm text-gray-900">
+                                            {% if appointment.notes %}
+                                                {{ appointment.notes|truncatechars:50 }}
+                                            {% else %}
+                                                No notes
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="py-4 px-4 text-center text-gray-500">
+                                        No upcoming appointments
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Completed Appointments -->
+            <div class="p-6 border-t border-gray-200">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Recently Completed Appointments</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Patient
+                                </th>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Service
+                                </th>
+                                <th class="py-3 px-4 bg-gray-100 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                    Date & Time
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            {% for appointment in completed_appointments|slice:":5" %}
+                                <tr>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ appointment.full_name }}</div>
+                                                <div class="text-sm text-gray-500">{{ appointment.email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">
+                                            {% if appointment.service %}
+                                                {{ appointment.service.title }}
+                                            {% elif appointment.other_service %}
+                                                {{ appointment.other_service }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900">{{ appointment.preferred_date|date:"M d, Y" }}</div>
+                                        <div class="text-sm text-gray-500">{{ appointment.preferred_time|time:"g:i A" }}</div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="py-4 px-4 text-center text-gray-500">
+                                        No completed appointments
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

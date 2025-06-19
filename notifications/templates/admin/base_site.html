@@ -1,0 +1,115 @@
+{% extends "jazzmin/base.html" %}
+{% load i18n static notification_tags %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="{% static 'js/admin_notifications.js' %}"></script>
+{% endblock %}
+
+{% block userlinks %}
+    {% if user.is_authenticated and user.is_staff %}
+        <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell"></i>
+                {% with count=unread_notifications_count %}
+                    {% if count > 0 %}
+                        <span class="badge badge-danger navbar-badge notification-badge">{{ count }}</span>
+                    {% endif %}
+                {% endwith %}
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" style="width: 350px; max-height: 500px; overflow-y: auto;">
+                <span class="dropdown-header">Notifications</span>
+                <div class="dropdown-divider"></div>
+                
+                {% if unread_notifications_count > 0 %}
+                    <a href="#" id="mark-all-notifications-read" class="dropdown-item dropdown-footer text-center">
+                        <i class="fas fa-check-circle"></i> Mark All as Read
+                    </a>
+                    <div class="dropdown-divider"></div>
+                {% endif %}
+                
+                <div id="notifications-container">
+                    <!-- This would be populated with actual notifications from the database -->
+                    {% comment %}
+                    {% for notification in notifications %}
+                        <div class="dropdown-item notification-item {% if notification.is_read %}read{% endif %}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="{{ notification.category.icon }} mr-2"></i>
+                                    <span>{{ notification.message }}</span>
+                                </div>
+                                {% if not notification.is_read %}
+                                    <button class="btn btn-sm btn-outline-primary mark-notification-read" 
+                                            data-notification-id="{{ notification.id }}">
+                                        Mark Read
+                                    </button>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <span>{{ notification.created_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <span class="dropdown-item text-center">No notifications</span>
+                    {% endfor %}
+                    {% endcomment %}
+                    
+                    <!-- Placeholder notifications for testing -->
+                    <div class="dropdown-item notification-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-calendar-alt mr-2"></i>
+                                <span>New appointment: John Doe - April 12, 2025</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary mark-notification-read" 
+                                    data-notification-id="1">
+                                Mark Read
+                            </button>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            <span>Apr 10, 2025 10:25</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown-item notification-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-comment mr-2"></i>
+                                <span>New blog comment from Sarah on "Latest Prosthetics"</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary mark-notification-read" 
+                                    data-notification-id="2">
+                                Mark Read
+                            </button>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            <span>Apr 9, 2025 15:40</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown-item notification-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-star mr-2"></i>
+                                <span>New 5-star testimonial from Michael K.</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary mark-notification-read" 
+                                    data-notification-id="3">
+                                Mark Read
+                            </button>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            <span>Apr 9, 2025 11:15</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dropdown-divider"></div>
+                <a href="{% url 'admin:notifications_notification_changelist' %}" class="dropdown-item dropdown-footer">
+                    See All Notifications
+                </a>
+            </div>
+        </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

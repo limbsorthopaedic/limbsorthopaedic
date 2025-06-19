@@ -1,0 +1,46 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}Preview Email - {{ email_obj.title }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:accounts_customemail_changelist' %}">Custom emails</a>
+    &rsaquo; Preview
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Email Preview: {{ email_obj.title }}</h1>
+
+<div class="module aligned">
+    <h2>Email Details</h2>
+    <div class="form-row">
+        <div><strong>Subject:</strong> {{ email_obj.subject }}</div>
+    </div>
+    <div class="form-row">
+        <div><strong>From:</strong> {{ email_obj.sender_name }} &lt;{{ email_obj.sender_email }}&gt;</div>
+    </div>
+    <div class="form-row">
+        <div><strong>Status:</strong> {{ email_obj.status|capfirst }}</div>
+    </div>
+</div>
+
+<div class="module aligned">
+    <h2>Email Content Preview</h2>
+    <div style="border: 1px solid #ddd; padding: 20px; background-color: #f9f9f9; max-height: 600px; overflow-y: auto;">
+        {{ html_content|safe }}
+    </div>
+</div>
+
+<div class="submit-row">
+    <a href="{% url 'admin:accounts_customemail_change' email_obj.pk %}" class="button">Edit Email</a>
+    <a href="{% url 'admin:accounts_customemail_changelist' %}" class="button cancel-link">Back to List</a>
+    {% if email_obj.status == 'draft' %}
+        <a href="{% url 'admin:accounts_customemail_send' email_obj.pk %}" class="button default" style="background-color: #0073aa;">Send Email</a>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}Log in to your LIMBS Orthopaedic account to manage your appointments, view your treatment history, and access personalized services.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl font-bold mb-6">Log In</h1>
+            <p class="text-xl mb-6">
+                Access your LIMBS Orthopaedic account
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Login Form -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-md mx-auto">
+            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                        <p class="font-bold">Please correct the errors below:</p>
+                        {% for field in form %}
+                            {% if field.errors %}
+                            <p>{{ field.label }}: {{ field.errors|striptags }}</p>
+                            {% endif %}
+                        {% endfor %}
+                        {% if form.non_field_errors %}
+                        <p>{{ form.non_field_errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <label for="{{ form.username.id_for_label }}" class="block text-gray-700 font-medium mb-2">Username</label>
+                        {{ form.username }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.password.id_for_label }}" class="block text-gray-700 font-medium mb-2">Password</label>
+                        {{ form.password }}
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-primary focus:ring-primary-dark border-gray-300 rounded">
+                            <label for="remember_me" class="ml-2 block text-sm text-gray-700">
+                                Remember me
+                            </label>
+                        </div>
+                        <div class="text-sm">
+                            <a href="{% url 'password_reset' %}" class="text-primary hover:text-primary-dark transition-colors">
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="hidden" name="next" value="{{ next }}">
+                        <button type="submit" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                            Log In
+                        </button>
+                    </div>
+
+                    <div class="text-center text-gray-600">
+                        <p>Don't have an account? <a href="{% url 'register' %}" class="text-primary hover:text-primary-dark transition-colors font-medium">Register</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center mt-8">
+                <a href="{% url 'home' %}" class="text-gray-600 hover:text-primary transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl font-bold mb-4 gradient-heading">Benefits of Having an Account</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="far fa-calendar-check text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Manage Appointments</h3>
+                    <p class="text-gray-600">
+                        View your upcoming appointments and access your appointment history.
+                    </p>
+                </div>
+
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-md text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Personalized Care</h3>
+                    <p class="text-gray-600">
+                        Track your treatment progress and receive personalized care recommendations.
+                    </p>
+                </div>
+
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                    <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-clipboard-list text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Faster Booking</h3>
+                    <p class="text-gray-600">
+                        Streamlined appointment booking with your pre-filled information.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

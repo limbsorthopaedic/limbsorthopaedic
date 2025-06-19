@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Placed Successfully - LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-3xl mx-auto text-center">
+        <!-- Success Icon -->
+        <div class="mb-8">
+            <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-check-circle text-4xl text-green-600"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Order Placed Successfully!</h1>
+            <p class="text-lg text-gray-600 mb-6">
+                Thank you for your order. We have received your request and will contact you shortly.
+            </p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Order Details</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                <div>
+                    <span class="text-gray-600 font-medium">Order Number:</span>
+                    <div class="text-lg font-bold text-primary">{{ order.order_number }}</div>
+                </div>
+                <div>
+                    <span class="text-gray-600 font-medium">Order Date:</span>
+                    <div class="text-lg">{{ order.created_at|date:"F d, Y g:i A" }}</div>
+                </div>
+                <div>
+                    <span class="text-gray-600 font-medium">Customer:</span>
+                    <div class="text-lg">{{ order.customer_name }}</div>
+                </div>
+                <div>
+                    <span class="text-gray-600 font-medium">Email:</span>
+                    <div class="text-lg">{{ order.customer_email }}</div>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium">Total Items:</span>
+                    <span class="text-lg font-bold">{{ order.items.count }}</span>
+                </div>
+                {% if order.total_amount > 0 %}
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-lg font-medium">Total Amount:</span>
+                    <span class="text-xl font-bold text-primary">KSh {{ order.total_amount|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-bold text-blue-800 mb-3">What Happens Next?</h3>
+            <div class="text-left space-y-2 text-blue-700">
+                <div class="flex items-start">
+                    <i class="fas fa-phone text-blue-600 mt-1 mr-3"></i>
+                    <span>Our orthopaedic specialists will contact you within 24-48 hours</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-user-md text-blue-600 mt-1 mr-3"></i>
+                    <span>We'll discuss your specific requirements and medical needs</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-calendar-alt text-blue-600 mt-1 mr-3"></i>
+                    <span>Schedule a fitting appointment if needed</span>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-money-bill-wave text-blue-600 mt-1 mr-3"></i>
+                    <span>Provide detailed pricing and payment options</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-bold mb-3">Questions About Your Order?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div>
+                    <i class="fas fa-phone text-primary text-2xl mb-2"></i>
+                    <div class="text-sm text-gray-600">Call Us</div>
+                    <div class="font-bold">+254 719 628 276</div>
+                </div>
+                <div>
+                    <i class="fas fa-envelope text-primary text-2xl mb-2"></i>
+                    <div class="text-sm text-gray-600">Email Us</div>
+                    <div class="font-bold">limbsorthopaedic@gmail.com</div>
+                </div>
+                <div>
+                    <i class="fab fa-whatsapp text-primary text-2xl mb-2"></i>
+                    <div class="text-sm text-gray-600">WhatsApp</div>
+                    <div class="font-bold">+254 714 663 594</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'products' %}" class="btn bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors">
+                Continue Shopping
+            </a>
+            <a href="{% url 'home' %}" class="btn bg-primary text-white px-6 py-3 rounded-md hover:bg-primary-dark transition-colors">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Clear the cart after successful order
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
+});
+</script>
+{% endblock %}

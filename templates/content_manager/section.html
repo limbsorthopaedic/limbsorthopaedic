@@ -1,0 +1,37 @@
+{% comment %}
+This template is used by the render_section inclusion tag to render a complete page section.
+{% endcomment %}
+
+{% if section %}
+<div id="section-{{ section.identifier }}" class="page-section section-{{ section.section_type }} {{ section.custom_css_class }}">
+    {% if section.title %}
+    <h2 class="section-title text-2xl md:text-3xl font-bold mb-4">{{ section.title }}</h2>
+    {% endif %}
+    
+    {% if section.subtitle %}
+    <p class="section-subtitle text-lg text-gray-600 mb-6">{{ section.subtitle }}</p>
+    {% endif %}
+    
+    {% if section.get_image %}
+    <div class="section-image mb-6">
+        <img src="{{ section.get_image }}" alt="{{ section.title }}" class="max-w-full h-auto rounded">
+    </div>
+    {% endif %}
+    
+    {% if section.content %}
+    <div class="section-content prose max-w-none mb-6">
+        {{ section.content|safe }}
+    </div>
+    {% endif %}
+    
+    {% if section.button_text and section.button_url %}
+    <div class="section-button mt-6">
+        <a href="{{ section.button_url }}" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition duration-300">
+            {{ section.button_text }}
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<!-- Section not found or inactive -->
+{% endif %}

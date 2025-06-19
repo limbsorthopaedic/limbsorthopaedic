@@ -1,0 +1,23 @@
+
+{% if breadcrumbs %}
+<nav aria-label="Breadcrumb" class="py-3 bg-gray-50 border-b">
+    <div class="container mx-auto px-4">
+        <ol class="flex flex-wrap items-center space-x-2 text-sm">
+            {% for name, url in breadcrumbs %}
+                <li class="flex items-center">
+                    {% if not forloop.last %}
+                        <a href="{{ url }}" class="text-primary hover:text-primary-dark hover:underline">
+                            {{ name }}
+                        </a>
+                        <svg class="w-4 h-4 mx-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    {% else %}
+                        <span class="text-gray-600 font-medium">{{ name }}</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+</nav>
+{% endif %}

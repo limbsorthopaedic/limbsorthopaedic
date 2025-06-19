@@ -1,0 +1,704 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load survey_tags %}
+
+{% block title %}{{ survey.title }} | LIMBS Orthopaedic{% endblock %}
+
+{% block extra_css %}
+<style>
+    .question-container {
+        display: none;
+    }
+    .question-container.active {
+        display: block;
+    }
+    .emoji-rating {
+        font-size: 2rem;
+        cursor: pointer;
+    }
+    .emoji-rating label {
+        transition: transform 0.1s;
+    }
+    .emoji-rating label:hover {
+        transform: scale(1.2);
+    }
+    .emoji-rating input:checked + label {
+        transform: scale(1.3);
+    }
+    
+    /* Star rating styling */
+    .rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+    .rating input {
+        display: none;
+    }
+    .rating label {
+        color: #ddd;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .rating label:hover,
+    .rating label:hover ~ label,
+    .rating input:checked ~ label {
+        color: #34bdf2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-16 px-4 md:px-8 bg-gray-50">
+    <div class="container mx-auto">
+        <div class="max-w-4xl mx-auto bg-white p-6 md:p-8 rounded-lg shadow-md">
+            <h1 class="text-3xl md:text-4xl font-bold text-primary mb-4">{{ survey.title }}</h1>
+            
+            {% if survey.description %}
+                <p class="text-lg text-gray-700 mb-8">{{ survey.description }}</p>
+            {% endif %}
+            
+            {% if user_completed %}
+                <div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center mb-8">
+                    <p class="text-green-700">
+                        <i class="fas fa-check-circle mr-1"></i> You have already completed this survey. Thank you for your feedback!
+                    </p>
+                </div>
+            {% endif %}
+            
+            <div id="survey-container">
+                {% if not user_completed %}
+                    {% if not active_response %}
+                    <div id="survey-intro" class="mb-8">
+                        <p class="text-gray-600 mb-4">
+                            This survey contains {{ question_count }} questions and should take approximately 
+                            {{ question_count|multiply:30|divide:60|floatformat }} minutes to complete.
+                        </p>
+                        
+                        <form method="post" action="{% url 'surveys:start_survey' survey.id %}">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors">
+                                Start Survey
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div id="survey-form-container">
+                        <form id="survey-form" method="post" action="{% url 'surveys:submit_survey' survey.id %}">
+                            {% csrf_token %}
+                            
+                            <div id="question-container" class="space-y-8">
+                                {% for question in questions %}
+                                <div class="question-container p-6 border border-gray-200 rounded-lg mb-6 {% if forloop.first %}active{% endif %}" data-question-id="{{ question.id }}">
+                                    <h3 class="text-xl font-semibold mb-4">
+                                        {{ question.text }}
+                                        {% if question.required %}
+                                        <span class="text-red-500 ml-1">*</span>
+                                        {% endif %}
+                                    </h3>
+                                    
+                                    {% if question.question_type == 'text' %}
+                                    <div class="mt-4">
+                                        <textarea 
+                                            name="question_{{ question.id }}" 
+                                            rows="4" 
+                                            {% if question.required %}required{% endif %}
+                                            class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                                            placeholder="Type your answer here..."></textarea>
+                                    </div>
+                                    {% elif question.question_type == 'yes_no' %}
+                                    <div class="flex gap-6 mt-4">
+                                        <div class="flex items-center">
+                                            <input type="radio" name="question_{{ question.id }}" id="yes_{{ question.id }}" 
+                                                value="true" {% if question.required %}required{% endif %}
+                                                class="h-5 w-5 text-primary">
+                                            <label for="yes_{{ question.id }}" class="ml-2 text-lg">Yes</label>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="radio" name="question_{{ question.id }}" id="no_{{ question.id }}" 
+                                                value="false" {% if question.required %}required{% endif %}
+                                                class="h-5 w-5 text-primary">
+                                            <label for="no_{{ question.id }}" class="ml-2 text-lg">No</label>
+                                        </div>
+                                    </div>
+                                    {% elif question.question_type == 'rating' %}
+                                    <div class="mt-4">
+                                        <div class="rating">
+                                            {% for i in "54321"|make_list %}
+                                            <input type="radio" name="question_{{ question.id }}" id="rating_{{ question.id }}_{{ i }}" 
+                                                value="{{ i }}" {% if question.required %}required{% endif %}>
+                                            <label for="rating_{{ question.id }}_{{ i }}">★</label>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="flex justify-between text-sm text-gray-500 mt-2">
+                                            <span>Poor</span>
+                                            <span>Excellent</span>
+                                        </div>
+                                    </div>
+                                    {% elif question.question_type == 'emoji' %}
+                                    <div class="emoji-rating flex justify-center gap-4 mt-4">
+                                        {% for emoji in "😞,🙁,😐,🙂,😀"|split:"," %}
+                                        <div class="flex flex-col items-center">
+                                            <input type="radio" name="question_{{ question.id }}" id="emoji_{{ question.id }}_{{ forloop.counter }}" 
+                                                value="{{ forloop.counter }}" {% if question.required %}required{% endif %}
+                                                style="display: none;">
+                                            <label for="emoji_{{ question.id }}_{{ forloop.counter }}" class="cursor-pointer">{{ emoji }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% elif question.question_type == 'single_choice' %}
+                                    <div class="space-y-3 mt-4">
+                                        {% for choice in question.get_choices_list %}
+                                        <div class="flex items-start">
+                                            <input type="radio" name="question_{{ question.id }}" id="choice_{{ question.id }}_{{ forloop.counter }}" 
+                                                value="{{ choice }}" {% if question.required %}required{% endif %}
+                                                class="h-5 w-5 text-primary mt-1">
+                                            <label for="choice_{{ question.id }}_{{ forloop.counter }}" class="ml-2 text-lg">{{ choice }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% elif question.question_type == 'multiple_choice' %}
+                                    <div class="space-y-3 mt-4">
+                                        {% for choice in question.get_choices_list %}
+                                        <div class="flex items-start">
+                                            <input type="checkbox" name="question_{{ question.id }}" id="choice_{{ question.id }}_{{ forloop.counter }}" 
+                                                value="{{ choice }}"
+                                                class="h-5 w-5 text-primary mt-1">
+                                            <label for="choice_{{ question.id }}_{{ forloop.counter }}" class="ml-2 text-lg">{{ choice }}</label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div id="survey-navigation" class="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                                <button type="button" id="prev-btn" 
+                                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors disabled:opacity-50" disabled>
+                                    Previous
+                                </button>
+                                
+                                <div id="progress-container" class="hidden md:block">
+                                    <div class="w-64 bg-gray-200 rounded-full h-2.5">
+                                        <div id="progress-bar" class="bg-primary h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <p class="text-xs text-center mt-1 text-gray-500">
+                                        Question <span id="current-question">1</span>/<span id="total-questions">{{ questions|length }}</span>
+                                    </p>
+                                </div>
+                                
+                                <button type="button" id="next-btn" 
+                                        class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors">
+                                    Next
+                                </button>
+                                
+                                <button type="submit" id="submit-btn" 
+                                        class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors hidden">
+                                    Submit Survey
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% if not user_completed and active_response %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionElements = document.querySelectorAll('.question-container');
+    const navigation = document.getElementById('survey-navigation');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const currentQuestionSpan = document.getElementById('current-question');
+    const totalQuestionsSpan = document.getElementById('total-questions');
+    
+    let currentQuestion = 0;
+    const totalQuestions = questionElements.length;
+    
+    // Initialize the survey form
+    function initSurveyForm() {
+        // Hide all questions except the first one
+        questionElements.forEach((element, index) => {
+            if (index === 0) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+        });
+        
+        // Update initial progress
+        updateProgress();
+        
+        // Set up navigation button states
+        prevBtn.disabled = true;
+        if (totalQuestions <= 1) {
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        }
+    }
+    
+    // Update progress bar and text
+    function updateProgress() {
+        const percent = (currentQuestion / (totalQuestions - 1)) * 100;
+        progressBar.style.width = `${percent}%`;
+        currentQuestionSpan.textContent = currentQuestion + 1;
+        totalQuestionsSpan.textContent = totalQuestions;
+    }
+    
+    // Fetch questions from the server
+    function fetchQuestions() {
+        fetch('{% url "surveys:get_survey_questions" survey.id %}', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Log the received data for debugging
+            console.log('Received survey data:', data);
+            
+            if (!data.questions || !Array.isArray(data.questions)) {
+                throw new Error('Invalid response format: missing questions array');
+            }
+            
+            questions = data.questions;
+            
+            if (questions.length > 0) {
+                renderQuestions();
+                navigation.classList.remove('hidden');
+                prevBtn.disabled = true;
+                
+                // Update progress display
+                totalQuestionsSpan.textContent = questions.length;
+                updateProgress();
+            } else {
+                throw new Error('No questions found in the survey');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching or processing questions:', error);
+            questionContainer.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                    <p class="text-red-700">
+                        There was an error loading the survey questions. Please try again later.
+                    </p>
+                    <p class="text-gray-600 text-sm mt-2">
+                        Error details: ${error.message || 'Unknown error'}
+                    </p>
+                    <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors">
+                        Reload page
+                    </button>
+                </div>
+            `;
+        });
+    }
+    
+    // Render all questions and show only the current one
+    function renderQuestions() {
+        questionContainer.innerHTML = '';
+        
+        questions.forEach((question, index) => {
+            const questionElement = document.createElement('div');
+            questionElement.classList.add(
+                'question-container', 
+                index === currentQuestion ? 'active' : ''
+            );
+            questionElement.dataset.questionId = question.id;
+            
+            // Question title
+            const titleElement = document.createElement('h3');
+            titleElement.classList.add('text-xl', 'font-semibold', 'mb-4');
+            titleElement.textContent = question.text;
+            if (question.required) {
+                const requiredSpan = document.createElement('span');
+                requiredSpan.classList.add('text-red-500', 'ml-1');
+                requiredSpan.textContent = '*';
+                titleElement.appendChild(requiredSpan);
+            }
+            questionElement.appendChild(titleElement);
+            
+            // Create question inputs based on type
+            let inputElement;
+            
+            if (question.type === 'rating') {
+                inputElement = createRatingInput(question);
+            } else if (question.type === 'emoji') {
+                inputElement = createEmojiInput(question);
+            } else if (question.type === 'yes_no') {
+                inputElement = createYesNoInput(question);
+            } else if (question.type === 'text') {
+                inputElement = createTextInput(question);
+            } else if (question.type === 'multiple_choice') {
+                inputElement = createMultipleChoiceInput(question);
+            } else if (question.type === 'single_choice') {
+                inputElement = createSingleChoiceInput(question);
+            }
+            
+            questionElement.appendChild(inputElement);
+            questionContainer.appendChild(questionElement);
+        });
+    }
+    
+    // Create a star rating input
+    function createRatingInput(question) {
+        const container = document.createElement('div');
+        container.classList.add('mt-4');
+        
+        const ratingContainer = document.createElement('div');
+        ratingContainer.classList.add('rating');
+        
+        for (let i = 5; i >= 1; i--) {
+            const id = `rating_${question.id}_${i}`;
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `question_${question.id}`;
+            input.id = id;
+            input.value = i;
+            input.required = question.required;
+            
+            const label = document.createElement('label');
+            label.setAttribute('for', id);
+            label.innerHTML = '★';
+            
+            ratingContainer.appendChild(input);
+            ratingContainer.appendChild(label);
+        }
+        
+        const legend = document.createElement('div');
+        legend.classList.add('flex', 'justify-between', 'text-sm', 'text-gray-500', 'mt-2');
+        legend.innerHTML = `
+            <span>Poor</span>
+            <span>Excellent</span>
+        `;
+        
+        container.appendChild(ratingContainer);
+        container.appendChild(legend);
+        return container;
+    }
+    
+    // Create an emoji rating input
+    function createEmojiInput(question) {
+        const container = document.createElement('div');
+        container.classList.add('emoji-rating', 'flex', 'justify-center', 'gap-4', 'mt-4');
+        
+        const emojis = ['😞', '🙁', '😐', '🙂', '😀'];
+        
+        emojis.forEach((emoji, index) => {
+            const value = index + 1;
+            const id = `emoji_${question.id}_${value}`;
+            
+            const inputContainer = document.createElement('div');
+            inputContainer.classList.add('flex', 'flex-col', 'items-center');
+            
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `question_${question.id}`;
+            input.id = id;
+            input.value = value;
+            input.style.display = 'none';
+            input.required = question.required;
+            
+            const label = document.createElement('label');
+            label.setAttribute('for', id);
+            label.textContent = emoji;
+            label.classList.add('cursor-pointer');
+            
+            inputContainer.appendChild(input);
+            inputContainer.appendChild(label);
+            container.appendChild(inputContainer);
+        });
+        
+        return container;
+    }
+    
+    // Create yes/no radio buttons
+    function createYesNoInput(question) {
+        const container = document.createElement('div');
+        container.classList.add('flex', 'gap-6', 'mt-4');
+        
+        const options = [
+            { value: 'true', label: 'Yes' },
+            { value: 'false', label: 'No' }
+        ];
+        
+        options.forEach(option => {
+            const id = `yesno_${question.id}_${option.value}`;
+            
+            const optionContainer = document.createElement('div');
+            optionContainer.classList.add('flex', 'items-center');
+            
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `question_${question.id}`;
+            input.id = id;
+            input.value = option.value;
+            input.required = question.required;
+            input.classList.add('h-5', 'w-5', 'text-primary');
+            
+            const label = document.createElement('label');
+            label.setAttribute('for', id);
+            label.textContent = option.label;
+            label.classList.add('ml-2', 'text-lg');
+            
+            optionContainer.appendChild(input);
+            optionContainer.appendChild(label);
+            container.appendChild(optionContainer);
+        });
+        
+        return container;
+    }
+    
+    // Create a text input
+    function createTextInput(question) {
+        const container = document.createElement('div');
+        container.classList.add('mt-4');
+        
+        const textarea = document.createElement('textarea');
+        textarea.name = `question_${question.id}`;
+        textarea.rows = 4;
+        textarea.required = question.required;
+        textarea.classList.add('w-full', 'px-4', 'py-2', 'border', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary');
+        textarea.placeholder = 'Type your answer here...';
+        
+        container.appendChild(textarea);
+        return container;
+    }
+    
+    // Create multiple choice checkboxes
+    function createMultipleChoiceInput(question) {
+        const container = document.createElement('div');
+        container.classList.add('space-y-3', 'mt-4');
+        
+        // Check if question.choices exists and is an array
+        if (!question.choices || !Array.isArray(question.choices)) {
+            console.error('Missing choices array for question:', question);
+            
+            // Add error message to the container
+            const errorMsg = document.createElement('div');
+            errorMsg.classList.add('text-red-600', 'italic');
+            errorMsg.textContent = 'Error: This question is missing choices. Please contact support.';
+            container.appendChild(errorMsg);
+            
+            return container;
+        }
+        
+        question.choices.forEach(choice => {
+            const id = `choice_${question.id}_${String(choice).replace(/\s+/g, '_')}`;
+            
+            const optionContainer = document.createElement('div');
+            optionContainer.classList.add('flex', 'items-start');
+            
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.name = `question_${question.id}`;
+            input.id = id;
+            input.value = choice;
+            input.classList.add('h-5', 'w-5', 'text-primary', 'mt-1');
+            
+            const label = document.createElement('label');
+            label.setAttribute('for', id);
+            label.textContent = choice;
+            label.classList.add('ml-2', 'text-lg');
+            
+            optionContainer.appendChild(input);
+            optionContainer.appendChild(label);
+            container.appendChild(optionContainer);
+        });
+        
+        return container;
+    }
+    
+    // Create single choice radio buttons
+    function createSingleChoiceInput(question) {
+        const container = document.createElement('div');
+        container.classList.add('space-y-3', 'mt-4');
+        
+        // Check if question.choices exists and is an array
+        if (!question.choices || !Array.isArray(question.choices)) {
+            console.error('Missing choices array for question:', question);
+            
+            // Add error message to the container
+            const errorMsg = document.createElement('div');
+            errorMsg.classList.add('text-red-600', 'italic');
+            errorMsg.textContent = 'Error: This question is missing choices. Please contact support.';
+            container.appendChild(errorMsg);
+            
+            return container;
+        }
+        
+        question.choices.forEach(choice => {
+            const id = `choice_${question.id}_${String(choice).replace(/\s+/g, '_')}`;
+            
+            const optionContainer = document.createElement('div');
+            optionContainer.classList.add('flex', 'items-start');
+            
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = `question_${question.id}`;
+            input.id = id;
+            input.value = choice;
+            input.required = question.required;
+            input.classList.add('h-5', 'w-5', 'text-primary', 'mt-1');
+            
+            const label = document.createElement('label');
+            label.setAttribute('for', id);
+            label.textContent = choice;
+            label.classList.add('ml-2', 'text-lg');
+            
+            optionContainer.appendChild(input);
+            optionContainer.appendChild(label);
+            container.appendChild(optionContainer);
+        });
+        
+        return container;
+    }
+    
+    // Validate current question
+    function validateQuestion() {
+        const currentQuestionEl = questionElements[currentQuestion];
+        const requiredInputs = currentQuestionEl.querySelectorAll('input[required], textarea[required]');
+        
+        let isValid = true;
+        
+        // For radio buttons, we need to check if any in the group is checked
+        const radioGroups = {};
+        
+        requiredInputs.forEach(input => {
+            if (input.type === 'radio') {
+                radioGroups[input.name] = true;
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    isValid = false;
+                    input.classList.add('border-red-500');
+                    
+                    // Add error message if it doesn't exist
+                    if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('text-red-500')) {
+                        const errorMsg = document.createElement('p');
+                        errorMsg.classList.add('text-red-500', 'text-sm', 'mt-1');
+                        errorMsg.textContent = 'This field is required';
+                        input.insertAdjacentElement('afterend', errorMsg);
+                    }
+                } else {
+                    input.classList.remove('border-red-500');
+                    if (input.nextElementSibling && input.nextElementSibling.classList.contains('text-red-500')) {
+                        input.nextElementSibling.remove();
+                    }
+                }
+            }
+        });
+        
+        // Check radio groups
+        Object.keys(radioGroups).forEach(name => {
+            const radioInputs = currentQuestionEl.querySelectorAll(`input[name="${name}"]`);
+            const checkedRadio = currentQuestionEl.querySelector(`input[name="${name}"]:checked`);
+            
+            if (!checkedRadio) {
+                isValid = false;
+                
+                // Add error message if it doesn't exist
+                const lastRadio = radioInputs[radioInputs.length - 1];
+                const radioContainer = lastRadio.closest('.flex') || lastRadio.parentElement;
+                
+                if (!radioContainer.nextElementSibling || !radioContainer.nextElementSibling.classList.contains('text-red-500')) {
+                    const errorMsg = document.createElement('p');
+                    errorMsg.classList.add('text-red-500', 'text-sm', 'mt-2');
+                    errorMsg.textContent = 'Please select an option';
+                    radioContainer.insertAdjacentElement('afterend', errorMsg);
+                }
+            } else {
+                // Remove error message if it exists
+                const lastRadio = radioInputs[radioInputs.length - 1];
+                const radioContainer = lastRadio.closest('.flex') || lastRadio.parentElement;
+                
+                if (radioContainer.nextElementSibling && radioContainer.nextElementSibling.classList.contains('text-red-500')) {
+                    radioContainer.nextElementSibling.remove();
+                }
+            }
+        });
+        
+        return isValid;
+    }
+
+    // Navigation buttons click handlers
+    prevBtn.addEventListener('click', function() {
+        if (currentQuestion > 0) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            currentQuestion--;
+            document.querySelectorAll('.question-container')[currentQuestion].classList.add('active');
+            
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+            
+            if (currentQuestion === 0) {
+                prevBtn.disabled = true;
+            }
+            
+            updateProgress();
+        }
+    });
+    
+    nextBtn.addEventListener('click', function() {
+        if (!validateQuestion()) {
+            return;
+        }
+        
+        if (currentQuestion < totalQuestions - 1) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            currentQuestion++;
+            document.querySelectorAll('.question-container')[currentQuestion].classList.add('active');
+            
+            prevBtn.disabled = false;
+            
+            if (currentQuestion === totalQuestions - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            }
+            
+            updateProgress();
+        }
+    });
+    
+    // Initialize the form when document is loaded
+    initSurveyForm();
+    
+    // Initialize form submit
+    document.getElementById('survey-form').addEventListener('submit', function(e) {
+        // First validate current question
+        if (!validateQuestion()) {
+            e.preventDefault();
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Update progress bar and counter
+    function updateProgress() {
+        if (totalQuestions <= 1) {
+            progressBar.style.width = '100%';
+        } else {
+            const progressPercent = ((currentQuestion) / (totalQuestions - 1)) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+        }
+        currentQuestionSpan.textContent = currentQuestion + 1;
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

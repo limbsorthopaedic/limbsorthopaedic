@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Doctor Profile | LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+
+<!-- Doctor Profile Section -->
+<section class="bg-gray-50 py-10">
+    <div class="container mx-auto px-4">
+        <!-- Page Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Edit Doctor Profile</h1>
+            <a href="{% url 'doctor_dashboard' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                Back to Dashboard
+            </a>
+        </div>
+        
+        <!-- Profile Form -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- User Information -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">Personal Information</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="{{ user_form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ user_form.first_name.errors|join:", " }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{ user_form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ user_form.last_name.errors|join:", " }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{ user_form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ user_form.email.errors|join:", " }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Doctor Information -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">Professional Information</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                {{ form.gender }}
+                                {% if form.gender.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.gender.errors|join:", " }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{ form.specialty.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Specialty</label>
+                                {{ form.specialty }}
+                                {% if form.specialty.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.specialty.errors|join:", " }}</p>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <label for="{{ form.office_location.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Office Location</label>
+                                {{ form.office_location }}
+                                {% if form.office_location.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.office_location.errors|join:", " }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Image -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">Profile Picture</h2>
+                        
+                        <div class="flex flex-col md:flex-row gap-8">
+                            <!-- Current Image Preview -->
+                            <div class="mb-4 md:mb-0">
+                                <p class="block text-sm font-medium text-gray-700 mb-2">Current Profile Picture</p>
+                                <div class="w-40 h-40 relative">
+                                    {% if form.instance.profile_image %}
+                                        <img src="{{ form.instance.profile_image.url }}" alt="Profile Picture" class="w-40 h-40 object-cover rounded-lg border border-gray-300">
+                                    {% elif form.instance.profile_image_url %}
+                                        <img src="{{ form.instance.profile_image_url }}" alt="Profile Picture" class="w-40 h-40 object-cover rounded-lg border border-gray-300">
+                                    {% else %}
+                                        <div class="w-40 h-40 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Upload New Image -->
+                            <div class="flex-grow">
+                                <div class="mb-4">
+                                    <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Upload New Image</label>
+                                    {{ form.profile_image }}
+                                    {% if form.profile_image.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ form.profile_image.errors|join:", " }}</p>
+                                    {% endif %}
+                                    <p class="mt-1 text-sm text-gray-500">Upload a new profile picture (JPG, PNG or GIF)</p>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="{{ form.profile_image_url.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Or use external image URL</label>
+                                    {{ form.profile_image_url }}
+                                    {% if form.profile_image_url.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ form.profile_image_url.errors|join:", " }}</p>
+                                    {% endif %}
+                                    <p class="mt-1 text-sm text-gray-500">Enter a URL to an external image (used if no image is uploaded)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-300">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

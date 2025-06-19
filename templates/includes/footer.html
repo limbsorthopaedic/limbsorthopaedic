@@ -1,0 +1,122 @@
+<!-- Footer for LIMBS Orthopaedic -->
+<footer class="bg-gray-800 text-white pt-12 pb-6">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Logo and About -->
+            <div>
+                <div class="flex items-center mb-4">
+                    <img src="https://i.imgur.com/V6XTdBi.jpg" alt="LIMBS Orthopaedic Logo" class="h-12 w-auto mr-3 rounded-md">
+                    <span class="text-xl font-bold" style="color: #34bdf2;">LIMBS<span style="color: #1e266f;">Orthopaedic</span></span>
+                </div>
+                <p class="text-gray-300 mb-4">
+                    Improving Mobility & Quality of Life for Kenyans from Kasarani, Nairobi.
+                </p>
+
+                <!-- Social Media Icons - Neumorphic -->
+                <div class="flex flex-wrap mt-6">
+                    {% for social in social_media %}
+                    <a href="{{ social.url }}" target="_blank" class="social-icon bg-gray-700 hover:bg-gray-600 text-white mb-3 mr-3" title="{{ social.platform }}">
+                        <i class="{{ social.icon_class }}"></i>
+                    </a>
+                    {% empty %}
+                    <!-- Default social media icons if none are in the database -->
+                    <a href="https://www.facebook.com/limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.youtube.com/@limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="https://www.instagram.com/limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/LimpbsOrth" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="X (Twitter)">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/company/limbsorthopaedic" target="_blank" class="social-icon bg-white text-primary mx-2 mb-4" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-lg font-bold mb-4 gradient-heading">Quick Links</h4>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'home' %}" class="text-gray-300 hover:text-primary transition-colors">Home</a></li>
+                    <li><a href="{% url 'about' %}" class="text-gray-300 hover:text-primary transition-colors">About Us</a></li>
+                    <li><a href="{% url 'faqs' %}" class="text-gray-300 hover:text-primary transition-colors">FAQs</a></li>
+                    <li><a href="{% url 'services' %}" class="text-gray-300 hover:text-primary transition-colors">Our Services</a></li>
+                    <li><a href="{% url 'blog' %}" class="text-gray-300 hover:text-primary transition-colors">Blog</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-gray-300 hover:text-primary transition-colors">Contact Us</a></li>
+                    <li><a href="{% url 'testimonials' %}" class="text-gray-300 hover:text-primary transition-colors">Testimonials</a></li>
+                    <li><a href="{% url 'appointment' %}" class="text-gray-300 hover:text-primary transition-colors">Book an Appointment</a></li>
+                    <li><a href="{% url 'surveys:survey_list' %}" class="text-gray-300 hover:text-primary transition-colors">Feedback Surveys</a></li>
+                    <li><a href="{% url 'careers:career_list' %}" class="text-gray-300 hover:text-primary transition-colors">Careers</a></li>
+                </ul>
+            </div>
+
+            <!-- Products & Services -->
+            <div>
+                <h4 class="text-lg font-bold mb-4 gradient-heading">Products & Services</h4>
+                <ul class="space-y-2">
+                    <li><a href="{% url 'services' %}" class="text-gray-300 hover:text-primary transition-colors">Upper Limb Prosthesis</a></li>
+                    <li><a href="{% url 'services' %}" class="text-gray-300 hover:text-primary transition-colors">Lower Limb Prosthesis</a></li>
+                    <li><a href="{% url 'services' %}" class="text-gray-300 hover:text-primary transition-colors">Spinal Deformities</a></li>
+                    <li><a href="{% url 'services' %}" class="text-gray-300 hover:text-primary transition-colors">Foot Pains & Problems</a></li>
+                    <li><a href="{% url 'services' %}" class="text-gray-300 hover:text-primary transition-colors">Stroke Management</a></li>
+                    <li><a href="{% url 'products' %}" class="text-gray-300 hover:text-primary transition-colors">Orthopaedic Products</a></li>
+                    <li><a href="{% url 'gallery:gallery' %}" class="text-gray-300 hover:text-primary transition-colors">Gallery View</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+                <h4 class="text-lg font-bold mb-4 gradient-heading">Contact Info</h4>
+                <ul class="space-y-3">
+                    <li class="flex items-start">
+                        <i class="fas fa-map-marker-alt mt-1 mr-3 text-primary"></i>
+                        <span><a href="https://maps.app.goo.gl/nGq6tDea9xBby4m49" class="text-gray-300 hover:text-primary transition-colors">ICIPE Road, Kasarani, Nairobi, Kenya</a></span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-phone-alt mr-3 text-primary"></i>
+                        <a href="tel:+254719628276" class="text-gray-300 hover:text-primary transition-colors">+254 719 628 276 (Collins)</a>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-phone-alt mr-3 text-primary"></i>
+                        <a href="tel:+254714663594" class="text-gray-300 hover:text-primary transition-colors">+254 714 663 594 (Kelvine)</a>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-phone-alt mr-3 text-primary"></i>
+                        <a href="tel:+254705347657" class="text-gray-300 hover:text-primary transition-colors">+254 705 347 657 (Office)</a>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-envelope mr-3 text-primary"></i>
+                        <a href="mailto:LimbsOrthopaedic@gmail.com" class="text-gray-300 hover:text-primary transition-colors">LimbsOrthopaedic@gmail.com</a>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-clock mr-3 text-primary"></i>
+                        <span class="text-gray-300">Mon-Fri: 8:00 AM - 5:00 PM</span>
+                    </li>
+                </ul>
+
+                <!-- WhatsApp button -->
+                <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" class="flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white py-2 px-4 rounded-md mt-4 transition-colors w-max" target="_blank">
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i>
+                    <span>Chat Collins</span>
+                </a>
+                <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" class="flex items-center bg-[#25D366] hover:bg-[#128C7E] text-white py-2 px-4 rounded-md mt-4 transition-colors w-max" target="_blank">
+                    <i class="fab fa-whatsapp mr-2 text-lg"></i>
+                    <span>Chat Kelvine</span>
+                </a>
+            </div>
+        </div>
+
+        <hr class="border-gray-700 my-8">
+
+        <!-- Bottom Footer -->
+        <div class="text-center text-gray-400 text-sm">
+            <p>&copy; {% now "Y" %} LIMBS Orthopaedic. View our <a href="{% url 'terms' %}" class="hover:text-primary transition-colors">Terms of Service</a> and <a href="{% url 'privacy' %}" class="hover:text-primary transition-colors">Privacy Policy</a>. All rights reserved. Built by <a href="https://wa.me/254706943651?text=Hello%20*CyberTechOcean*%0AI%20would%20like%20you%20to%20develop%20for%20me%20a%20Website%20(the%20same%20way%20you%20did%20to%20*Limbs%20Orthopedic%20Ltd*)." class="hover:text-primary transition-colors">CTO</a>.</p>
+        </div>
+    </div>
+</footer>

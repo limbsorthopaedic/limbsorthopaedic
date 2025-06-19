@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Career Opportunities - LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Career Opportunities</h1>
+            <p class="text-xl mb-6">Join our team and make a difference in patients' lives</p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Join Section -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-8">Why Join LIMBS Orthopaedic?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="bg-white p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+                <div class="text-primary text-3xl mb-4">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Make a Real Impact</h3>
+                <p class="text-gray-600">Help improve patients' quality of life through innovative orthopaedic solutions.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+                <div class="text-primary text-3xl mb-4">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Great Team Culture</h3>
+                <p class="text-gray-600">Join a supportive team that values collaboration, innovation, and personal growth.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-300">
+                <div class="text-primary text-3xl mb-4">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Career Growth</h3>
+                <p class="text-gray-600">Opportunities for professional development and advancement in healthcare.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Job Listings -->
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+            {% for career in careers %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:shadow-xl transition-all duration-300">
+                <!-- Image Section -->
+                <div class="relative aspect-[3/4]">
+                    <img src="{{ career.image_url }}" alt="{{ career.title }}" 
+                         class="w-full h-full object-contain bg-gray-50">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+                        <h3 class="text-2xl font-bold text-white leading-tight">{{ career.title }}</h3>
+                    </div>
+                </div>
+
+                <!-- Content Section -->
+                <div class="p-8">
+                    <!-- Job Details with Consistent Icon Styling -->
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <span class="bg-primary px-4 py-2 rounded-full text-white flex items-center text-sm font-medium">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            {% if career.location == 'Other' %}
+                                {{ career.other_location }}
+                            {% else %}
+                                {{ career.location }}
+                            {% endif %}
+                        </span>
+                        <span class="bg-primary px-4 py-2 rounded-full text-white flex items-center text-sm font-medium">
+                            <i class="fas fa-briefcase mr-2"></i>{{ career.job_type }}
+                        </span>
+                        <span class="bg-primary px-4 py-2 rounded-full text-white flex items-center text-sm font-medium">
+                            <i class="fas fa-industry mr-2"></i>
+                            {% if career.industry == 'Other' %}
+                                {{ career.other_industry }}
+                            {% else %}
+                                {{ career.industry }}
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <!-- Job Description -->
+                    <div class="prose max-w-none mb-8 space-y-6">
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                            <h4 class="text-lg font-bold text-gray-900 mb-4">About the Role</h4>
+                            <div class="text-gray-700 leading-relaxed career-content">{{ career.about|safe }}</div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                            <h4 class="text-lg font-bold text-gray-900 mb-4">Key Responsibilities</h4>
+                            <div class="text-gray-700 leading-relaxed career-content">{{ career.responsibilities|safe }}</div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                            <h4 class="text-lg font-bold text-gray-900 mb-4">Requirements</h4>
+                            <div class="text-gray-700 leading-relaxed career-content">{{ career.requirements|safe }}</div>
+                        </div>
+
+                        <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                            <h4 class="text-lg font-bold text-gray-900 mb-4">Benefits</h4>
+                            <div class="text-gray-700 leading-relaxed career-content">{{ career.benefits|safe }}</div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .career-content ul {
+                            list-style: none;
+                            padding-left: 0;
+                        }
+                        .career-content ul li {
+                            position: relative;
+                            padding-left: 1.5rem;
+                            margin-bottom: 0.5rem;
+                        }
+                        .career-content ul li::before {
+                            content: "\f00c";
+                            font-family: "Font Awesome 5 Free";
+                            font-weight: 900;
+                            position: absolute;
+                            left: 0;
+                            color: var(--primary-color);
+                        }
+                    </style>
+
+                    <!-- Apply Button -->
+                    <div class="text-center">
+                        <a href="{% url 'careers:job_application' career_id=career.id %}" 
+                           class="inline-block bg-primary text-white px-8 py-4 rounded-lg hover:bg-primary-dark transition-all transform hover:-translate-y-1 hover:shadow-lg duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            <i class="fas fa-paper-plane mr-2"></i>Apply Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-12">
+                <p class="text-gray-600">No job opportunities available at the moment. Please check back later.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

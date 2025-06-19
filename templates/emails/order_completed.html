@@ -1,0 +1,87 @@
+{% extends 'base_email.html' %}
+
+{% block title %}Order Completed - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div style="background-color: #f8f9fa; padding: 30px 0;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background-color: #28a745; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Order Completed</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Order #{{ order.order_number }}</p>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Dear {{ customer_name }},
+            </p>
+            
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Congratulations! Your order has been successfully completed. We hope your new orthopaedic products serve you well and enhance your mobility and quality of life.
+            </p>
+            
+            <!-- Completion Status -->
+            <div style="background-color: #d4edda; padding: 20px; border-radius: 6px; border-left: 4px solid #28a745; margin-bottom: 25px;">
+                <h3 style="color: #155724; font-size: 18px; margin-bottom: 10px;">Status: Delivered & Completed</h3>
+                <p style="color: #155724; margin: 0;">
+                    Your order was delivered on {{ order.delivered_at|date:"F d, Y" }}. Thank you for choosing LIMBS Orthopaedic.
+                </p>
+            </div>
+            
+            <!-- Care Instructions -->
+            <div style="background-color: #e7f3ff; padding: 20px; border-radius: 6px; border-left: 4px solid #34bdf2; margin-bottom: 25px;">
+                <h3 style="color: #1e266f; font-size: 18px; margin-bottom: 10px;">Care & Maintenance</h3>
+                <ul style="color: #333; margin: 0 0 0 20px; line-height: 1.6;">
+                    <li>Follow the care instructions provided with your products</li>
+                    <li>Schedule regular check-ups as recommended</li>
+                    <li>Contact us for any adjustments or maintenance needs</li>
+                    <li>Keep your receipt for warranty purposes</li>
+                </ul>
+            </div>
+            
+            <!-- Order Summary -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="color: #34bdf2; font-size: 18px; margin-bottom: 10px;">Completed Order</h3>
+                {% for item in order_items %}
+                <div style="border-bottom: 1px solid #dee2e6; padding: 10px 0;">
+                    <div style="font-weight: bold; color: #333;">{{ item.product.title }}</div>
+                    <div style="color: #666; font-size: 14px;">Quantity: {{ item.quantity }}</div>
+                </div>
+                {% endfor %}
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #28a745;">
+                    <strong style="font-size: 18px;">Total Amount: KSh {{ order.total_amount|floatformat:2 }}</strong>
+                </div>
+            </div>
+            
+            <!-- Feedback Request -->
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 6px; border-left: 4px solid #ffc107; margin-bottom: 25px;">
+                <h3 style="color: #856404; font-size: 18px; margin-bottom: 10px;">Share Your Experience</h3>
+                <p style="color: #856404; margin: 0;">
+                    We'd love to hear about your experience! Consider leaving a testimonial to help others in similar situations.
+                    Your feedback helps us improve our services.
+                </p>
+            </div>
+            
+            <!-- Support -->
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #666; margin-bottom: 10px;">Need support or have questions?</p>
+                <p style="color: #34bdf2; font-weight: bold; margin: 5px 0;">
+                    Call us: {{ company_phone.0 }}, {{ company_phone.1 }}, {{ company_phone.2 }}
+                </p>
+                <p style="color: #34bdf2; font-weight: bold; margin: 5px 0;">
+                    Email: {{ company_email }}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border-top: 1px solid #dee2e6;">
+            <p style="color: #666; margin: 0; font-size: 14px;">
+                Thank you for trusting LIMBS Orthopaedic with your mobility needs. We're here whenever you need us.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

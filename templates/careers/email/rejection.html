@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Status - LIMBS Orthopaedic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #34bdf2;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .application-details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: bold;
+            width: 40%;
+        }
+        .detail-value {
+            width: 60%;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .contact-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .contact-info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .contact-info li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Application Status Update</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ application.full_name }},</p>
+
+        <p>Thank you for your interest in the {{ application.job_title }} position at LIMBS Orthopaedic and for taking the time to apply.</p>
+
+        <div class="application-details">
+            <h3>Application Details:</h3>
+            <div class="detail-row">
+                <div class="detail-label">Position:</div>
+                <div class="detail-value">{{ application.job_title }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Date Submitted:</div>
+                <div class="detail-value">{{ application.created_at|date:"F j, Y" }}</div>
+            </div>
+        </div>
+
+        <p>After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our current needs.</p>
+
+        <p>We encourage you to apply for future positions that match your skills and experience.</p>
+
+        <div class="contact-info">
+            <h3>Contact Information:</h3>
+            <ul>
+                <li>Call/Text: +254 705 347 657 (Office)</li>
+                <li>Phone: +254 719 628 276</li>
+                <li>Alternative Phone: +254 714 663 594</li>
+                <li>Email: LimbsOrthopaedic@gmail.com</li>
+            </ul>
+        </div>
+
+        <p>Best regards,<br>
+        LIMBS Orthopaedic Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>LIMBS Orthopaedic Ltd | Nairobi, Kenya</p>
+        <p>This email was sent to {{ application.email }}.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Order Form -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-6">Order Information</h2>
+                
+                <form method="post" action="{% url 'place_order' %}" id="checkout-form">
+                    {% csrf_token %}
+                    
+                    <!-- Customer Information -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-4">Customer Information</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="customer_name" class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                                <input type="text" id="customer_name" name="customer_name" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                       {% if user.is_authenticated %}value="{{ user.get_full_name }}"{% endif %}>
+                            </div>
+                            <div>
+                                <label for="customer_phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                                <input type="tel" id="customer_phone" name="customer_phone" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                       {% if user.is_authenticated and user.profile.phone_number %}value="{{ user.profile.phone_number }}"{% endif %}>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="customer_email" class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
+                            <input type="email" id="customer_email" name="customer_email" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                   {% if user.is_authenticated %}value="{{ user.email }}"{% endif %}>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Information -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-4">Shipping Information</h3>
+                        
+                        <div class="mb-4">
+                            <label for="shipping_address" class="block text-sm font-medium text-gray-700 mb-2">Shipping Address *</label>
+                            <textarea id="shipping_address" name="shipping_address" required rows="3"
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                      placeholder="Enter your full shipping address">{% if user.is_authenticated and user.profile.address %}{{ user.profile.address }}{% endif %}</textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="shipping_city" class="block text-sm font-medium text-gray-700 mb-2">City *</label>
+                                <input type="text" id="shipping_city" name="shipping_city" required
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                       {% if user.is_authenticated and user.profile.city %}value="{{ user.profile.city }}"{% endif %}>
+                            </div>
+                            <div>
+                                <label for="shipping_notes" class="block text-sm font-medium text-gray-700 mb-2">Delivery Notes</label>
+                                <input type="text" id="shipping_notes" name="shipping_notes"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                       placeholder="Any special delivery instructions">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Notes -->
+                    <div class="mb-6">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Order Notes</label>
+                        <textarea id="notes" name="notes" rows="3"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent"
+                                  placeholder="Any special requirements or notes for your order"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary text-white py-3 px-6 rounded-md text-lg font-medium hover:bg-primary-dark transition-colors">
+                        Place Order
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-6">Order Summary</h2>
+                
+                <div class="space-y-4 mb-6">
+                    {% for item in cart_items %}
+                    <div class="flex items-center border-b pb-4">
+                        {% if item.product.get_image %}
+                        <img src="{{ item.product.get_image }}" alt="{{ item.product.title }}" class="w-16 h-16 object-cover rounded-md mr-4">
+                        {% endif %}
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">{{ item.product.title }}</h3>
+                            <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+                            {% if item.notes %}
+                            <p class="text-sm text-gray-500">Note: {{ item.notes }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium">{{ item.product.formatted_price }}</p>
+                            {% if item.product.price %}
+                            <p class="text-sm text-gray-600">Total: KSh {{ item.get_total_price|floatformat:2 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-lg font-medium">Total Items:</span>
+                        <span class="text-lg font-medium">{{ cart.total_items }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xl font-bold">
+                        <span>Total Amount:</span>
+                        <span>
+                            {% if cart.total_price > 0 %}
+                                KSh {{ cart.total_price|floatformat:2 }}
+                            {% else %}
+                                Contact for Pricing
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 rounded-md">
+                    <h3 class="font-medium text-blue-800 mb-2">Important Notice</h3>
+                    <p class="text-sm text-blue-700">
+                        This is a consultation order. Our team will contact you to discuss your specific needs, 
+                        measurements, and fitting requirements before finalizing the order and payment.
+                    </p>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'cart_view' %}" class="block text-center bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors">
+                        Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
+    // Basic form validation
+    const requiredFields = ['customer_name', 'customer_email', 'customer_phone', 'shipping_address', 'shipping_city'];
+    let isValid = true;
+    
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field.value.trim()) {
+            field.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return false;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing Order...';
+});
+</script>
+{% endblock %}

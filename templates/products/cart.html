@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+        
+        {% if cart_items %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="px-6 py-4 bg-gray-50 border-b">
+                <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-600">
+                    <div class="col-span-6">Product</div>
+                    <div class="col-span-2 text-center">Quantity</div>
+                    <div class="col-span-2 text-center">Price</div>
+                    <div class="col-span-2 text-center">Total</div>
+                </div>
+            </div>
+            
+            <div class="divide-y divide-gray-200">
+                {% for item in cart_items %}
+                <div class="px-6 py-4" id="cart-item-{{ item.id }}">
+                    <div class="grid grid-cols-12 gap-4 items-center">
+                        <div class="col-span-6">
+                            <div class="flex items-center">
+                                {% if item.product.get_image %}
+                                <img src="{{ item.product.get_image }}" alt="{{ item.product.title }}" class="w-16 h-16 object-cover rounded-md mr-4">
+                                {% endif %}
+                                <div>
+                                    <h3 class="font-medium text-gray-800">{{ item.product.title }}</h3>
+                                    <p class="text-sm text-gray-600">{{ item.product.category.name }}</p>
+                                    {% if item.notes %}
+                                    <p class="text-sm text-gray-500 mt-1">Note: {{ item.notes }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-span-2 text-center">
+                            <form method="post" action="{% url 'update_cart_item' item.id %}" class="update-cart-form">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="10" 
+                                       class="w-16 px-2 py-1 text-center border border-gray-300 rounded-md">
+                                <button type="submit" class="ml-2 text-blue-600 hover:text-blue-800 text-sm">Update</button>
+                            </form>
+                        </div>
+                        
+                        <div class="col-span-2 text-center">
+                            <span class="font-medium">{{ item.product.formatted_price }}</span>
+                        </div>
+                        
+                        <div class="col-span-2 text-center">
+                            <div class="flex items-center justify-center">
+                                <span class="font-medium item-total">
+                                    {% if item.product.price %}
+                                        KSh {{ item.get_total_price|floatformat:2 }}
+                                    {% else %}
+                                        Contact for Price
+                                    {% endif %}
+                                </span>
+                                <form method="post" action="{% url 'remove_from_cart' item.id %}" class="ml-2">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 hover:text-red-800" title="Remove from cart">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="px-6 py-4 bg-gray-50 border-t">
+                <div class="flex justify-between items-center">
+                    <div class="text-lg font-medium">
+                        Total Items: <span id="total-items">{{ cart.total_items }}</span>
+                    </div>
+                    <div class="text-xl font-bold">
+                        Total: <span id="cart-total">
+                            {% if cart.total_price > 0 %}
+                                KSh {{ cart.total_price|floatformat:2 }}
+                            {% else %}
+                                Contact for Pricing
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex justify-between">
+                    <a href="{% url 'products' %}" class="btn bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600">
+                        Continue Shopping
+                    </a>
+                    <a href="{% url 'checkout_view' %}" class="btn bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark">
+                        Proceed to Checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-600 mb-2">Your cart is empty</h2>
+            <p class="text-gray-500 mb-6">Start shopping to add items to your cart</p>
+            <a href="{% url 'products' %}" class="btn bg-primary text-white px-6 py-3 rounded-md hover:bg-primary-dark">
+                Browse Products
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle AJAX cart updates
+    document.querySelectorAll('.update-cart-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart totals
+                    document.getElementById('total-items').textContent = data.cart_total;
+                    if (data.cart_subtotal > 0) {
+                        document.getElementById('cart-total').textContent = 'KSh ' + data.cart_subtotal.toFixed(2);
+                    }
+                    
+                    // Update item total
+                    const itemRow = this.closest('[id^="cart-item-"]');
+                    if (data.item_total > 0) {
+                        itemRow.querySelector('.item-total').textContent = 'KSh ' + data.item_total.toFixed(2);
+                    } else {
+                        itemRow.remove();
+                        if (data.cart_total === 0) {
+                            location.reload();
+                        }
+                    }
+                    
+                    updateCartCount();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+});
+</script>
+{% endblock %}

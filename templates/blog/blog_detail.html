@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - LIMBS Orthopaedic Blog{% endblock %}
+{% block meta_description %}{{ post.summary }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">{{ post.title }}</h1>
+            <div class="flex flex-wrap justify-center items-center space-x-4 mb-6">
+                <div class="flex items-center">
+                    <i class="far fa-calendar-alt mr-2"></i>
+                    <span>{{ post.published_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="far fa-user mr-2"></i>
+                    <span>{{ post.author.get_full_name|default:post.author.username }}</span>
+                </div>
+                <div class="flex items-center">
+                    <i class="far fa-comment mr-2"></i>
+                    <span>{{ comments|length }} Comment{{ comments|pluralize }}</span>
+                </div>
+            </div>
+            
+            {% if post.categories.all %}
+            <div class="flex flex-wrap justify-center mt-4 mb-6">
+                {% for category in post.categories.all %}
+                <a href="{% url 'blog_by_category' category.slug %}" class="m-1 px-4 py-1 rounded-full bg-white bg-opacity-20 text-sm hover:bg-opacity-30 transition-colors">
+                    {{ category.name }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Blog Content -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Main Content -->
+                <div class="lg:col-span-2">
+                    {% if post.get_featured_image %}
+                    <img src="{{ post.get_featured_image }}" alt="{{ post.title }}" class="w-full h-auto rounded-lg shadow-md mb-8 object-cover">
+                    {% endif %}
+                    
+                    <div class="blog-content max-w-none mb-12">
+                        {{ post.content|safe }}
+                    </div>
+                    
+                    <!-- Author Bio -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm mb-10">
+                        <div class="flex items-center">
+                            <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-user text-2xl text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">{{ post.author.get_full_name|default:post.author.username }}</h3>
+                                <p class="text-gray-600 text-sm">Author</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Share Buttons -->
+                    <div class="mb-12">
+                        <h3 class="text-lg font-bold mb-4">Share This Article</h3>
+                        <div class="flex space-x-4">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="social-icon bg-gray-100 hover:bg-gray-200 text-[#3b5998]">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title }}" target="_blank" class="social-icon bg-gray-100 hover:bg-gray-200 text-[#1DA1F2]">
+                                <i class="fa-brands fa-x-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ post.title }}" target="_blank" class="social-icon bg-gray-100 hover:bg-gray-200 text-[#0077b5]">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text={{ post.title }}" target="_blank" class="social-icon bg-gray-100 hover:bg-gray-200 text-[#0088cc]">
+                                <i class="fab fa-telegram"></i>
+                            </a>
+                            <a href="https://wa.me/?text={{ post.title }}%20{{ request.build_absolute_uri }}" target="_blank" class="social-icon bg-gray-100 hover:bg-gray-200 text-[#25D366]">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div id="comments" class="mb-12">
+                        <h3 class="text-2xl font-bold mb-6 gradient-heading">Comments ({{ comments|length }})</h3>
+                        
+                        {% if comments %}
+                        <div class="space-y-6 mb-8">
+                            {% for comment in comments %}
+                            <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                                <div class="flex items-start">
+                                    <div class="bg-primary-light bg-opacity-20 w-10 h-10 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <h4 class="font-bold">{{ comment.name }}</h4>
+                                            <span class="text-gray-500 text-sm">{{ comment.created_date|date:"M d, Y" }}</span>
+                                        </div>
+                                        <p class="text-gray-700">{{ comment.content }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="bg-gray-50 p-6 rounded-lg text-center mb-8">
+                            <p class="text-gray-600">No comments yet. Be the first to comment!</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Comment Form -->
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-bold mb-4">Leave a Comment</h4>
+                            <form method="post" class="space-y-4">
+                                {% csrf_token %}
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="comment-name">Your Name*</label>
+                                    <input id="comment-name" name="name" type="text" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="comment-email">Your Email*</label>
+                                    <input id="comment-email" name="email" type="email" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+                                    <p class="text-gray-500 text-sm mt-1">Your email will not be published</p>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-medium mb-2" for="comment-content">Your Comment*</label>
+                                    <textarea id="comment-content" name="content" rows="4" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" required></textarea>
+                                </div>
+                                <button type="submit" class="py-2 px-6 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                                    Submit Comment
+                                </button>
+                                <p class="text-gray-500 text-sm">
+                                    Your comment will be reviewed before being published.
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div>
+                    <!-- Categories -->
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                        <h3 class="text-xl font-bold mb-4">Categories</h3>
+                        <ul class="space-y-2">
+                            {% for category in categories %}
+                            <li>
+                                <a href="{% url 'blog_by_category' category.slug %}" class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md transition-colors">
+                                    <span class="text-gray-700 hover:text-primary transition-colors">{{ category.name }}</span>
+                                    <span class="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">{{ category.posts.count }}</span>
+                                </a>
+                            </li>
+                            {% empty %}
+                            <li class="text-gray-500 text-center py-2">No categories available</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Related Posts -->
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                        <h3 class="text-xl font-bold mb-4">Related Articles</h3>
+                        
+                        {% if related_posts %}
+                        <div class="space-y-4">
+                            {% for related in related_posts %}
+                            <div class="flex items-start">
+                                {% if related.get_featured_image %}
+                                <img src="{{ related.get_featured_image }}" alt="{{ related.title }}" class="w-20 h-16 object-cover rounded-md mr-3">
+                                {% else %}
+                                <div class="w-20 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-3 text-gray-400">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h4 class="font-medium text-gray-800 leading-tight mb-1">
+                                        <a href="{{ related.get_absolute_url }}" class="hover:text-primary transition-colors">{{ related.title }}</a>
+                                    </h4>
+                                    <p class="text-gray-500 text-sm">{{ related.published_date|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-gray-500 text-center py-4">No related articles found</p>
+                        {% endif %}
+                        
+                        <div class="mt-4 text-center">
+                            <a href="{% url 'blog' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                View All Articles <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Call to Action -->
+                    <div class="bg-primary-dark text-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-xl font-bold mb-4">Need Professional Help?</h3>
+                        <p class="mb-6">
+                            Our specialists can provide personalized care for your orthopaedic needs.
+                        </p>
+                        <a href="{% url 'appointment' %}" class="block bg-white text-primary hover:bg-gray-100 transition-colors py-2 px-4 rounded-md font-medium text-center">
+                            Book an Appointment
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- More Articles -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold mb-4 gradient-heading">More Articles</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {% for post in post.author.blog_posts.all|slice:":3" %}
+            {% if post.status == 'published' and post.id != post.id %}
+            <div class="card hover:shadow-lg bg-white">
+                {% if post.get_featured_image %}
+                <img src="{{ post.get_featured_image }}" alt="{{ post.title }}" class="card-img h-48 w-full object-cover">
+                {% else %}
+                <div class="bg-gray-200 h-48 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-5xl text-primary"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <div class="flex items-center mb-3 text-sm text-gray-500">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>{{ post.published_date|date:"F d, Y" }}</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">{{ post.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ post.summary|truncatewords:15 }}</p>
+                    <a href="{{ post.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                        Read More <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            {% empty %}
+            <div class="md:col-span-3 text-center py-8">
+                <p class="text-gray-500">Check back soon for more articles!</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-10">
+            <a href="{% url 'blog' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">
+                View All Articles
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

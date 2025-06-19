@@ -1,0 +1,85 @@
+{% extends 'base_email.html' %}
+
+{% block title %}Order Shipped - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div style="background-color: #f8f9fa; padding: 30px 0;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background-color: #fd7e14; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Order Shipped</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Order #{{ order.order_number }}</p>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Dear {{ customer_name }},
+            </p>
+            
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Excellent news! Your custom orthopaedic products have been completed and are now on their way to you.
+            </p>
+            
+            <!-- Shipping Status -->
+            <div style="background-color: #fff3cd; padding: 20px; border-radius: 6px; border-left: 4px solid #fd7e14; margin-bottom: 25px;">
+                <h3 style="color: #856404; font-size: 18px; margin-bottom: 10px;">Shipping Status: In Transit</h3>
+                <p style="color: #856404; margin: 0;">
+                    Your order shipped on {{ order.shipped_at|date:"F d, Y" }}. Expected delivery: 1-3 business days.
+                </p>
+            </div>
+            
+            <!-- Shipping Information -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="color: #34bdf2; font-size: 18px; margin-bottom: 10px;">Shipping Details</h3>
+                <strong>Delivery Address:</strong><br>
+                {{ order.shipping_address }}<br>
+                {{ order.shipping_city }}<br>
+                {% if order.shipping_notes %}
+                <br><strong>Delivery Notes:</strong> {{ order.shipping_notes }}
+                {% endif %}
+            </div>
+            
+            <!-- Order Summary -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="color: #34bdf2; font-size: 18px; margin-bottom: 10px;">What's Being Delivered</h3>
+                {% for item in order_items %}
+                <div style="border-bottom: 1px solid #dee2e6; padding: 10px 0;">
+                    <div style="font-weight: bold; color: #333;">{{ item.product.title }}</div>
+                    <div style="color: #666; font-size: 14px;">Quantity: {{ item.quantity }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Important Instructions -->
+            <div style="background-color: #e7f3ff; padding: 20px; border-radius: 6px; border-left: 4px solid #34bdf2; margin-bottom: 25px;">
+                <h3 style="color: #1e266f; font-size: 18px; margin-bottom: 10px;">Important Delivery Instructions</h3>
+                <ul style="color: #333; margin: 0 0 0 20px; line-height: 1.6;">
+                    <li>Please be available to receive your delivery</li>
+                    <li>Check all items upon delivery for any shipping damage</li>
+                    <li>Contact us immediately if there are any issues</li>
+                    <li>Follow-up fitting appointments may be scheduled if needed</li>
+                </ul>
+            </div>
+            
+            <!-- Contact Information -->
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #666; margin-bottom: 10px;">Questions about your delivery?</p>
+                <p style="color: #34bdf2; font-weight: bold; margin: 5px 0;">
+                    Call us: {{ company_phone.0 }}, {{ company_phone.1 }}, {{ company_phone.2 }}
+                </p>
+                <p style="color: #34bdf2; font-weight: bold; margin: 5px 0;">
+                    Email: {{ company_email }}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border-top: 1px solid #dee2e6;">
+            <p style="color: #666; margin: 0; font-size: 14px;">
+                Your mobility and independence are our priority.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

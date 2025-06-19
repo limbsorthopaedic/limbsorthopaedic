@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}Create an account with LIMBS Orthopaedic to easily book appointments, track your treatment progress, and access personalized care.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl font-bold mb-6">Create an Account</h1>
+            <p class="text-xl mb-6">
+                Join LIMBS Orthopaedic for personalized care and services
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Registration Form -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                        <p class="font-bold">Please correct the errors below:</p>
+                        {% for field in form %}
+                            {% if field.errors %}
+                            <p>{{ field.label }}: {{ field.errors|striptags }}</p>
+                            {% endif %}
+                        {% endfor %}
+                        {% if form.non_field_errors %}
+                        <p>{{ form.non_field_errors|striptags }}</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}" class="block text-gray-700 font-medium mb-2">First Name*</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}" class="block text-gray-700 font-medium mb-2">Last Name*</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.username.id_for_label }}" class="block text-gray-700 font-medium mb-2">Username*</label>
+                        {{ form.username }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-gray-700 font-medium mb-2">Email Address*</label>
+                        {{ form.email }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.phone_number.id_for_label }}" class="block text-gray-700 font-medium mb-2">Phone Number* <span style="color: #ff0000;">(Start with +254 or your country's code)</span></label>
+                        {{ form.phone_number }}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.password1.id_for_label }}" class="block text-gray-700 font-medium mb-2">Password*</label>
+                        {{ form.password1 }}
+                        {% if form.password1.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.password1.help_text|safe }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.password2.id_for_label }}" class="block text-gray-700 font-medium mb-2">Confirm Password*</label>
+                        {{ form.password2 }}
+                        {% if form.password2.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.password2.help_text|safe }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input id="agree_terms" name="agree_terms" type="checkbox" required class="h-4 w-4 text-primary focus:ring-primary-dark border-gray-300 rounded">
+                        <label for="agree_terms" class="ml-2 block text-sm text-gray-700">
+                            I agree to the <a href="{% url 'terms' %}" class="text-primary hover:text-primary-dark transition-colors">Terms of Service</a> and <a href="{% url 'privacy' %}" class="text-primary hover:text-primary-dark transition-colors">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                            Create Account
+                        </button>
+                    </div>
+                    
+                    <div class="text-center text-gray-600">
+                        <p>Already have an account? <a href="{% url 'login' %}" class="text-primary hover:text-primary-dark transition-colors font-medium">Log In</a></p>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="text-center mt-8">
+                <a href="{% url 'home' %}" class="text-gray-600 hover:text-primary transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Why Join Section -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold mb-4 gradient-heading">Why Create an Account?</h2>
+                <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-gray-600 max-w-3xl mx-auto">
+                    Creating an account with LIMBS Orthopaedic provides you with a personalized experience and access to exclusive features.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex items-start">
+                    <div class="bg-primary-light bg-opacity-20 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-calendar-alt text-xl text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-2">Easy Appointment Management</h3>
+                        <p class="text-gray-600">
+                            Book, view, and manage your appointments all in one place. Receive reminders and notifications about upcoming visits.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-primary-light bg-opacity-20 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-file-medical text-xl text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-2">Access to Medical Records</h3>
+                        <p class="text-gray-600">
+                            Access your treatment history, progress notes, and care recommendations securely online.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-primary-light bg-opacity-20 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-clock text-xl text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-2">Save Time on Forms</h3>
+                        <p class="text-gray-600">
+                            Your information is saved securely, so you don't need to fill out the same forms repeatedly when booking appointments.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="bg-primary-light bg-opacity-20 w-12 h-12 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                        <i class="fas fa-user-md text-xl text-primary"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-2">Personalized Care</h3>
+                        <p class="text-gray-600">
+                            Receive care recommendations and resources tailored to your specific needs and conditions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-10 bg-primary bg-gradient-to-r from-primary to-primary-dark text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Ready to Improve Your Mobility?</h2>
+        <p class="mb-6 max-w-3xl mx-auto">
+            Create an account today and take the first step toward better orthopaedic care.
+        </p>
+        <a href="#top" class="bg-white text-primary hover:bg-gray-100 transition-colors py-2 px-6 rounded-md font-medium">
+            Sign Up Now
+        </a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}About LIMBS Orthopaedic - Leading Orthopaedic Clinic in Nairobi, Kenya{% endblock %}
+{% block meta_description %}Learn about LIMBS Orthopaedic, established 2018 in Nairobi. Our mission, vision, and dedicated team of orthopaedic specialists committed to improving mobility and quality of life for Kenyans.{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16 md:py-24">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">About LIMBS Orthopaedic</h1>
+            <h2 class="text-xl md:text-2xl mb-8 font-light">Our Mission, Vision, and Journey</h2>
+            <div class="w-24 h-1 bg-white mx-auto mb-8"></div>
+            <p class="text-lg mb-6">
+                Limbs Orthopaedic Ltd is an orthopaedic rehabilitation medical clinic that deals with the provision of orthosis, prosthesis (Upper and Lower Limb Prosthetics) and rehabilitation aid in treatment of orthopaedic conditions.
+            </p>
+            <p class="text-lg">
+                We also offer Physiotherapy and Management of orthopaedic trauma cases. It was established in the year 2018 in Nairobi as sole proprietor, due to patient influx there was need for expansion of healthcare service and therefore in the year 2021 it was incorporated under the company act of Kenya as privately owned limited company.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div class="p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow bg-gray-50">
+                <div class="text-5xl font-bold text-primary mb-2">4+</div>
+                <div class="text-gray-700 font-medium">Years Experience</div>
+            </div>
+            
+            <div class="p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow bg-gray-50">
+                <div class="text-5xl font-bold text-primary mb-2">2,450+</div>
+                <div class="text-gray-700 font-medium">Happy Patients</div>
+            </div>
+            
+            <div class="p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow bg-gray-50">
+                <div class="text-5xl font-bold text-primary mb-2">6</div>
+                <div class="text-gray-700 font-medium">Specialists</div>
+            </div>
+            
+            <div class="p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow bg-gray-50">
+                <div class="text-5xl font-bold text-primary mb-2">20+</div>
+                <div class="text-gray-700 font-medium">Services</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Vision & Mission Section -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Our Vision & Mission</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">What Drives Us Every Day</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-4 rounded-full bg-primary-light bg-opacity-20 mb-4">
+                        <i class="fas fa-eye text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Our Vision</h3>
+                </div>
+                <p class="mb-4  flex items-center justify-center">
+                    To have market leadership through patients delight.
+                </p>
+                <!-- <p>
+                    We envision a world where physical limitations are overcome through accessible, high-quality orthopaedic solutions, allowing everyone to live their lives to the fullest potential.
+                </p> -->
+            </div>
+            
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div class="text-center mb-6">
+                    <div class="inline-block p-4 rounded-full bg-primary-light bg-opacity-20 mb-4">
+                        <i class="fas fa-bullseye text-3xl text-primary"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Our Mission</h3>
+                </div>
+                <p class="mb-4  flex items-center justify-center">
+                    Providing quality, functional and cost-effective products and services in the field of rehabilitation health.
+                </p>
+                <!-- <p>
+                    We are committed to making a meaningful difference in the lives of our patients by enhancing their mobility, independence, and overall well-being.
+                </p> -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 gradient-heading">Our Expert Team</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Meet the Professionals Behind Your Care
+            </p>
+            <p class="text-gray-600 max-w-3xl mx-auto mt-4">
+                Our team of highly qualified doctors and specialists is dedicated to providing exceptional care. Browse through our profiles to learn more about their expertise, experience, and commitment to patient well-being.
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for member in team_members %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                {% if member.get_image %}
+                <img src="{{ member.get_image }}" alt="{{ member.name }}" class="w-full h-64 object-cover">
+                {% else %}
+                <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-user-md text-5xl text-gray-400"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">{{ member.name }}</h3>
+                    <p class="text-primary mb-4">{{ member.title }}</p>
+                    <p class="text-gray-600 mb-4">{{ member.bio|truncatewords:40 }}</p>
+                    {% if member.linkedin_url %}
+                    <a href="{{ member.linkedin_url }}" target="_blank" class="text-gray-700 hover:text-primary transition-colors inline-flex items-center">
+                        <i class="fab fa-linkedin mr-2"></i> LinkedIn Profile
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="lg:col-span-3 text-center py-10">
+                <div class="bg-gray-100 rounded-lg p-8">
+                    <i class="fas fa-users text-5xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Our Team Information</h3>
+                    <p class="text-gray-600">Team member information will be available soon.</p>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not team_members %}
+            <!-- Default team members if none in database -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
+                    <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">
+                        <img src="https://i.imgur.com/ETlm4BB.jpg" alt="Collins Otieno" width="500" height="600">
+                    </a>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">Collins Otieno</h3>
+                    <p class="text-primary mb-4">Director - Prosthetics and Orthotics Specialist</p>
+                    <p class="text-gray-600 mb-4">With over 15 years of experience, Dr. Collins specializes in advanced prosthetic solutions for lower limbs.</p>
+                    <a href="https://www.linkedin.com/in/CollinsWicklifeOtieno" target="_blank" class="text-gray-700 hover:text-primary transition-colors inline-flex items-center">
+                        <i class="fab fa-linkedin mr-2"></i> LinkedIn Profile
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
+                    <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">
+                        <img src="https://i.imgur.com/Ekjea8H.jpg" alt="Kelvine Abanga" width="500" height="600">
+                    </a>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">Kelvine Abanga</h3>
+                    <p class="text-primary mb-4">Director - Prosthetics and Orthotics Expert</p>
+                    <p class="text-gray-600 mb-4">Dr. Abanga leads our prosthetics department and has been instrumental in introducing cutting-edge technologies.</p>
+                    <a href="https://www.linkedin.com/in/KelvineAbangaO" target="_blank" class="text-gray-700 hover:text-primary transition-colors inline-flex items-center">
+                        <i class="fab fa-linkedin mr-2"></i> LinkedIn Profile
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-user-md text-5xl text-gray-400"></i>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-2">Dr. Erick Kamau</h3>
+                    <p class="text-primary mb-4">Orthotic Specialist</p>
+                    <p class="text-gray-600 mb-4">Specializing in pediatric orthotics, Dr. Kamau has helped hundreds of children improve their mobility.</p>
+                    <a href="https://www.linkedin.com/in/abc" target="_blank" class="text-gray-700 hover:text-primary transition-colors inline-flex items-center">
+                        <i class="fab fa-linkedin mr-2"></i> LinkedIn Profile
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-16 bg-primary bg-gradient-to-r from-primary to-primary-dark text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Improve Your Mobility?</h2>
+        <p class="text-xl mb-8 max-w-3xl mx-auto">
+            Our team of specialists is here to help you regain independence and enhance your quality of life.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a href="{% url 'appointment' %}" class="btn py-3 px-8 bg-white text-primary hover:bg-gray-100 transition-colors text-lg font-bold rounded-md">Book an Appointment</a>
+            <a href="{% url 'contact' %}" class="btn py-3 px-8 border-2 border-white hover:bg-white hover:text-primary transition-colors text-lg font-bold rounded-md">Contact Us</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

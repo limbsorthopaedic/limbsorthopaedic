@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block title %}Orthopaedic Products - AFO, KAFO, Prosthetics & More | LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}Browse our comprehensive range of orthopaedic products including AFO, KAFO, splints, prosthetics, wheelchairs, crutches, and mobility aids. Made in Kenya for enhanced mobility and comfort.{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Products</h1>
+            <p class="text-xl mb-6">
+                High-quality orthopaedic products designed for comfort and mobility
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Introduction -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-lg text-gray-700 mb-6">
+                At LIMBS Orthopaedic, we offer a range of premium orthopaedic products designed to enhance comfort, mobility, and independence. Each product is carefully selected for quality and effectiveness.
+            </p>
+            <div class="flex justify-center">
+                <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="whatsapp-btn py-2 px-6">
+                    <i class="fab fa-whatsapp mr-2"></i> Order via WhatsApp - Collins
+                </a>
+            </div>
+            <br>
+            <div class="flex justify-center">
+                <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="whatsapp-btn py-2 px-6">
+                    <i class="fab fa-whatsapp mr-2"></i> Order via WhatsApp - Kelvine
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Categories -->
+<section class="py-8 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-wrap justify-center mb-8">
+            <a href="{% url 'products' %}" class="m-2 px-6 py-2 rounded-full {% if not current_category %}bg-primary text-white{% else %}bg-white text-gray-700 hover:bg-gray-200{% endif %} transition-colors shadow-sm">
+                All Products
+            </a>
+            
+            {% for category in categories %}
+            <a href="{% url 'products_by_category' category.slug %}" class="m-2 px-6 py-2 rounded-full {% if current_category == category.slug %}bg-primary text-white{% else %}bg-white text-gray-700 hover:bg-gray-200{% endif %} transition-colors shadow-sm">
+                {{ category.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Products Grid -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        {% if products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div class="card hover:shadow-lg bg-white">
+                {% if product.get_image %}
+                <img src="{{ product.get_image }}" alt="{{ product.title }}" class="card-img h-48 w-full object-cover">
+                {% else %}
+                <div class="bg-gray-200 h-48 flex items-center justify-center">
+                    <i class="fas fa-box-open text-5xl text-primary"></i>
+                </div>
+                {% endif %}
+                <div class="p-5">
+                    <div class="mb-3">
+                        <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">{{ product.category.name }}</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">{{ product.title }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ product.description|truncatewords:12 }}</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="text-lg font-bold text-primary">{{ product.formatted_price }}</div>
+                        <a href="{{ product.get_absolute_url }}" class="text-gray-700 hover:text-primary transition-colors">
+                            <i class="fas fa-info-circle mr-1"></i> Details
+                        </a>
+                    </div>
+                    <button class="whatsapp-btn w-full mt-4 justify-center" 
+                            data-phone="254719628276"
+                            data-message="{{ product.whatsapp_message }}">
+                        <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Collins
+                    </button>
+                    <br>
+                    <button class="whatsapp-btn w-full mt-4 justify-center" 
+                            data-phone="254714663594"
+                            data-message="{{ product.whatsapp_message }}">
+                        <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Kelvine
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            {% if current_category %}
+            <div class="text-center py-16">
+                <div class="bg-white p-8 rounded-lg shadow-sm max-w-2xl mx-auto">
+                    <i class="fas fa-info-circle text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">No Products Found</h3>
+                    <p class="text-gray-600 mb-6">There are currently no products available in this category.</p>
+                    <a href="{% url 'products' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">View All Products</a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Default display of product categories when no products exist -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <!-- Prosthetic Products -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="h-48 bg-primary-light bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-hand-paper text-6xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3">Prosthetic Products</h3>
+                        <p class="text-gray-600 mb-6">
+                            High-quality prosthetic limbs, components, and accessories designed for comfort, functionality, and durability.
+                        </p>
+                        <div class="text-center">
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I'm%20interested%20in%20your%20Prosthetic%20Products" target="_blank" class="whatsapp-btn inline-block">
+                                <i class="fab fa-whatsapp mr-2"></i> Inquire on WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orthotic Products -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="h-48 bg-primary-light bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-shoe-prints text-6xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3">Orthotic Products</h3>
+                        <p class="text-gray-600 mb-6">
+                            Custom and pre-fabricated orthotic devices including braces, supports, and specialized footwear for various conditions.
+                        </p>
+                        <div class="text-center">
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I'm%20interested%20in%20your%20Orthotic%20Products" target="_blank" class="whatsapp-btn inline-block">
+                                <i class="fab fa-whatsapp mr-2"></i> Inquire on WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobility Aids -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="h-48 bg-primary-light bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-wheelchair text-6xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-3">Mobility Aids</h3>
+                        <p class="text-gray-600 mb-6">
+                            Wheelchairs, walkers, crutches, canes, and other mobility assistance devices to enhance independence.
+                        </p>
+                        <div class="text-center">
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I'm%20interested%20in%20your%20Mobility%20Aids" target="_blank" class="whatsapp-btn inline-block">
+                                <i class="fab fa-whatsapp mr-2"></i> Inquire on WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <p class="text-gray-600 mb-6">
+                    We offer a wide range of orthopaedic products tailored to your specific needs. Contact us for personalized recommendations.
+                </p>
+                <a href="{% url 'contact' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">Contact for Product Inquiry</a>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+
+<!-- Custom Products Section -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold mb-6 gradient-heading">Custom-Made Solutions</h2>
+                    <p class="text-gray-700 mb-4">
+                        We understand that every patient has unique needs. That's why we offer custom-made orthopaedic products designed specifically for your condition and body.
+                    </p>
+                    <p class="text-gray-700 mb-6">
+                        Our specialists will assess your requirements and create a tailored solution that provides optimal comfort, functionality, and support.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold">Personalized Assessment</h4>
+                                <p class="text-sm text-gray-600">Thorough evaluation to understand your specific needs</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold">Custom Fabrication</h4>
+                                <p class="text-sm text-gray-600">Products built to your exact measurements and requirements</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="font-bold">Perfect Fit Guarantee</h4>
+                                <p class="text-sm text-gray-600">Adjustments and modifications until you're completely satisfied</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <a href="{% url 'products' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">
+                            Browse Products & Place Orders
+                        </a>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-4 text-center">Request Custom Product</h3>
+                    <p class="text-gray-600 mb-6 text-center">
+                        Fill out this form and we'll contact you to discuss your custom product needs
+                    </p>
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        {% if custom_product_form.non_field_errors %}
+                          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                            {{ custom_product_form.non_field_errors }}
+                          </div>
+                        {% endif %}
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="custom-name">
+                                Your Name*
+                            </label>
+                            {{ custom_product_form.name }}
+                            {% if custom_product_form.name.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ custom_product_form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="custom-email">
+                                Email Address*
+                            </label>
+                            {{ custom_product_form.email }}
+                            {% if custom_product_form.email.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ custom_product_form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="custom-phone">
+                                Phone Number*
+                            </label>
+                            {{ custom_product_form.phone }}
+                            {% if custom_product_form.phone.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ custom_product_form.phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="custom-details">
+                                Product Details*
+                            </label>
+                            {{ custom_product_form.details }}
+                            {% if custom_product_form.details.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ custom_product_form.details.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                                Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-12 bg-primary bg-gradient-to-r from-primary to-primary-dark text-white">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6">Need Help Choosing the Right Product?</h2>
+            <p class="text-xl mb-8">
+                Our specialists can help you find the perfect solution for your specific needs.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="{% url 'appointment' %}" class="btn bg-white text-primary hover:bg-gray-100 transition-colors py-3 px-6 rounded-md font-medium">
+                    Book a Consultation
+                </a>
+                <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="btn bg-[#25D366] hover:bg-[#128C7E] transition-colors py-3 px-6 rounded-md font-medium">
+                    <i class="fab fa-whatsapp mr-2"></i> Chat Collins on WhatsApp
+                </a>
+                <br>
+                <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="btn bg-[#25D366] hover:bg-[#128C7E] transition-colors py-3 px-6 rounded-md font-medium">
+                    <i class="fab fa-whatsapp mr-2"></i> Chat Kelvine on WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

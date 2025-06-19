@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday from LIMBS Orthopaedic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #34bdf2, #1e266f);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .birthday-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .content {
+            padding: 30px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            background-color: #fafafa;
+        }
+        .birthday-message {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #34bdf2;
+        }
+        .button {
+            display: inline-block;
+            background-color: #34bdf2;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            margin: 20px 0;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .gift-icon {
+            color: #ff6b6b;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="birthday-icon">🎉</div>
+        <h1>Happy Birthday {{ user.first_name|default:user.username }}!</h1>
+        <p>Wishing you health, happiness, and mobility!</p>
+    </div>
+    <div class="content">
+        <div class="birthday-message">
+            <h2>🎂 It's Your Special Day!</h2>
+            <p>Dear {{ user.first_name|default:user.username }},</p>
+            
+            <p>On behalf of everyone at LIMBS Orthopaedic, we want to wish you a very happy birthday! We hope your special day is filled with joy, laughter, and all the things that make you smile.</p>
+            
+            <p>As you celebrate another year of life, we're grateful to have you as part of our LIMBS Orthopaedic family. Your health and well-being continue to be our priority, and we're here to support you every step of the way.</p>
+            
+            <p><span class="gift-icon">🎁</span> <strong>Birthday Special:</strong> As a token of our appreciation, you're eligible for a 30% discount on any of our services or products during your birthday month. Simply mention this email when booking your next appointment!</p>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="limbsorthopaedic.org/services/" class="button">🎉 View Our Services</a>
+        </div>
+        
+        <p><strong>May this new year of life bring you:</strong></p>
+        <ul>
+            <li>🌟 Good health and vitality</li>
+            <li>🚀 Continued mobility and independence</li>
+            <li>💪 Strength for all your adventures</li>
+            <li>😊 Joy in every step you take</li>
+        </ul>
+        
+        <p>If you need any assistance with your orthopaedic care, don't hesitate to reach out to us:</p>
+        
+        <ul>
+            <li>Login: <a href="limbsorthopaedic.org/accounts/login/">Limbs Orthopaedic Account</a>)</li>
+            <li>Call/Text: +254 705 347 657 (Office)</li>
+            <li>Phone: +254 719 628 276 (WhatsApp available via <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 719 628 276</a>)</li>
+            <li>Alternative Phone: +254 714 663 594 (WhatsApp available via <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 714 663 594</a>)</li>
+            <li>Email: LimbsOrthopaedic@gmail.com</li>
+        </ul>
+        
+        <p>Once again, happy birthday from all of us at LIMBS Orthopaedic!</p>
+        
+        <p>With warm birthday wishes,<br>
+        <strong>The LIMBS Orthopaedic Team</strong></p>
+    </div>
+    
+    <div class="footer">
+        <p>🎈 <strong>LIMBS Orthopaedic Ltd</strong> | Nairobi, Kenya 🎈</p>
+        <p>This birthday message was sent to {{ user.email }}.</p>
+        <p>Thank you for being part of our community!</p>
+    </div>
+</body>
+</html>

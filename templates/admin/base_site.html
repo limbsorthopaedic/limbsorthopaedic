@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('LIMBS Orthopaedic Admin') }}{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <img src="{% static 'images/logo.jpg' %}" alt="LIMBS Orthopaedic" style="max-height: 36px; margin-right: 10px; vertical-align: middle;">
+    <span>{{ site_header|default:_('LIMBS Orthopaedic Administration') }}</span>
+</h1>
+{% endblock %}
+
+{% block welcome-msg %}
+    <strong>{% firstof user.get_short_name user.get_username %}</strong> | 
+    <span class="admin-date">{% now "jS F Y" %}</span>
+{% endblock %}
+
+{% block userlinks %}
+    {% if site_url %}
+        <a href="{{ site_url }}">View Site</a> /
+    {% endif %}
+    {% if user.is_active and user.is_staff %}
+        {% url 'django-admindocs-docroot' as docsroot %}
+        {% if docsroot %}
+            <a href="{{ docsroot }}">Documentation</a> /
+        {% endif %}
+    {% endif %}
+    {% if user.has_usable_password %}
+        <a href="{% url 'admin:password_change' %}">Change Password</a> /
+    {% endif %}
+    <form id="logout-form" method="post" action="{% url 'admin_logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <a href="#" onclick="document.getElementById('logout-form').submit(); return false;">Logout</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ email.subject }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #34bdf2, #1e266f);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .header .logo {
+            margin-bottom: 15px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .content h1, .content h2, .content h3 {
+            color: #1e266f;
+            margin-top: 0;
+        }
+        .content h1 {
+            font-size: 24px;
+            border-bottom: 2px solid #34bdf2;
+            padding-bottom: 10px;
+        }
+        .content h2 {
+            font-size: 20px;
+            color: #34bdf2;
+        }
+        .content h3 {
+            font-size: 18px;
+        }
+        .content a {
+            color: #34bdf2;
+            text-decoration: none;
+        }
+        .content a:hover {
+            text-decoration: underline;
+        }
+        .button {
+            display: inline-block;
+            background-color: #34bdf2;
+            color: white !important;
+            text-decoration: none;
+            padding: 12px 24px;
+            margin: 15px 0;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #2a9dd1;
+            text-decoration: none;
+        }
+        .highlight-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #34bdf2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            border-top: 1px solid #dee2e6;
+        }
+        .footer .contact-info {
+            margin: 20px 0;
+        }
+        .footer .contact-info a {
+            color: #34bdf2;
+            text-decoration: none;
+        }
+        .footer .social-links {
+            margin: 15px 0;
+        }
+        .footer .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #34bdf2;
+            font-size: 18px;
+        }
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, #34bdf2, #1e266f);
+            margin: 20px 0;
+            border: none;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">
+                <strong style="font-size: 24px;">LIMBS</strong><span style="font-size: 20px;">Orthopaedic</span>
+            </div>
+            <h1>{{ email.subject }}</h1>
+        </div>
+        
+        <div class="content">
+            {{ email.content|safe }}
+        </div>
+        
+        <hr class="divider">
+        
+        <div class="footer">
+            <div style="margin-bottom: 20px;">
+                <strong style="color: #1e266f; font-size: 18px;">LIMBS Orthopaedic Ltd</strong>
+                <p style="margin: 5px 0; color: #666;">Premier Orthopaedic Care in Nairobi, Kenya</p>
+            </div>
+            
+            <div class="contact-info">
+                <p><strong>Contact Us:</strong></p>
+                <p>📞 Call/Text: <a href="tel:+254705347657">+254 705 347 657</a> (Office)</p>
+                <p>📱 WhatsApp: <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 719 628 276</a> | <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 714 663 594</a></p>
+                <p>📧 Email: <a href="mailto:LimbsOrthopaedic@gmail.com">LimbsOrthopaedic@gmail.com</a></p>
+                <p>🌐 Website: <a href="https://limbsorthopaedic.org">limbsorthopaedic.org</a></p>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+            
+            <p style="font-size: 12px; color: #888; margin: 10px 0;">
+                This email was sent by {{ email.sender_name|default:"LIMBS Orthopaedic Team" }} to {{ recipient_email }}.
+            </p>
+            <p style="font-size: 12px; color: #888; margin: 10px 0;">
+                If you received this email in error, please ignore it.
+            </p>
+            <p style="font-size: 12px; color: #888; margin: 10px 0;">
+                © {{ current_year }} LIMBS Orthopaedic Ltd. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

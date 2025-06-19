@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if appointment.status == 'confirmed' %}Appointment Confirmed{% else %}Appointment Booking{% endif %} - LIMBS Orthopaedic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #34bdf2;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .appointment-details {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: bold;
+            width: 40%;
+        }
+        .detail-value {
+            width: 60%;
+        }
+        .button {
+            display: inline-block;
+            background-color: #34bdf2;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .important {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{% if appointment.status == 'confirmed' %}Appointment Confirmed{% else %}Appointment Booking{% endif %}</h1>
+    </div>
+    <div class="content">
+        <p>Dear {{ appointment.full_name }},</p>
+        
+        {% if appointment.status == 'confirmed' %}
+        <p>Great news! Your appointment with LIMBS Orthopaedic has been <strong>confirmed</strong>. We're looking forward to seeing you.</p>
+{% elif appointment.status == 'pending' %}
+        <p>Thank you for scheduling an appointment with LIMBS Orthopaedic. Your appointment has been successfully booked and is awaiting confirmation from our team.</p>
+{% elif appointment.status == 'cancelled' %}
+        <p>Your appointment with LIMBS Orthopaedic has been <strong>cancelled</strong>. If you need to schedule a new appointment, please visit our website or contact us directly.</p>
+{% elif appointment.status == 'completed' %}
+        <p>This is a confirmation that your appointment with LIMBS Orthopaedic has been <strong>completed</strong>. Thank you for choosing our services.</p>
+{% else %}
+        <p>Thank you for your interest in LIMBS Orthopaedic. Your appointment status has been updated to: <strong>{{ appointment.get_status_display }}</strong>.</p>
+{% endif %}
+        
+        <div class="appointment-details">
+            <h3>Appointment Details:</h3>
+            
+            <div class="detail-row">
+                <div class="detail-label">Service:</div>
+                <div class="detail-value">{% if appointment.service %}{{ appointment.service.title }}{% elif appointment.other_service %}{{ appointment.other_service }}{% else %}Not specified{% endif %}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Date:</div>
+                <div class="detail-value">{{ appointment.preferred_date|date:"l, F j, Y" }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Time:</div>
+                <div class="detail-value">{{ appointment.preferred_time|time:"g:i A" }}</div>
+            </div>
+            
+            {% if appointment.assigned_doctor %}
+            <div class="detail-row">
+                <div class="detail-label">Doctor:</div>
+                <div class="detail-value">{{ appointment.assigned_doctor.user.get_full_name }}</div>
+            </div>
+            {% endif %}
+            
+            <div class="detail-row">
+                <div class="detail-label">Status:</div>
+                <div class="detail-value">{{ appointment.get_status_display }}</div>
+            </div>
+        </div>
+        
+        {% if appointment.status == 'confirmed' %}
+        <p>Please arrive 15 minutes before your scheduled appointment time. You can check the status of your appointment anytime by logging into your account on our website.</p>
+        
+        <p>Dear esteemed client, you will be required to pay <span class="important">Consultation fee of Kshs. 500/=</span> (This amount is subject to change. You can call us for more information).</p>
+          <table style="width: 50%; border-collapse: collapse; margin: 20px auto; font-family: Georgia, roboto;">
+          <thead>
+            <tr>
+              <th colspan="2" style="background-color: #34f4a4; color: #05091f; font-size: 1.2em; border: 1px solid #333; padding: 10px; text-align: left;">Lipa na M-pesa (Pay Bill)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="border: 1px solid #333; padding: 10px; text-align: left;">Business No.</td>
+              <td style="border: 1px solid #333; padding: 10px; text-align: left;">522533</td>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #333; padding: 10px; text-align: left;">Account No.</td>
+              <td style="border: 1px solid #333; padding: 10px; text-align: left;">5807001</td>
+            </tr>
+          </tbody>
+        </table>
+        {% else %}
+        <p>Our team will review your appointment request and will contact you to confirm the exact time and date. You can also check the status of your appointment by logging into your account on our website.</p>
+        {% endif %}
+        
+        <p class="important">Please note: If you need to cancel or reschedule your appointment, please do so at least 24 hours in advance.</p>
+        
+        <p>If you have any questions or need further assistance, feel free to contact us at:</p>
+        <ul>
+            <li>Login: <a href="limbsorthopaedic.org/accounts/login/">Limbs Orthopaedic Account</a>)</li>
+            <li>Call/Text: +254 705 347 657 (Office)</li>
+            <li>Phone: +254 719 628 276 (WhatsApp available via <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 719 628 276</a>)</li>
+            <li>Alternative Phone: +254 714 663 594 (WhatsApp available via <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 714 663 594</a>)</li>
+            <li>Email: LimbsOrthopaedic@gmail.com</li>
+        </ul>
+        
+        <p>Best regards,<br>
+        The LIMBS Orthopaedic Team</p>
+    </div>
+    
+    <div class="footer">
+        <p>LIMBS Orthopaedic Ltd | Nairobi, Kenya</p>
+        <p>This email was sent to {{ appointment.email }}.</p>
+    </div>
+</body>
+</html>

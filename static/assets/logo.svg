@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Circle background -->
+  <circle cx="150" cy="150" r="150" fill="#ffffff"/>
+  
+  <!-- Main text "LIMBS" -->
+  <path d="M60,100 L60,200 L80,200 L80,120 L140,120 L140,200 L160,200 L160,120 L220,120 L220,200 L240,200 L240,100 Z" fill="#34bdf2"/>
+  
+  <!-- Letter "O" for Orthopaedic -->
+  <circle cx="150" cy="230" r="20" fill="#ff0000"/>
+  
+  <!-- Small lines for "rthopaedic" -->
+  <rect x="175" y="220" width="60" height="5" fill="#000000"/>
+  <rect x="175" y="230" width="60" height="5" fill="#000000"/>
+  <rect x="175" y="240" width="60" height="5" fill="#000000"/>
+  
+  <!-- Decorative lines suggesting movement/mobility -->
+  <path d="M90,80 C120,60 180,60 210,80" stroke="#34bdf2" stroke-width="6" fill="none"/>
+  <path d="M90,70 C120,50 180,50 210,70" stroke="#34bdf2" stroke-width="4" fill="none"/>
+  <path d="M90,60 C120,40 180,40 210,60" stroke="#34bdf2" stroke-width="2" fill="none"/>
+</svg>

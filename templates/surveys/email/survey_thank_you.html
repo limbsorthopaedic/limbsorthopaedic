@@ -1,0 +1,34 @@
+
+{% extends "base_email.html" %}
+
+{% block content %}
+<div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+    <div style="background-color: #34bdf2; padding: 20px; text-align: center; color: white; border-radius: 5px 5px 0 0;">
+        <h1>Thank You for Your Feedback!</h1>
+    </div>
+    
+    <div style="padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 5px 5px;">
+        <p>Dear {{ response.user.first_name|default:response.user.username }},</p>
+        
+        <p>Thank you for taking the time to complete our {{ response.survey.title|lower }}. Your feedback is invaluable in helping us improve our services and provide better care to all our patients.</p>
+        
+        <p>Your input helps us:</p>
+        <ul style="margin: 15px 0;">
+            <li>Understand your needs better</li>
+            <li>Improve our services</li>
+            <li>Enhance patient experience</li>
+            <li>Maintain high standards of care</li>
+        </ul>
+        
+        <p>If you have any additional feedback or questions, please don't hesitate to contact us:</p>
+        
+        <ul style="list-style: none; padding: 0;">
+            <li>📞 Call/Text: +254 705 347 657 (Office)</li>
+            <li>📱 WhatsApp: +254 719 628 276</li>
+            <li>📧 Email: LimbsOrthopaedic@gmail.com</li>
+        </ul>
+        
+        <p style="margin-top: 20px;">Best regards,<br>The LIMBS Orthopaedic Team</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LIMBS Orthopaedic{% endblock %}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+        }
+        .header {
+            background-color: #34bdf2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #34bdf2;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background-color: #2ba3d1;
+        }
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .alert-info {
+            background-color: #e7f3ff;
+            border-left: 4px solid #34bdf2;
+            color: #1e266f;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+    <div class="container">
+        <div class="header">
+            <h1>LIMBS Orthopaedic</h1>
+            <p>Empowering Mobility, Enhancing Lives</p>
+        </div>
+        <div class="content">
+            <!-- Email content goes here -->
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 LIMBS Orthopaedic. All rights reserved.</p>
+            <p>Limuru, Kenya | Phone: +254 719 628 276 | Email: limbsorthopaedic@gmail.com</p>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

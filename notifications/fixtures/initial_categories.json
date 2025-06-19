@@ -1,0 +1,72 @@
+[
+  {
+    "model": "notifications.notificationcategory",
+    "pk": 1,
+    "fields": {
+      "name": "appointment",
+      "display_name": "Appointments",
+      "description": "New appointment bookings and updates",
+      "icon": "fas fa-calendar-alt",
+      "color": "primary",
+      "app_label": "appointments",
+      "model_name": "appointment",
+      "admin_url_name": "admin:appointments_appointment_changelist"
+    }
+  },
+  {
+    "model": "notifications.notificationcategory",
+    "pk": 2,
+    "fields": {
+      "name": "contact",
+      "display_name": "Contacts",
+      "description": "New contact form submissions",
+      "icon": "fas fa-envelope",
+      "color": "info",
+      "app_label": "core",
+      "model_name": "contact",
+      "admin_url_name": "admin:core_contact_changelist"
+    }
+  },
+  {
+    "model": "notifications.notificationcategory",
+    "pk": 3,
+    "fields": {
+      "name": "product_inquiry",
+      "display_name": "Product Inquiries",
+      "description": "Custom product requests and inquiries",
+      "icon": "fas fa-box-open",
+      "color": "success",
+      "app_label": "products",
+      "model_name": "productinquiry",
+      "admin_url_name": "admin:products_productinquiry_changelist"
+    }
+  },
+  {
+    "model": "notifications.notificationcategory",
+    "pk": 4,
+    "fields": {
+      "name": "blog_comment",
+      "display_name": "Blog Comments",
+      "description": "Comments on blog posts",
+      "icon": "fas fa-comment",
+      "color": "warning",
+      "app_label": "blog",
+      "model_name": "comment",
+      "admin_url_name": "admin:blog_comment_changelist"
+    }
+  },
+  {
+    "model": "notifications.notificationcategory",
+    "pk": 5,
+    "fields": {
+      "name": "testimonial",
+      "display_name": "Testimonials",
+      "description": "New patient testimonials",
+      "icon": "fas fa-star",
+      "color": "warning",
+      "app_label": "testimonials",
+      "model_name": "testimonial",
+      "admin_url_name": "admin:testimonials_testimonial_changelist"
+    }
+  }
+]

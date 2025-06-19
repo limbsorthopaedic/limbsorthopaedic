@@ -1,0 +1,45 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gallery - LIMBS Orthopaedic{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Gallery</h1>
+            <p class="text-xl mb-6">
+                Discover our work and success stories through images
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        
+        <div class="max-w-4xl mx-auto text-center">
+    <p class="text-lg text-gray-700 mb-6">
+        Browse through our collection of images showcasing our commitment to improving mobility and quality of life for our patients.
+    </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for gallery in galleries %}
+            <div class="group relative overflow-hidden rounded-lg shadow-lg bg-white hover:shadow-xl transition-shadow duration-300">
+                <div class="aspect-w-16 aspect-h-12 w-full">
+                    <img src="{{ gallery.get_image }}" alt="{{ gallery.title }}" 
+                         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+                </div>
+                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="text-white text-xl font-bold mb-2">{{ gallery.title }}</h3>
+                    <p class="text-white text-sm">{{ gallery.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

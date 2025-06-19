@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LIMBS Orthopaedic - Independence starts with limbs{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}LIMBS Orthopaedic specializes in advanced prosthetics and orthotics designed to help you regain independence and enhance your mobility. Based in Kasarani, Nairobi.{% endblock %}">
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://i.imgur.com/V6XTdBi.jpg" type="image/jpeg">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/V6XTdBi.jpg">
+
+    <!-- Font Awesome for icons (latest version with X brand support) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#34bdf2',
+                        'primary-light': '#7aeaff',
+                        'primary-dark': '#007ac0',
+                        'red': '#ff0000',
+                        'black': '#000000',
+                        'white': '#ffffff',
+                    },
+                    fontFamily: {
+                        'roboto': ['Roboto', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+
+    <!-- Splide.js Carousel -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+
+    <!-- Google Fonts - Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        .blinking-text {
+            animation: blink 1.5s infinite;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 4px 8px;
+            font-size: 12px;
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            z-index: 49;
+        }
+    </style>
+
+    <!-- Structured Data -->
+    {% if structured_data %}
+        {% for schema in structured_data %}
+            <script type="application/ld+json">{{ schema|safe }}</script>
+        {% endfor %}
+    {% endif %}
+
+    {% if breadcrumb_schema %}
+        <script type="application/ld+json">{{ breadcrumb_schema|safe }}</script>
+    {% endif %}
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-roboto bg-gray-50 flex flex-col min-h-screen">
+    <!-- Header -->
+    {% include 'includes/header.html' %}
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+    <!-- Messages/Notifications -->
+    {% if messages %}
+    <div class="fixed bottom-5 right-5 z-50">
+        {% for message in messages %}
+        <div class="bg-white shadow-lg rounded-lg p-4 mb-3 notification {% if message.tags %}notification-{{ message.tags }}{% endif %} transform transition-all duration-300 opacity-0 translate-x-full" role="alert">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                    {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                    {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle text-primary text-xl"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-gray-800">{{ message }}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button type="button" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none" onclick="this.parentElement.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" class="fixed bottom-5 left-5 z-40 bg-[#25D366] hover:bg-[#128C7E] text-white p-3 rounded-full shadow-lg transition-all duration-300" target="_blank">
+        <i class="fab fa-whatsapp text-2xl"></i>
+    </a>
+
+    <!-- Main JavaScript -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/whatsapp.js"></script>
+
+    <!-- Notification Animation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifications = document.querySelectorAll('.notification');
+
+            // Show notifications with animation
+            setTimeout(() => {
+                notifications.forEach((notification, index) => {
+                    setTimeout(() => {
+                        notification.classList.add('opacity-100');
+                        notification.classList.remove('translate-x-full');
+                    }, index * 200);
+
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        notification.classList.remove('opacity-100');
+                        notification.classList.add('opacity-0', 'translate-x-full');
+
+                        // Remove from DOM after animation
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }, 5000 + (index * 200));
+                });
+            }, 300);
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+<!-- WhatsApp-style Chatbot Widget -->
+    <div id="chat-widget" class="hidden fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-xl z-50 overflow-hidden flex flex-col" style="height: 450px; max-height: 80vh;">
+        <!-- Chat Header (WhatsApp Style) -->
+        <div class="chat-header bg-primary flex items-center p-3 text-white">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                    <img src="https://i.imgur.com/V6XTdBi.jpg" alt="LIMBS Orthopaedic" class="w-9 h-9 rounded-full object-cover">
+                </div>
+                <div>
+                    <div class="font-bold">LIMBS Orthopaedic</div>
+                    <div class="text-xs opacity-80">Online | AI Assistant</div>
+                </div>
+            </div>
+            <button id="close-chat" class="ml-auto text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Chat Wallpaper Background -->
+        <div class="chat-body flex-1 overflow-y-auto p-4 bg-gray-100" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAA+UlEQVQ4y+3VMUoDQRTG8Z+a0tLS0jKlpZWlpaUgxNLOUgQhpYgIFiKCRQqJYCEkEBBiIYJYCFZqIZFAQgiIkigpDP8UM8tmd2aDNha+5s3O9+Z9O7P5O1RxhCaesMCHeMQzdlCZBqjiLWLqeJOaOWqTQOsxwAgtrI3ZtMR+G9M40HIE9GKKrcT9Fq7E82HlO9BeDHCeABVxkfj3KQbajQEeE8ABTsR9F8/ZUrGTpjiGSoC2BXSQ+p8l41QKV1UuMwPd5EA9fGA9q/vUBHrPgTrJBTpHPQfaBVb+yqtWceWTgasJ0G8N9Ix5AdDGClzH40+1M5mntVHhM92oWzIrT25rAAAAAElFTkSuQmCC');">
+            <!-- Chat messages will be appended here -->
+        </div>
+
+        <!-- Chat Input (WhatsApp Style) -->
+        <div class="chat-input bg-white p-2 border-t flex items-center">
+            <input type="text" id="user-message" class="flex-1 p-2 px-4 bg-gray-100 rounded-full focus:outline-none" placeholder="Type a message...">
+            <button id="send-btn" class="ml-2 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Toggle Button -->
+    <button id="chat-toggle" class="fixed bottom-4 right-4 bg-primary text-white p-4 rounded-full shadow-lg z-50 hover:bg-primary-dark transition-colors">
+        <div class="relative">
+            <span class="blinking-text absolute whitespace-nowrap">Ask AI</span>
+            <i class="fas fa-comments"></i>
+        </div>
+    </button>
+
+    <script>
+        // Chatbot functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatWidget = document.getElementById('chat-widget');
+            const chatToggle = document.getElementById('chat-toggle');
+            const closeChat = document.getElementById('close-chat');
+            const chatBody = document.querySelector('.chat-body');
+            const userInput = document.getElementById('user-message');
+            const sendBtn = document.getElementById('send-btn');
+
+            // Welcome message
+            const welcomeMessage = "👋 Hello! I'm the LIMBS Orthopaedic virtual assistant. How can I help you today?";
+
+            // Maintain conversation history
+            let conversationId = localStorage.getItem('limbsChat_conversationId') || null;
+            let chatHistory = [];
+
+            // Add export button to chat
+            const exportButton = document.createElement('button');
+            exportButton.className = 'export-chat-btn hidden fixed bottom-16 right-4 bg-white text-primary border border-primary px-4 py-2 rounded-full shadow z-50 flex items-center';
+            exportButton.innerHTML = '<i class="fas fa-download mr-2"></i> Export Chat';
+            document.body.appendChild(exportButton);
+
+            exportButton.addEventListener('click', exportConversation);
+
+            function toggleChat() {
+                chatWidget.classList.toggle('hidden');
+                chatToggle.classList.toggle('hidden');
+
+                if (!chatWidget.classList.contains('hidden')) {
+                    // Show welcome message when chat is opened for the first time
+                    if (!chatBody.hasChildNodes()) {
+                        appendMessage(welcomeMessage, false);
+                    }
+
+                    // Show export button
+                    if (chatHistory.length > 0) {
+                        exportButton.classList.remove('hidden');
+                    }
+                } else {
+                    // Hide export button when chat is closed
+                    exportButton.classList.add('hidden');
+                }
+            }
+
+            chatToggle.addEventListener('click', toggleChat);
+            closeChat.addEventListener('click', toggleChat);
+
+            function appendMessage(message, isUser) {
+                const msgDiv = document.createElement('div');
+                const timestampText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                if (isUser) {
+                    // User message (right-aligned)
+                    msgDiv.className = 'mb-4 flex justify-end';
+                    msgDiv.innerHTML = `
+                        <div class="max-w-[80%] mr-2">
+                            <div class="bg-[#dcf8c6] py-2 px-3 rounded-lg shadow-sm relative message-bubble-right">
+                                <div class="text-gray-800">${message}</div>
+                                <div class="text-xs text-gray-500 text-right mt-1">${timestampText}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Bot message (left-aligned)
+                    msgDiv.className = 'mb-4 flex justify-start';
+                    msgDiv.innerHTML = `
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2 self-end mb-4">
+                            <img src="https://i.imgur.com/V6XTdBi.jpg" alt="LIMBS Orthopaedic" class="w-7 h-7 rounded-full object-cover">
+                        </div>
+                        <div class="max-w-[80%]">
+                            <div class="bg-white py-2 px-3 rounded-lg shadow-sm relative message-bubble-left">
+                                <div class="text-gray-800">${message}</div>
+                                <div class="text-xs text-gray-500 text-right mt-1">${timestampText}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                chatBody.appendChild(msgDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                appendMessage(message, true);
+                userInput.value = '';
+
+                // Add typing indicator
+                const typingIndicator = document.createElement('div');
+                typingIndicator.className = 'typing-indicator mb-4 flex justify-start';
+                typingIndicator.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2 self-end mb-4">
+                        <img src="https://i.imgur.com/V6XTdBi.jpg" alt="LIMBS Orthopaedic" class="w-7 h-7 rounded-full object-cover">
+                    </div>
+                    <div class="max-w-[60%]">
+                        <div class="bg-gray-200 py-3 px-4 rounded-lg">
+                            <div class="flex space-x-1">
+                                <div class="typing-dot bg-gray-500 rounded-full"></div>
+                                <div class="typing-dot bg-gray-500 rounded-full"></div>
+                                <div class="typing-dot bg-gray-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatBody.appendChild(typingIndicator);
+                chatBody.scrollTop = chatBody.scrollHeight;
+
+                fetch('/api/chatbot/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        message: message,
+                        conversation_id: conversationId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove typing indicator
+                    chatBody.removeChild(typingIndicator);
+
+                    // Store conversation ID for future messages
+                    if (data.conversation_id) {
+                        conversationId = data.conversation_id;
+                        localStorage.setItem('limbsChat_conversationId', conversationId);
+                    }
+
+                    // Process links properly
+                    const formattedAnswer = data.answer
+                        .replace(/\n/g, '<br>')
+                        // Match only URLs followed by <br> or end of string
+                        .replace(/(https?:\/\/[^\s<]+)(?:<br>|\s|$)/g, (match, url) => {
+                            // Clean URL and remove any trailing characters
+                            const cleanUrl = url.replace(/[.,;:'"]+$/, '');
+                            return `<a href="${cleanUrl}" target="_blank" class="text-blue-600 underline">${cleanUrl}</a> `;
+                        });
+
+                    appendMessage(formattedAnswer, false);
+
+                    // Add to chat history
+                    chatHistory.push({
+                        user: message,
+                        ai: data.answer,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    // Show export button if not already visible
+                    if (chatHistory.length > 0 && !chatWidget.classList.contains('hidden')) {
+                        exportButton.classList.remove('hidden');
+                    }
+
+                    // Show export options if allow_export is true
+                    if (data.allow_export && conversationId) {
+                        showExportOptions();
+                    }
+                })
+                .catch(error => {
+                    // Remove typing indicator
+                    chatBody.removeChild(typingIndicator);
+                    appendMessage('Sorry, I encountered an error. Please try again later.', false);
+                });
+            }
+
+            function showExportOptions() {
+                // Highlight the export button
+                exportButton.classList.add('animate-pulse');
+                setTimeout(() => {
+                    exportButton.classList.remove('animate-pulse');
+                }, 3000);
+            }
+
+            function exportConversation() {
+                if (!conversationId || chatHistory.length === 0) {
+                    alert('No conversation to export');
+                    return;
+                }
+
+                // Show a loading state on the button
+                const originalText = exportButton.innerHTML;
+                exportButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Exporting...';
+                exportButton.disabled = true;
+
+                fetch('/api/chatbot/export/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ conversation_id: conversationId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error exporting chat: ' + data.error);
+                        return;
+                    }
+
+                    // Create text file for download
+                    const element = document.createElement('a');
+                    const file = new Blob([data.content], {type: 'text/plain'});
+                    element.href = URL.createObjectURL(file);
+                    element.download = data.filename || 'chat_export.txt';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    alert('Error exporting chat. Please try again later.');
+                })
+                .finally(() => {
+                    // Restore button state
+                    exportButton.innerHTML = originalText;
+                    exportButton.disabled = false;
+                });
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Auto-focus input when chat opens
+            chatToggle.addEventListener('click', function() {
+                setTimeout(() => userInput.focus(), 100);
+            });
+        });
+    </script>
+
+    <style>
+        /* WhatsApp-like message bubbles */
+        .message-bubble-left:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid white;
+            border-left: 8px solid transparent;
+        }
+
+        .message-bubble-right:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid #dcf8c6;
+            border-right: 8px solid transparent;
+        }
+
+        /* Typing indicator animation */
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            animation: typing 1.5s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        /* Pulse animation for the export button */
+        @keyframes pulse-animation {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 189, 242, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 189, 242, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 189, 242, 0);
+            }
+        }
+
+        .animate-pulse {
+            animation: pulse-animation 1.5s infinite;
+            border: 2px solid #34bdf2;
+        }
+    </style>
+
+    <!-- Cart Management JavaScript -->
+    <script>
+        // Update cart count function
+        function updateCartCount() {
+            fetch('/cart/count/', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const cartCount = document.getElementById('cart-count');
+                const mobileCartCount = document.getElementById('mobile-cart-count');
+                
+                if (data.count > 0) {
+                    if (cartCount) {
+                        cartCount.textContent = data.count;
+                        cartCount.style.display = 'flex';
+                    }
+                    if (mobileCartCount) {
+                        mobileCartCount.textContent = data.count;
+                        mobileCartCount.style.display = 'flex';
+                    }
+                } else {
+                    if (cartCount) cartCount.style.display = 'none';
+                    if (mobileCartCount) mobileCartCount.style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error updating cart count:', error));
+        }
+
+        // Add to cart functionality
+        function addToCart(productId, quantity = 1, notes = '') {
+            const formData = new FormData();
+            formData.append('quantity', quantity);
+            formData.append('notes', notes);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            return fetch(`/products/add-to-cart/${productId}/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateCartCount();
+                    
+                    // Show success message
+                    const message = document.createElement('div');
+                    message.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50';
+                    message.textContent = 'Item added to cart successfully!';
+                    document.body.appendChild(message);
+                    
+                    setTimeout(() => {
+                        message.remove();
+                    }, 3000);
+                } else {
+                    alert(data.message || 'Error adding item to cart');
+                }
+                return data;
+            })
+            .catch(error => {
+                console.error('Error adding to cart:', error);
+                alert('Error adding item to cart. Please try again.');
+            });
+        }
+
+        // Initialize cart count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            
+            // Handle add to cart form submissions
+            const addToCartForm = document.getElementById('add-to-cart-form');
+            if (addToCartForm) {
+                addToCartForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const productId = this.action.split('/').slice(-2, -1)[0];
+                    const quantity = this.querySelector('[name="quantity"]').value;
+                    const notes = this.querySelector('[name="notes"]').value;
+                    
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+                    submitBtn.disabled = true;
+                    
+                    addToCart(productId, quantity, notes)
+                        .finally(() => {
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

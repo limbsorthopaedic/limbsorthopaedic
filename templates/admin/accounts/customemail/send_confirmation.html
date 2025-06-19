@@ -1,0 +1,70 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}Send Custom Email - {{ email_obj.title }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:accounts_customemail_changelist' %}">Custom emails</a>
+    &rsaquo; Send Email
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Send Custom Email: {{ email_obj.title }}</h1>
+
+<div class="module aligned">
+    <h2>Email Details</h2>
+    <div class="form-row">
+        <div><strong>Subject:</strong> {{ email_obj.subject }}</div>
+    </div>
+    <div class="form-row">
+        <div><strong>From:</strong> {{ email_obj.sender_name }} &lt;{{ email_obj.sender_email }}&gt;</div>
+    </div>
+    <div class="form-row">
+        <div><strong>Recipients:</strong> {{ recipient_count }} email addresses</div>
+    </div>
+    <div class="form-row">
+        <div><strong>Status:</strong> {{ email_obj.status|capfirst }}</div>
+    </div>
+</div>
+
+<div class="module aligned">
+    <h2>Recipients ({{ recipient_count }})</h2>
+    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+        {% for email in recipient_emails %}
+            <div>{{ email }}</div>
+        {% empty %}
+            <div>No recipients found.</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if recipient_count > 0 %}
+<div class="module aligned">
+    <h2>Confirm Send</h2>
+    <p>Are you sure you want to send this email to {{ recipient_count }} recipient{{ recipient_count|pluralize }}?</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="submit-row">
+            <input type="submit" value="Send Email Now" class="default" style="background-color: #0073aa;">
+            <a href="{% url 'admin:accounts_customemail_changelist' %}" class="button cancel-link">Cancel</a>
+            <a href="{% url 'admin:accounts_customemail_preview' email_obj.pk %}" class="button" target="_blank">Preview Email</a>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="module aligned">
+    <h2>No Recipients</h2>
+    <p>Please add recipients before sending this email.</p>
+    <div class="submit-row">
+        <a href="{% url 'admin:accounts_customemail_change' email_obj.pk %}" class="button">Edit Email</a>
+        <a href="{% url 'admin:accounts_customemail_changelist' %}" class="button cancel-link">Back to List</a>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

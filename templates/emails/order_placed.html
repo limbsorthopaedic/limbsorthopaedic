@@ -1,0 +1,103 @@
+{% extends 'base_email.html' %}
+
+{% block title %}Order Placed - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div style="background-color: #f8f9fa; padding: 30px 0;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background-color: #34bdf2; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Order Placed Successfully</h1>
+            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Order #{{ order.order_number }}</p>
+        </div>
+        
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Dear {{ customer_name }},
+            </p>
+            
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Thank you for your order! We have received your request and our team will contact you shortly to discuss your specific needs, measurements, and fitting requirements.
+            </p>
+            
+            <!-- Order Details -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h2 style="color: #34bdf2; font-size: 20px; margin-bottom: 15px;">Order Details</h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong>Order Number:</strong> {{ order.order_number }}<br>
+                    <strong>Order Date:</strong> {{ order.created_at|date:"F d, Y g:i A" }}<br>
+                    <strong>Status:</strong> {{ order.get_status_display }}
+                </div>
+                
+                <!-- Items -->
+                <h3 style="color: #333; font-size: 18px; margin-bottom: 10px;">Items Ordered:</h3>
+                {% for item in order_items %}
+                <div style="border-bottom: 1px solid #dee2e6; padding: 10px 0;">
+                    <div style="font-weight: bold; color: #333;">{{ item.product.title }}</div>
+                    <div style="color: #666; font-size: 14px;">
+                        Quantity: {{ item.quantity }} | Price: {{ item.product.formatted_price }}
+                        {% if item.notes %}
+                        <br>Notes: {{ item.notes }}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #34bdf2;">
+                    <strong style="font-size: 18px;">Total Items: {{ order.items.count }}</strong><br>
+                    {% if order.total_amount > 0 %}
+                    <strong style="font-size: 18px;">Total Amount: KSh {{ order.total_amount|floatformat:2 }}</strong>
+                    {% else %}
+                    <strong style="font-size: 18px;">Amount: Contact for Pricing</strong>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Shipping Information -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+                <h3 style="color: #34bdf2; font-size: 18px; margin-bottom: 10px;">Shipping Information</h3>
+                <strong>Address:</strong><br>
+                {{ order.shipping_address }}<br>
+                {{ order.shipping_city }}<br>
+                {% if order.shipping_notes %}
+                <br><strong>Delivery Notes:</strong> {{ order.shipping_notes }}
+                {% endif %}
+            </div>
+            
+            <!-- Next Steps -->
+            <div style="background-color: #e7f3ff; padding: 20px; border-radius: 6px; border-left: 4px solid #34bdf2; margin-bottom: 25px;">
+                <h3 style="color: #1e266f; font-size: 18px; margin-bottom: 10px;">What's Next?</h3>
+                <p style="color: #333; margin: 0; line-height: 1.6;">
+                    Our orthopaedic specialists will contact you within 24-48 hours to:
+                </p>
+                <ul style="color: #333; margin: 10px 0 0 20px; line-height: 1.6;">
+                    <li>Discuss your specific requirements and medical needs</li>
+                    <li>Schedule a fitting appointment if needed</li>
+                    <li>Provide detailed pricing and payment options</li>
+                    <li>Answer any questions you may have</li>
+                </ul>
+            </div>
+            
+            <!-- Contact Information -->
+            <div style="text-align: center; margin-top: 30px;">
+                <p style="color: #666; margin-bottom: 10px;">Questions about your order?</p>
+                <p style="color: #34bdf2; font-weight: bold; margin: 5px 0;">
+                    Call us: {{ company_phone.0 }}, {{ company_phone.1 }}, {{ company_phone.2 }}
+                </p>
+                <p style="color: #34bdf2; font-weight: bold; margin: 5px 0;">
+                    Email: {{ company_email }}
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border-top: 1px solid #dee2e6;">
+            <p style="color: #666; margin: 0; font-size: 14px;">
+                Thank you for choosing LIMBS Orthopaedic for your mobility needs.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

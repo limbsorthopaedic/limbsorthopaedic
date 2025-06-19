@@ -1,0 +1,18 @@
+{% extends 'jazzmin/includes/ui_builder_link.html' %}
+{% load i18n notification_tags %}
+
+{% block ui_builder_link %}
+    {{ block.super }}
+    {% if user.is_authenticated and user.is_staff %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:notifications_notification_changelist' %}" title="{% trans 'Notifications' %}">
+                <i class="fas fa-bell"></i>
+                {% with count=unread_notifications_count %}
+                    {% if count > 0 %}
+                        <span class="badge badge-danger navbar-badge">{{ count }}</span>
+                    {% endif %}
+                {% endwith %}
+            </a>
+        </li>
+    {% endif %}
+{% endblock %}

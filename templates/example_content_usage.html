@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load content_tags %}
+
+{% block title %}Content Management Example{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-12 px-4">
+    <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center">Content Management Example</h1>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">1. Displaying Simple Text Content</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openblock %} get_content 'home-welcome-text' 'Default welcome text if not found' {% templatetag closeblock %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                {% get_content 'home-welcome-text' 'Default welcome text if not found' %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">2. Displaying Section Titles</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openblock %} get_title 'services-intro-title' 'Our Services' {% templatetag closeblock %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                <h2 class="text-2xl font-bold text-blue-600">{% get_title 'services-intro-title' 'Our Services' %}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">3. Using Subtitle Tag</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openblock %} get_subtitle 'services-intro-subtitle' 'Discover our specialized orthopedic services' {% templatetag closeblock %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                <p class="text-lg text-gray-600">{% get_subtitle 'services-intro-subtitle' 'Discover our specialized orthopedic services' %}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">4. Displaying Images</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openblock %} get_image 'home-hero-image' '/static/images/default-hero.jpg' {% templatetag closeblock %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                <img src="{% get_image 'home-hero-image' '/static/images/limbs_logo.jpg' %}" alt="Hero Image" class="max-w-full h-auto rounded">
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">5. Rendering Buttons</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openblock %} get_button 'services-cta-button' 'Book Appointment' '/appointments/book/' {% templatetag closeblock %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                {% get_button 'services-cta-button' 'Book Appointment' '/appointments/book/' %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">6. Rendering Complete Sections</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openblock %} render_section 'about-intro' {% templatetag closeblock %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                {% render_section 'about-intro' %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6 mb-10">
+        <h2 class="text-2xl font-bold mb-4">7. Using Site Settings</h2>
+        <div class="mb-6 p-4 bg-gray-50 rounded">
+            <h3 class="text-lg font-semibold mb-2">Code:</h3>
+            <pre class="bg-gray-100 p-2 rounded font-mono text-sm overflow-x-auto">{% templatetag openvariable %} site_settings.contact_email {% templatetag closevariable %}</pre>
+            
+            <h3 class="text-lg font-semibold mt-4 mb-2">Result:</h3>
+            <div class="p-3 border border-gray-300 rounded">
+                <p>Email: {{ site_settings.contact_email|default:"limbsorthopaedic@gmail.com" }}</p>
+                <p>Phone: {{ site_settings.contact_phone|default:"+254 719 628 276" }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-4">Setting Up Content in Admin Panel</h2>
+        <ol class="list-decimal pl-6 space-y-3">
+            <li>Go to the admin panel at <a href="/admin/content_manager/pagesection/" class="text-blue-600 hover:underline">/admin/content_manager/pagesection/</a></li>
+            <li>Create a new Page Section with a unique identifier (e.g., 'home-welcome-text')</li>
+            <li>Fill in the appropriate fields (title, subtitle, content, image, etc.)</li>
+            <li>For site-wide settings, go to <a href="/admin/content_manager/sitesetting/" class="text-blue-600 hover:underline">/admin/content_manager/sitesetting/</a></li>
+            <li>Create settings with unique keys like 'contact_email', 'contact_phone', etc.</li>
+            <li>The content will be automatically available in your templates using the tags shown above</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}

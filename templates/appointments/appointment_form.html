@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Book an Appointment - LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}Schedule an appointment with our orthopaedic specialists at LIMBS Orthopaedic in Kasarani, Nairobi. We're here to help improve your mobility and quality of life.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Book an Appointment</h1>
+            <p class="text-xl mb-6">
+                Schedule a consultation with our orthopaedic specialists
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Appointment Form -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-gray-50 rounded-lg shadow-md overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3">
+                    <!-- Sidebar -->
+                    <div class="bg-primary-dark text-white p-8">
+                        <h3 class="text-xl font-bold mb-6">Appointment Information</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="text-primary-light mr-3 mt-1">
+                                    <i class="far fa-clock"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Opening Hours</p>
+                                    <p class="text-sm text-gray-200">Monday - Friday: 8:00 AM - 5:00 PM</p>
+                                    <p class="text-sm text-gray-200">Saturday: 9:00 AM - 12:00 NOON</p>
+                                    <p class="text-sm text-gray-200">Sunday: Closed</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-primary-light mr-3 mt-1">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Phone</p>
+                                    <p class="text-sm">
+                                        <a href="tel:+254705347657" class="text-gray-200 hover:text-white">Office: +254 705 347 657</a>
+                                    </p>
+                                    <p class="text-sm">
+                                        <a href="tel:+254719628276" class="text-gray-200 hover:text-white">Collins: +254 719 628 276</a>
+                                    </p>
+                                    <p class="text-sm">
+                                        <a href="tel:+254714663594" class="text-gray-200 hover:text-white">Kelvine: +254 714 663 594</a>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-primary-light mr-3 mt-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Address</p>
+                                    <p class="text-sm text-gray-200">ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <p class="font-medium mb-2">Need Immediate Assistance?</p>
+                            <ul>
+                                <li>Call/Text: +254 705 347 657 (Office)</li>
+                                <li>Phone: +254 719 628 276 (WhatsApp available via <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 719 628 276</a>)</li>
+                                <li>Alternative Phone: +254 714 663 594 (WhatsApp available via <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank">+254 714 663 594</a>)</li>
+                                <li>Email: LimbsOrthopaedic@gmail.com</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Form -->
+                    <div class="p-8 md:col-span-2">
+                        <h3 class="text-2xl font-bold mb-6 gradient-heading">Schedule Your Visit</h3>
+                        
+                        <form method="post" class="space-y-6">
+                            {% csrf_token %}
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="{{ form.full_name.id_for_label }}" class="block text-gray-700 font-medium mb-2">1. Full Name*</label>
+                                    {{ form.full_name }}
+                                    {% if form.full_name.errors %}
+                                    <p class="text-red-500 text-sm mt-1">{{ form.full_name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.email.id_for_label }}" class="block text-gray-700 font-medium mb-2">2. Email Address*</label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                    <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.phone.id_for_label }}" class="block text-gray-700 font-medium mb-2">3. Phone Number*</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.phone.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.service.id_for_label }}" class="block text-gray-700 font-medium mb-2">4. Service Required*</label>
+                                {{ form.service }}
+                                {% if form.service.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.service.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.other_service.id_for_label }}" class="block text-gray-700 font-medium mb-2">Other Service (if not listed above)</label>
+                                {{ form.other_service }}
+                                {% if form.other_service.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.other_service.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="{{ form.preferred_date.id_for_label }}" class="block text-gray-700 font-medium mb-2">5. Preferred Date*</label>
+                                    {{ form.preferred_date }}
+                                    {% if form.preferred_date.errors %}
+                                    <p class="text-red-500 text-sm mt-1">{{ form.preferred_date.errors.0 }}</p>
+                                    {% else %}
+                                    <p class="text-gray-500 text-sm mt-1">{{ form.preferred_date.help_text }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.preferred_time.id_for_label }}" class="block text-gray-700 font-medium mb-2">6. Preferred Time*</label>
+                                    {{ form.preferred_time }}
+                                    {% if form.preferred_time.errors %}
+                                    <p class="text-red-500 text-sm mt-1">{{ form.preferred_time.errors.0 }}</p>
+                                    {% else %}
+                                    <p class="text-gray-500 text-sm mt-1">{{ form.preferred_time.help_text }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.notes.id_for_label }}" class="block text-gray-700 font-medium mb-2">7. Additional Notes</label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ form.notes.errors.0 }}</p>
+                                {% endif %}
+                                <p class="text-gray-500 text-sm mt-1">{{ form.notes.help_text }}</p>
+                            </div>
+                            
+                            <div>
+                                <button type="submit" class="w-full py-3 px-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                                    Book Appointment <i class="far fa-calendar-check ml-2"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="text-center text-gray-500 text-sm">
+                                <p>We'll confirm your appointment via email or phone within 24 hours.</p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Appointment Process -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4 gradient-heading">Our Appointment Process</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+            <p class="max-w-3xl mx-auto text-gray-600">
+                Simple steps to schedule and prepare for your visit with our specialists
+            </p>
+        </div>
+        
+        <div class="max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">1</div>
+                    <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="far fa-calendar-plus text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Book Your Appointment</h3>
+                    <p class="text-gray-600">
+                        Complete the appointment form with your details and preferred date and time.
+                    </p>
+                </div>
+                
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">2</div>
+                    <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Confirmation</h3>
+                    <p class="text-gray-600">
+                        Receive a confirmation call or email within 24 hours to confirm your appointment.
+                    </p>
+                </div>
+                
+                <div class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg">3</div>
+                    <div class="bg-primary-light bg-opacity-20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-md text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Visit Us</h3>
+                    <p class="text-gray-600">
+                        Arrive at our clinic on the scheduled date for your consultation with our specialists.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4 gradient-heading">Frequently Asked Questions</h2>
+            <div class="w-24 h-1 bg-primary mx-auto mb-6"></div>
+        </div>
+        
+        <div class="max-w-3xl mx-auto">
+            <div class="space-y-6">
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold mb-3">What should I bring to my appointment?</h3>
+                    <p class="text-gray-600">
+                        Please bring any previous medical records, referrals, X-rays, or test results related to your condition. Also, bring your ID card and any health insurance information if applicable.
+                    </p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold mb-3">How long will my appointment take?</h3>
+                    <p class="text-gray-600">
+                        Initial consultations typically last between 30-60 minutes depending on the complexity of your condition. Follow-up appointments usually take around 20-30 minutes.
+                    </p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold mb-3">What if I need to reschedule my appointment?</h3>
+                    <p class="text-gray-600">
+                        If you need to reschedule, please contact us at least 24 hours in advance by phone at +254 719 628 276, +254 705 347 657 or via email at LimbsOrthopaedic@gmail.com.
+                    </p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h3 class="text-lg font-bold mb-3">Do you accept health insurance?</h3>
+                    <p class="text-gray-600">
+                        Yes, we work with various health insurance providers. Please contact us to confirm if we accept your specific insurance plan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

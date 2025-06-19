@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+
+{% block title %}Orthopaedic Services - Prosthetic Fitting, Orthotic Fabrication | LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}Comprehensive orthopaedic services in Nairobi including prosthetic fitting, orthotic fabrication, gait training, physiotherapy, device repair, and rehabilitation therapy.{% endblock %}
+{% block meta_keywords %}{{ meta_keywords }}{% endblock %}
+
+{% block extra_css %}
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+    .card-swiper {
+        height: 192px; /* h-48 = 12rem = 192px */
+        border-radius: 0.5rem 0.5rem 0 0;
+        overflow: hidden;
+    }
+    
+    .card-swiper .swiper-slide {
+        text-align: center;
+        background: #f9f9f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .card-swiper .swiper-slide img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .card-swiper .swiper-pagination {
+        bottom: 5px;
+    }
+    
+    .card-swiper .swiper-pagination-bullet {
+        width: 6px;
+        height: 6px;
+        background: #fff;
+        opacity: 0.7;
+    }
+    
+    .card-swiper .swiper-pagination-bullet-active {
+        background-color: #34bdf2;
+        opacity: 1;
+    }
+    
+    .card-swiper .swiper-button-next,
+    .card-swiper .swiper-button-prev {
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 20px 12px;
+        border-radius: 3px;
+        transform: scale(0.7);
+    }
+    
+    .card-swiper .swiper-button-next:after,
+    .card-swiper .swiper-button-prev:after {
+        font-size: 18px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Our Services</h1>
+            <p class="text-xl mb-6">
+                Comprehensive Solutions for Every Need
+            </p>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Introduction -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-lg text-gray-700 mb-6">
+                At LIMBS Orthopaedic, we offer a comprehensive range of prosthetic and orthotic solutions tailored to meet the unique needs of each patient. Our services are designed to enhance mobility, improve comfort, and restore independence.
+            </p>
+            <div class="flex justify-center">
+                <a href="{% url 'appointment' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors mr-4">Book an Appointment</a>
+                <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="whatsapp-btn py-2 px-6">
+                    <i class="fab fa-whatsapp"></i> Chat Collins on WhatsApp
+                </a>
+                <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="whatsapp-btn py-2 px-6">
+                    <i class="fab fa-whatsapp"></i> Chat Kelvine on WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Categories -->
+<section class="py-8 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-wrap justify-center mb-8">
+            <a href="{% url 'services' %}" class="m-2 px-6 py-2 rounded-full {% if not selected_category %}bg-primary text-white{% else %}bg-white text-gray-700 hover:bg-gray-200{% endif %} transition-colors shadow-sm">
+                All Services
+            </a>
+            
+            {% for category in categories %}
+            <a href="{% url 'services' %}?category={{ category.slug }}" class="m-2 px-6 py-2 rounded-full {% if selected_category == category.slug %}bg-primary text-white{% else %}bg-white text-gray-700 hover:bg-gray-200{% endif %} transition-colors shadow-sm">
+                {{ category.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Services List -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        {% if services %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for service in services %}
+            <div class="card hover:shadow-lg bg-white">
+                {% with all_images=service.get_all_images %}
+                {% if all_images %}
+                <div class="swiper card-swiper card-swiper-{{ forloop.counter }}">
+                    <div class="swiper-wrapper">
+                        {% for image in all_images %}
+                        <div class="swiper-slide">
+                            <img src="{{ image.url }}" alt="{{ service.title }}" loading="lazy">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if all_images|length > 1 %}
+                    <!-- Add Pagination -->
+                    <div class="swiper-pagination"></div>
+                    
+                    <!-- Add Navigation -->
+                    <div class="swiper-button-next"></div>
+                    <div class="swiper-button-prev"></div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="bg-gray-200 h-48 flex items-center justify-center">
+                    <i class="{{ service.icon_class|default:'fas fa-medkit' }} text-5xl text-primary"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+                <div class="p-6">
+                    <div class="mb-3">
+                        <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">{{ service.category.name }}</span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">{{ service.title }}</h3>
+                    <p class="text-gray-600 mb-6">{{ service.description|truncatewords:25 }}</p>
+                    <div class="flex justify-between items-center">
+                        <a href="{{ service.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                            Learn More <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                        </a>
+                        <button class="whatsapp-btn text-sm px-3 py-1" 
+                                data-phone="254719628276"
+                                data-service="{{ service.title }}"
+                                data-url="{{ service.get_absolute_url }}">
+                            <i class="fab fa-whatsapp"></i> Inquire
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            {% if current_category %}
+            <div class="text-center py-16">
+                <div class="bg-white p-8 rounded-lg shadow-sm max-w-2xl mx-auto">
+                    <i class="fas fa-info-circle text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-2xl font-bold mb-2">No Services Found</h3>
+                    <p class="text-gray-600 mb-6">There are currently no services available in this category.</p>
+                    <a href="{% url 'services' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">View All Services</a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Default display of standard treatments when no services exist -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Limb Prosthesis -->
+                <div class="card hover:shadow-lg bg-white">
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-hand-paper text-5xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-3">
+                            <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">Prosthetics</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Limb Prosthesis (Upper & Lower)</h3>
+                        <p class="text-gray-600 mb-6">We provide custom prosthetic solutions for individuals with limb differences, focusing on functionality, comfort, and an improved quality of life. Our prostheses are designed using advanced materials to ensure durability and ease of use.</p>
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                Book Consultation <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                            </a>
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I%20want%20Limb%20Prosthesis%20service" target="_blank" class="whatsapp-btn text-sm px-3 py-1">
+                                <i class="fab fa-whatsapp"></i> Inquire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rickets -->
+                <div class="card hover:shadow-lg bg-white">
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-bone text-5xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-3">
+                            <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">Bone Conditions</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Rickets</h3>
+                        <p class="text-gray-600 mb-6">Our specialists diagnose and manage rickets, a condition often caused by vitamin D deficiency. We offer corrective procedures, nutritional guidance, and orthotic solutions to support proper bone growth.</p>
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                Book Consultation <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                            </a>
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I%20want%20Rickets%20treatment%20service" target="_blank" class="whatsapp-btn text-sm px-3 py-1">
+                                <i class="fab fa-whatsapp"></i> Inquire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bow Legs -->
+                <div class="card hover:shadow-lg bg-white">
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-child text-5xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-3">
+                            <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">Deformity Correction</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Bow Legs</h3>
+                        <p class="text-gray-600 mb-6">Using corrective braces and specialized therapies, we help straighten the lower limbs in both children and adults. Early intervention can lead to significantly improved posture and mobility.</p>
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                Book Consultation <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                            </a>
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I%20want%20Bow%20Legs%20treatment%20service" target="_blank" class="whatsapp-btn text-sm px-3 py-1">
+                                <i class="fab fa-whatsapp"></i> Inquire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Knock-Knees -->
+                <div class="card hover:shadow-lg bg-white">
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-child text-5xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-3">
+                            <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">Deformity Correction</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Knock-Knees</h3>
+                        <p class="text-gray-600 mb-6">Through customized orthotic devices and rehabilitative exercises, we work to correct knee alignment, reducing discomfort and improving gait.</p>
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                Book Consultation <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                            </a>
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I%20want%20Knock-Knees%20treatment%20service" target="_blank" class="whatsapp-btn text-sm px-3 py-1">
+                                <i class="fab fa-whatsapp"></i> Inquire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Spinal Deformities -->
+                <div class="card hover:shadow-lg bg-white">
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-spine text-5xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-3">
+                            <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">Spine Care</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Spinal Deformities</h3>
+                        <p class="text-gray-600 mb-6">Our team offers bracing, physical therapy, and in certain cases, surgical consultations for spinal deformities. Each treatment plan is personalized to maintain and enhance spinal alignment.</p>
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                Book Consultation <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                            </a>
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I%20want%20Spinal%20Deformities%20treatment%20service" target="_blank" class="whatsapp-btn text-sm px-3 py-1">
+                                <i class="fab fa-whatsapp"></i> Inquire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Foot Pains & Problems -->
+                <div class="card hover:shadow-lg bg-white">
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-shoe-prints text-5xl text-primary"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-3">
+                            <span class="text-xs font-semibold bg-primary-light bg-opacity-20 text-primary px-2 py-1 rounded">Foot Care</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Foot Pains & Problems</h3>
+                        <p class="text-gray-600 mb-6">We design orthotic insoles, custom footwear, and targeted therapy programs to alleviate foot pain, enhance stability, and correct biomechanical issues.</p>
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                Book Consultation <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                            </a>
+                            <a href="https://wa.me/254719628276?text=Hello%20*LIMBS%20Orthopaedic*%2C%20I%20want%20Foot%20Pains%20%26%20Problems%20treatment%20service" target="_blank" class="whatsapp-btn text-sm px-3 py-1">
+                                <i class="fab fa-whatsapp"></i> Inquire
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-10">
+                <p class="text-gray-600 mb-6">
+                    We also offer specialized treatment for Stroke Management, Birth Deformity, Lower Limb Paralysis, Delayed Milestone, Club Foot, and Cerebral Palsy.
+                </p>
+                <a href="{% url 'appointment' %}" class="btn-primary py-2 px-6 rounded-md text-white hover:bg-primary-dark transition-colors">Book a Consultation</a>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-12 bg-primary-dark text-white">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6">Ready to Improve Your Mobility?</h2>
+            <p class="text-xl mb-8">
+                Our specialized team is ready to provide you with the highest quality care and support.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{% url 'appointment' %}" class="btn bg-white text-primary hover:bg-gray-100 transition-colors py-3 px-6 rounded-md font-medium">
+                    Book an Appointment
+                </a>
+                <a href="{% url 'contact' %}" class="btn border-2 border-white hover:bg-white hover:text-primary transition-colors py-3 px-6 rounded-md font-medium">
+                    Contact Us
+                </a>
+                <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="btn bg-[#25D366] hover:bg-[#128C7E] transition-colors py-3 px-6 rounded-md font-medium">
+                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp Collins
+                </a>
+                <br>
+                <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="btn bg-[#25D366] hover:bg-[#128C7E] transition-colors py-3 px-6 rounded-md font-medium">
+                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp Kelvine
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Initialize Swiper instances for each service card -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all card swiper elements
+    const cardSwipers = document.querySelectorAll('.card-swiper');
+    
+    // Initialize Swiper for each card
+    cardSwipers.forEach(function(swiperElement) {
+      // Count the number of slides
+      const slideCount = swiperElement.querySelectorAll('.swiper-slide').length;
+      
+      const swiper = new Swiper(swiperElement, {
+        // Optional parameters
+        loop: slideCount > 1, // Only enable loop when more than one slide
+        speed: 500,
+        effect: 'slide',
+        
+        // Pagination
+        pagination: {
+          el: swiperElement.querySelector('.swiper-pagination'),
+          clickable: true,
+        },
+        
+        // Navigation arrows
+        navigation: {
+          nextEl: swiperElement.querySelector('.swiper-button-next'),
+          prevEl: swiperElement.querySelector('.swiper-button-prev'),
+        },
+        
+        // Auto-play settings (only for multiple slides)
+        autoplay: slideCount > 1 ? {
+          delay: 3000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true
+        } : false,
+      });
+    });
+  });
+</script>
+{% endblock %}

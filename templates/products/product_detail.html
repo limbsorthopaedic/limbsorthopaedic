@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.title }} - LIMBS Orthopaedic{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-primary-dark text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-3">{{ product.title }}</h1>
+            <div class="mb-6">
+                <span class="px-4 py-1 rounded-full bg-white bg-opacity-20 text-sm font-medium">{{ product.category.name }}</span>
+            </div>
+            <div class="w-24 h-1 bg-white mx-auto"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Details -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Product Image -->
+                <div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-md">
+                        {% if product.get_image %}
+                        <img src="{{ product.get_image }}" alt="{{ product.title }}" class="w-full h-auto rounded-lg object-contain max-h-96 mx-auto">
+                        {% else %}
+                        <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-box-open text-6xl text-primary"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Call to Action -->
+                    <div class="mt-8 bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <span class="text-gray-600 text-sm">Price:</span>
+                                <div class="text-2xl font-bold text-primary">{{ product.formatted_price }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-600 text-sm">Category:</span>
+                                <div class="font-medium">{{ product.category.name }}</div>
+                            </div>
+                        </div>
+                        
+                        <button class="whatsapp-btn w-full py-3 justify-center mb-4 text-lg" 
+                                data-phone="254719628276" 
+                                data-message="{{ product.whatsapp_message }}">
+                            <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Collins
+                        </button>
+                        <br>
+                        <button class="whatsapp-btn w-full py-3 justify-center mb-4 text-lg" 
+                                data-phone="254714663594" 
+                                data-message="{{ product.whatsapp_message }}">
+                            <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Kelvine
+                        </button>
+                        
+                        <!-- Add to Cart Form -->
+                        <form method="post" action="{% url 'add_to_cart' product.id %}" id="add-to-cart-form" class="space-y-4">
+                            {% csrf_token %}
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                    <select id="quantity" name="quantity" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
+                                    <input type="text" id="notes" name="notes" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Size, color, etc.">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary py-3 w-full flex justify-center items-center rounded-md text-white hover:bg-primary-dark transition-colors">
+                                <i class="fas fa-cart-plus mr-2"></i> Place Order
+                            </button>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark text-sm font-medium">
+                                Need a consultation? Schedule an appointment
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Product Description -->
+                <div>
+                    <h2 class="text-2xl font-bold mb-6 gradient-heading">Product Description</h2>
+                    
+                    <div class="prose max-w-none mb-8 text-gray-700">
+                        {{ product.description|linebreaks }}
+                    </div>
+                    
+                    <!-- Features -->
+                    <div class="mb-8">
+                        <h3 class="text-xl font-bold mb-4">Key Features</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>High-quality materials for durability and comfort</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>Custom fit options available for optimal support</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>Lightweight design for ease of use and mobility</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>Professional fitting and adjustments included</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Inquiry Form -->
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-bold mb-4">Request More Information</h3>
+                        <form action="{% url 'contact' %}" method="post" class="space-y-4">
+                            {% csrf_token %}
+                            <input type="hidden" name="subject" value="Product Inquiry: {{ product.title }}">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-1" for="name">Name*</label>
+                                    <input class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" type="text" id="name" name="name" required>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-1" for="email">Email*</label>
+                                    <input class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" type="email" id="email" name="email" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-1" for="phone">Phone*</label>
+                                <input class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" type="tel" id="phone" name="phone" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-medium mb-1" for="message">Your Message*</label>
+                                <textarea class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" id="message" name="message" rows="3" required>I would like more information about {{ product.title }}.</textarea>
+                            </div>
+                            <button type="submit" class="w-full py-2 px-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition-colors">
+                                Send Inquiry
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Products -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-2xl font-bold mb-8 gradient-heading">Related Products</h2>
+            
+            {% if related_products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for related in related_products %}
+                <div class="card hover:shadow-lg bg-white">
+                    {% if related.get_image %}
+                    <img src="{{ related.get_image }}" alt="{{ related.title }}" class="card-img h-48 w-full object-cover">
+                    {% else %}
+                    <div class="bg-gray-200 h-48 flex items-center justify-center">
+                        <i class="fas fa-box-open text-5xl text-primary"></i>
+                    </div>
+                    {% endif %}
+                    <div class="p-5">
+                        <h3 class="text-lg font-bold mb-2">{{ related.title }}</h3>
+                        <p class="text-gray-500 text-sm mb-3">{{ related.formatted_price }}</p>
+                        <div class="flex justify-between items-center mt-4">
+                            <a href="{{ related.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                                View Details
+                            </a>
+                            <button class="whatsapp-btn text-sm px-3 py-1" 
+                                    data-phone="254719628276"
+                                    data-message="{{ related.whatsapp_message }}">
+                                <i class="fab fa-whatsapp"></i> Order-via-Collins
+                            </button>
+                            <br>
+                            <button class="whatsapp-btn text-sm px-3 py-1" 
+                                    data-phone="254714663594"
+                                    data-message="{{ related.whatsapp_message }}">
+                                <i class="fab fa-whatsapp"></i> Order-via-Kelvine
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <p class="text-gray-500">No related products found.</p>
+                <a href="{% url 'products' %}" class="inline-block mt-4 text-primary hover:text-primary-dark font-medium transition-colors">
+                    Browse All Products <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-12 bg-primary-dark text-white">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl font-bold mb-6">Need Professional Advice?</h2>
+            <p class="text-xl mb-8">
+                Our specialists can help you choose the right product for your specific condition and requirements.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{% url 'appointment' %}" class="btn bg-white text-primary hover:bg-gray-100 transition-colors py-3 px-6 rounded-md font-medium">
+                    Book a Consultation
+                </a>
+                <a href="{% url 'contact' %}" class="btn border-2 border-white hover:bg-white hover:text-primary transition-colors py-3 px-6 rounded-md font-medium">
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
