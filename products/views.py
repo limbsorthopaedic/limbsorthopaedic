@@ -122,7 +122,10 @@ def add_to_cart(request, product_id):
                 cart_item.notes = notes
             cart_item.save()
         
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Check if it's an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if is_ajax:
             return JsonResponse({
                 'success': True,
                 'message': f'{product.title} added to cart',
@@ -130,14 +133,22 @@ def add_to_cart(request, product_id):
             })
         else:
             messages.success(request, f'{product.title} has been added to your cart.')
-            return redirect('product_detail', slug=product.slug)
+            return redirect('cart_view')
             
-    except Exception as e:
+    except ValueError as e:
+        error_msg = 'Invalid quantity specified.'
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': False, 'message': str(e)})
+            return JsonResponse({'success': False, 'message': error_msg})
         else:
-            messages.error(request, 'Error adding product to cart.')
-            return redirect('products')
+            messages.error(request, error_msg)
+            return redirect('product_detail', slug=product.slug)
+    except Exception as e:
+        error_msg = 'Error adding product to cart. Please try again.'
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': error_msg})
+        else:
+            messages.error(request, error_msg)
+            return redirect('product_detail', slug=product.slug)
 
 
 def cart_view(request):
@@ -303,4 +314,4 @@ def order_confirmation(request, order_number):
 def get_cart_count(request):
     """AJAX endpoint to get cart item count"""
     cart = get_or_create_cart(request)
-    return JsonResponse({'cart_count': cart.total_items})
+    return JsonResponse({'count': cart.total_items})
