@@ -308,7 +308,7 @@ def order_confirmation(request, order_number):
     }
     context['breadcrumb_schema'] = SEOManager.get_breadcrumb_schema(request, context['breadcrumbs'])
     
-    return render(request, 'products/order_confirmation.html', context)
+    return render(request, 'products/order_success.html', context)
 
 
 def get_cart_count(request):
