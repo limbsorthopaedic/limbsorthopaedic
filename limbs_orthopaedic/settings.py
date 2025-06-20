@@ -465,11 +465,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.limbsorthopaedic.org'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'admin@limbsorthopaedic.org'
+EMAIL_HOST_USER = 'noreply@limbsorthopaedic.org'
 EMAIL_HOST_PASSWORD = os.environ.get('CPANEL_EMAIL_PASSWORD')
 
-DEFAULT_FROM_EMAIL = 'LIMBS Orthopaedic <admin@limbsorthopaedic.org>'
-SERVER_EMAIL = 'admin@limbsorthopaedic.org'
+DEFAULT_FROM_EMAIL = 'LIMBS Orthopaedic <noreply@limbsorthopaedic.org>'
+SERVER_EMAIL = 'noreply@limbsorthopaedic.org'
 
 # Logging configuration
 LOGGING = {

@@ -60,6 +60,95 @@
     .card-swiper .swiper-button-prev:after {
         font-size: 18px;
     }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
+    /* Target only buttons with class neon-btn */
+    .neon-btn {
+        position: relative;
+        display: inline-block;
+        padding: 12px 20px; /* Smaller size */
+        color: #03e9f4;
+        text-decoration: none;
+        transition: 0.5s;
+        overflow: hidden;
+        border: 2px solid #03e9f4;
+        border-radius: 5px;
+        z-index: 1;
+    }
+    
+    .neon-btn:hover {
+        background: #03e9f4;
+        color: #050801;
+        box-shadow: 0 0 5px #03e9f4,
+                    0 0 25px #03e9f4,
+                    0 0 50px #03e9f4,
+                    0 0 200px #03e9f4;
+    }
+    
+    .neon-btn span {
+        position: absolute;
+        display: block;
+    }
+    
+    .neon-btn span:nth-child(1) {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #03e9f4);
+        animation: animate1 1s linear infinite;
+    }
+    
+    .neon-btn span:nth-child(2) {
+        top: -100%;
+        right: 0;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(180deg, transparent, #03e9f4);
+        animation: animate2 1s linear infinite;
+        animation-delay: 0.25s;
+    }
+    
+    .neon-btn span:nth-child(3) {
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(270deg, transparent, #03e9f4);
+        animation: animate3 1s linear infinite;
+        animation-delay: 0.50s;
+    }
+    
+    .neon-btn span:nth-child(4) {
+        bottom: -100%;
+        left: 0;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(360deg, transparent, #03e9f4);
+        animation: animate4 1s linear infinite;
+        animation-delay: 0.75s;
+    }
+    
+    @keyframes animate1 {
+        0% { left: -100%; }
+        50%, 100% { left: 100%; }
+    }
+    
+    @keyframes animate2 {
+        0% { top: -100%; }
+        50%, 100% { top: 100%; }
+    }
+    
+    @keyframes animate3 {
+        0% { right: -100%; }
+        50%, 100% { right: 100%; }
+    }
+    
+    @keyframes animate4 {
+        0% { bottom: -100%; }
+        50%, 100% { bottom: 100%; }
+    }
 </style>
 {% endblock %}
 
@@ -154,7 +243,7 @@
                     <h3 class="text-xl font-bold mb-3">{{ service.title }}</h3>
                     <p class="text-gray-600 mb-6">{{ service.description|safe|truncatewords:25 }}</p>
                     <div class="flex justify-between items-center">
-                        <a href="{{ service.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
+                        <a href="{{ service.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium  neon-btn">
                             Learn More <i class="fas fa-chevron-right ml-1 text-sm"></i>
                         </a>
                         <button class="whatsapp-btn text-sm px-3 py-1" 
@@ -395,5 +484,13 @@
       });
     });
   });
+  
+    // Add spans dynamically for neon animation effect
+  document.querySelectorAll('.neon-btn').forEach(btn => {
+    for (let i = 0; i < 4; i++) {
+      const span = document.createElement('span');
+      btn.insertBefore(span, btn.firstChild);
+        }
+      });
 </script>
 {% endblock %}

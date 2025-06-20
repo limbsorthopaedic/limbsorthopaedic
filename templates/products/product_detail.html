@@ -50,13 +50,13 @@
                         <button class="whatsapp-btn w-full py-3 justify-center mb-4 text-lg" 
                                 data-phone="254719628276" 
                                 data-message="{{ product.whatsapp_message }}">
-                            <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Collins
+                            <i class="fab fa-whatsapp mr-2"></i> Order - Collins
                         </button>
                         <br>
                         <button class="whatsapp-btn w-full py-3 justify-center mb-4 text-lg" 
                                 data-phone="254714663594" 
                                 data-message="{{ product.whatsapp_message }}">
-                            <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Kelvine
+                            <i class="fab fa-whatsapp mr-2"></i> Order - Kelvine
                         </button>
 
                         <!-- Add to Cart Form -->
@@ -85,6 +85,10 @@
                         </form>
 
                         <div class="mt-4 text-center">
+                            <a href="{% url 'cart_view' %}" class="btn-primary py-3 w-full flex justify-center items-center rounded-md text-white hover:bg-primary-dark transition-colors">
+                                <i class="fa-solid fa-eye"></i>  View Cart
+                            </a>
+                            <br>
                             <a href="{% url 'appointment' %}" class="text-primary hover:text-primary-dark text-sm font-medium">
                                 Need a consultation? Schedule an appointment
                             </a>

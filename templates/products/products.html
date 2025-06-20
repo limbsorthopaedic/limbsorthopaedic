@@ -4,6 +4,99 @@
 {% block meta_description %}Browse our comprehensive range of orthopaedic products including AFO, KAFO, splints, prosthetics, wheelchairs, crutches, and mobility aids. Made in Kenya for enhanced mobility and comfort.{% endblock %}
 {% block meta_keywords %}{{ meta_keywords }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+    
+    /* Target only buttons with class neon-btn */
+    .neon-btn {
+        position: relative;
+        display: inline-block;
+        padding: 12px 20px; /* Smaller size */
+        color: #03e9f4;
+        text-decoration: none;
+        transition: 0.5s;
+        overflow: hidden;
+        border: 2px solid #03e9f4;
+        border-radius: 5px;
+        z-index: 1;
+    }
+    
+    .neon-btn:hover {
+        background: #03e9f4;
+        color: #050801;
+        box-shadow: 0 0 5px #03e9f4,
+                    0 0 25px #03e9f4,
+                    0 0 50px #03e9f4,
+                    0 0 200px #03e9f4;
+    }
+    
+    .neon-btn span {
+        position: absolute;
+        display: block;
+    }
+    
+    .neon-btn span:nth-child(1) {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #03e9f4);
+        animation: animate1 1s linear infinite;
+    }
+    
+    .neon-btn span:nth-child(2) {
+        top: -100%;
+        right: 0;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(180deg, transparent, #03e9f4);
+        animation: animate2 1s linear infinite;
+        animation-delay: 0.25s;
+    }
+    
+    .neon-btn span:nth-child(3) {
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(270deg, transparent, #03e9f4);
+        animation: animate3 1s linear infinite;
+        animation-delay: 0.50s;
+    }
+    
+    .neon-btn span:nth-child(4) {
+        bottom: -100%;
+        left: 0;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(360deg, transparent, #03e9f4);
+        animation: animate4 1s linear infinite;
+        animation-delay: 0.75s;
+    }
+    
+    @keyframes animate1 {
+        0% { left: -100%; }
+        50%, 100% { left: 100%; }
+    }
+    
+    @keyframes animate2 {
+        0% { top: -100%; }
+        50%, 100% { top: 100%; }
+    }
+    
+    @keyframes animate3 {
+        0% { right: -100%; }
+        50%, 100% { right: 100%; }
+    }
+    
+    @keyframes animate4 {
+        0% { bottom: -100%; }
+        50%, 100% { bottom: 100%; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="bg-primary-dark text-white py-16">
@@ -79,20 +172,20 @@
                     <p class="text-gray-600 text-sm mb-3">{{ product.description|truncatewords:12 }}</p>
                     <div class="flex justify-between items-center mt-4">
                         <div class="text-lg font-bold text-primary">{{ product.formatted_price }}</div>
-                        <a href="{{ product.get_absolute_url }}" class="text-gray-700 hover:text-primary transition-colors">
-                            <i class="fas fa-info-circle mr-1"></i> Details
+                        <a href="{{ product.get_absolute_url }}" class="neon-btn">
+                            Details
                         </a>
                     </div>
                     <button class="whatsapp-btn w-full mt-4 justify-center" 
                             data-phone="254719628276"
                             data-message="{{ product.whatsapp_message }}">
-                        <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Collins
+                        <i class="fab fa-whatsapp mr-2"></i> Order - Collins
                     </button>
                     <br>
                     <button class="whatsapp-btn w-full mt-4 justify-center" 
                             data-phone="254714663594"
                             data-message="{{ product.whatsapp_message }}">
-                        <i class="fab fa-whatsapp mr-2"></i> Order on WhatsApp - Kelvine
+                        <i class="fab fa-whatsapp mr-2"></i> Order - Kelvine
                     </button>
                 </div>
             </div>
@@ -293,14 +386,26 @@
                     Book a Consultation
                 </a>
                 <a href="https://wa.me/254719628276?text=Hello%20Collins%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="btn bg-[#25D366] hover:bg-[#128C7E] transition-colors py-3 px-6 rounded-md font-medium">
-                    <i class="fab fa-whatsapp mr-2"></i> Chat Collins on WhatsApp
+                    <i class="fab fa-whatsapp mr-2"></i> Chat Collins
                 </a>
                 <br>
                 <a href="https://wa.me/254714663594?text=Hello%20Kelvine%20at%20*Limbs%20Orthopaedic*%20%F0%9F%91%8B" target="_blank" class="btn bg-[#25D366] hover:bg-[#128C7E] transition-colors py-3 px-6 rounded-md font-medium">
-                    <i class="fab fa-whatsapp mr-2"></i> Chat Kelvine on WhatsApp
+                    <i class="fab fa-whatsapp mr-2"></i> Chat Kelvine
                 </a>
             </div>
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Add spans dynamically for neon animation effect
+  document.querySelectorAll('.neon-btn').forEach(btn => {
+    for (let i = 0; i < 4; i++) {
+      const span = document.createElement('span');
+      btn.insertBefore(span, btn.firstChild);
+        }
+    });
+</script>
 {% endblock %}
