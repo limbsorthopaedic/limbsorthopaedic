@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ product.title }} - LIMBS Orthopaedic{% endblock %}
-{% block meta_description %}{{ product.description|truncatewords:25 }}{% endblock %}
+{% block meta_description %}{{ product.description|safe|truncatewords:25 }}{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -101,12 +101,12 @@
                     <h2 class="text-2xl font-bold mb-6 gradient-heading">Product Description</h2>
 
                     <div class="product-description prose max-w-none mb-8 text-gray-700">
-                        {{ product.description|linebreaks }}
+                        {{ product.description|safe|linebreaks }}
                     </div>
 
                     <!-- Features -->
                     <div class="mb-8">
-                        <h3 class="text-xl font-bold mb-4">Key Features</h3>
+                        <h3 class="text-xl font-bold mb-4">General Key Features</h3>
                         <ul class="space-y-3">
                             <li class="flex items-start">
                                 <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>

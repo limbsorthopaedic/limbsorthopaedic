@@ -81,7 +81,7 @@ class CustomEmail(models.Model):
     subject = models.CharField(max_length=200, help_text="Email subject line")
     content = CKEditor5Field(help_text="Email content - you can use HTML formatting")
     sender_name = models.CharField(max_length=100, default="LIMBS Orthopaedic Team")
-    sender_email = models.EmailField(default="LimbsOrthopaedic@gmail.com")
+    sender_email = models.EmailField(default="admin@limbsorthopaedic.org")
 
     # Recipients
     send_to_all_users = models.BooleanField(default=False, help_text="Send to all registered users")
