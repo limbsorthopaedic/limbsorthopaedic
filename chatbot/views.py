@@ -50,6 +50,7 @@ def chatbot_api(request):
         hours_keywords = ['hours', 'open', 'close', 'time', 'operating', 'available', 'working', 'schedule']
         history_keywords = ['history', 'transcript', 'previous', 'conversation', 'export', 'save', 'record', 'download']
         product_keywords = ['product', 'products', 'device', 'devices', 'equipment', 'crutches', 'wheelchair', 'walker', 'mobility', 'aid', 'aids', 'standing', 'sitting']
+        service_keywords = ['service', 'services', 'treatment', 'treatments', 'help', 'prosthetic', 'orthotic', 'rehabilitation', 'therapy', 'medical', 'care', 'orthopaedic', 'physiotherapy', 'consultation']
         
         # Handle history/export requests
         if any(keyword in user_message for keyword in history_keywords):
@@ -252,6 +253,43 @@ def chatbot_api(request):
                 'conversation_id': conversation_id
             })
             
+        # Handle service inquiries
+        if any(keyword in user_message for keyword in service_keywords):
+            # Fetch active services
+            active_services = Service.objects.filter(is_active=True).order_by('order', 'title')
+            
+            response = "🏥 *Our Medical Services*\n\n"
+            response += "We offer comprehensive orthopaedic and rehabilitation services:\n\n"
+            
+            # List all active services with links
+            for service in active_services:
+                service_url = f"{base_url}/services/{service.slug}/"
+                response += f"• *{service.title}*\n"
+                response += f"  👉 {service_url}\n\n"
+            
+            response += "Need personalized care? Our specialists are here to help!\n\n"
+            response += "📞 Call: Collins: +254719628276 or Kelvine: +254714663594\n\n"
+            response += "📱 WhatsApp: Collins: https://wa.me/254719628276 or Kelvine: https://wa.me/254714663594\n"
+            response += f"📅 Book an appointment: {base_url}/appointments/"
+            
+            # Save the message exchange
+            user = request.user if request.user.is_authenticated else None
+            session_key = request.session.session_key if not user else None
+            
+            chat_message = ChatMessage(
+                user_message=user_message,
+                ai_response=response,
+                conversation_id=conversation_id,
+                user=user,
+                session_key=session_key
+            )
+            chat_message.save()
+            
+            return JsonResponse({
+                'answer': response,
+                'conversation_id': conversation_id
+            })
+            
         # Handle product inquiries
         if any(keyword in user_message for keyword in product_keywords):
             # Fetch active products
@@ -339,36 +377,16 @@ def chatbot_api(request):
             response += "📞 Call us: Collins: +254719628276 or Kelvine: +254714663594"
             
         else:
-            # Check if user is asking about services in general
-            service_keywords = ['service', 'services', 'treatment', 'treatments', 'help', 'prosthetic', 'orthotic', 'rehabilitation', 'therapy']
-            if any(keyword in user_message for keyword in service_keywords):
-                # Fetch all active services from database
-                active_services = Service.objects.filter(is_active=True).order_by('order', 'title')
-                
-                response = "🏥 *Our Medical Services*\n\n"
-                response += "We offer comprehensive orthopaedic and rehabilitation services:\n\n"
-                
-                # List all active services with links
-                for service in active_services:
-                    service_url = f"{base_url}/services/{service.slug}/"
-                    response += f"• *{service.title}*\n"
-                    response += f"  👉 {service_url}\n\n"
-                
-                response += "Need personalized care? Our specialists are here to help!\n\n"
-                response += "📞 Call: Collins: +254719628276 or Kelvine: +254714663594\n\n"
-                response += "📱 WhatsApp: Collins: https://wa.me/254719628276 or Kelvine: https://wa.me/254714663594\n"
-                response += f"📅 Book an appointment: {base_url}/appointments/"
-            else:
-                # Generic response for unmatched queries
-                response = "I'm here to help! I can provide information about:\n\n"
-                response += "🏥 Our medical services and treatments\n"
-                response += "🦽 Mobility products and devices\n"
-                response += "📅 Appointment booking\n"
-                response += "📍 Location and directions\n"
-                response += "☎️ Contact information\n"
-                response += "⏰ Operating hours\n"
-                response += "💰 Pricing and payment options\n\n"
-                response += "What would you like to know more about?"
+            # Generic response for unmatched queries
+            response = "I'm here to help! I can provide information about:\n\n"
+            response += "🏥 Our medical services and treatments\n"
+            response += "🦽 Mobility products and devices\n"
+            response += "📅 Appointment booking\n"
+            response += "📍 Location and directions\n"
+            response += "☎️ Contact information\n"
+            response += "⏰ Operating hours\n"
+            response += "💰 Pricing and payment options\n\n"
+            response += "What would you like to know more about?"
         
         # Save the message exchange
         user = request.user if request.user.is_authenticated else None
