@@ -27,7 +27,7 @@ class BlogPostAdmin(admin.ModelAdmin):
             'fields': ('categories',)
         }),
         ('Publishing', {
-            'fields': ('status', 'published_date', 'featured_image')
+            'fields': ('status', 'published_date', 'featured_image', 'featured_image_url')
         }),
     )
 
