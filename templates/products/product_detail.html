@@ -39,7 +39,7 @@
                         <div class="flex justify-between items-center mb-6">
                             <div>
                                 <span class="text-gray-600 text-sm">Price:</span>
-                                <div class="text-2xl font-bold text-primary">{{ product.formatted_price }}</div>
+                                <div class="text-2xl font-bold" style="color: #ff0000;">{{ product.formatted_price }}</div>
                             </div>
                             <div>
                                 <span class="text-gray-600 text-sm">Category:</span>
@@ -181,7 +181,7 @@
                     {% endif %}
                     <div class="p-5">
                         <h3 class="text-lg font-bold mb-2">{{ related.title }}</h3>
-                        <p class="text-gray-500 text-sm mb-3">{{ related.formatted_price }}</p>
+                        <p class="text-sm mb-3" style="color: #ff0000;">{{ related.formatted_price }}</p>
                         <div class="flex justify-between items-center mt-4">
                             <a href="{{ related.get_absolute_url }}" class="text-primary hover:text-primary-dark font-medium transition-colors">
                                 View Details
