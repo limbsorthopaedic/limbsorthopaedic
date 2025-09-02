@@ -49,6 +49,7 @@ urlpatterns = [
     path('', include('core.urls')),
     path('services/', include('services.urls')),
     path('products/', include('products.urls')),
+    path('cart/', include('products.urls')),
     path('appointments/', include('appointments.urls')),
     path('blog/', include('blog.urls')),
     path('testimonials/', include('testimonials.urls')),

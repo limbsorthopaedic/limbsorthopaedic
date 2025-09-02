@@ -29,15 +29,15 @@ function setupSearchInput(input, suggestionsContainer) {
 
     input.addEventListener('input', function() {
         const query = this.value.trim();
-        
+
         clearTimeout(debounceTimer);
-        
+
         // Cancel previous request if it exists
         if (currentRequest) {
             currentRequest.abort();
             currentRequest = null;
         }
-        
+
         if (query.length < 2) {
             suggestionsContainer.classList.add('hidden');
             return;
@@ -59,7 +59,7 @@ function setupSearchInput(input, suggestionsContainer) {
     input.addEventListener('keydown', function(e) {
         const suggestions = suggestionsContainer.querySelectorAll('a');
         const activeSuggestion = suggestionsContainer.querySelector('.suggestion-active');
-        
+
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (activeSuggestion) {
@@ -107,7 +107,7 @@ function setupSearchInput(input, suggestionsContainer) {
 
 function fetchSearchSuggestions(query, container) {
     const controller = new AbortController();
-    
+
     const request = fetch(`/api/search/suggestions/?q=${encodeURIComponent(query)}`, {
         signal: controller.signal
     })
@@ -126,7 +126,7 @@ function fetchSearchSuggestions(query, container) {
                 container.classList.add('hidden');
             }
         });
-    
+
     // Return controller so we can abort the request if needed
     request.abort = () => controller.abort();
     return request;
@@ -150,7 +150,7 @@ function displaySearchSuggestions(suggestions, container) {
     }, {});
 
     let html = '';
-    
+
     // Add "View all results" option at the top
     if (suggestions.length > 0) {
         const query = container.closest('.relative').querySelector('input').value;
@@ -169,7 +169,7 @@ function displaySearchSuggestions(suggestions, container) {
         if (items.length > 0) {
             // Category header
             html += `<div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 border-b border-gray-100">${category}</div>`;
-            
+
             // Items in category
             items.forEach((suggestion, index) => {
                 const truncatedDescription = suggestion.description && suggestion.description.length > 80 
@@ -236,7 +236,7 @@ function initMobileMenu() {
     if (mobileMenuButton && mobileMenu) {
         mobileMenuButton.addEventListener('click', function() {
             const isHidden = mobileMenu.classList.contains('hidden');
-            
+
             if (isHidden) {
                 mobileMenu.classList.remove('hidden');
                 mobileMenu.style.display = 'block';
@@ -244,7 +244,7 @@ function initMobileMenu() {
                 mobileMenu.classList.add('hidden');
                 mobileMenu.style.display = 'none';
             }
-            
+
             // Update aria-expanded attribute for accessibility
             mobileMenuButton.setAttribute('aria-expanded', !isHidden);
         });
@@ -273,10 +273,10 @@ function initUserDropdown() {
         toggleButton.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const isVisible = dropdownMenu.style.display === 'block';
             const chevronIcon = toggleButton.querySelector('i');
-            
+
             if (isVisible) {
                 dropdownMenu.style.display = 'none';
                 if (chevronIcon) {
@@ -355,4 +355,27 @@ function initAnimations() {
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
         observer.observe(el);
     });
+}
+
+// Update cart count function
+function updateCartCount() {
+    fetch('/products/cart/count/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const cartCountElements = document.querySelectorAll('.cart-count');
+        cartCountElements.forEach(element => {
+            element.textContent = data.count;
+            if (data.count > 0) {
+                element.style.display = 'inline';
+            } else {
+                element.style.display = 'none';
+            }
+        });
+    })
+    .catch(error => console.error('Error updating cart count:', error));
 }

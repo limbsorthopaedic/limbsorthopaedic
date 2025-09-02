@@ -711,6 +711,64 @@ p {
     max-height: 300px;
   }
 }
+
+/* Mobile-specific cart and checkout improvements */
+@media (max-width: 767px) {
+  /* Cart mobile optimizations */
+  .cart-item-mobile {
+    padding: 0.75rem;
+  }
+  
+  .cart-item-mobile img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .cart-quantity-input {
+    font-size: 14px;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  /* Checkout form optimizations */
+  .checkout-form input,
+  .checkout-form textarea,
+  .checkout-form select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+  
+  /* Order summary optimizations */
+  .order-summary-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .order-summary-item .item-details {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .order-summary-item .item-price {
+    align-self: flex-end;
+  }
+  
+  /* Mobile button improvements */
+  .mobile-button {
+    min-height: 44px; /* iOS touch target */
+    font-size: 16px;
+  }
+  
+  /* Sticky checkout button for mobile */
+  .mobile-checkout-button {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: white;
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    margin: 0 -1rem;
+  }
+}
 }
 
 .blog-content li::marker {
