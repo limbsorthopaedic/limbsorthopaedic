@@ -240,22 +240,226 @@ p {
   font-size: 1.25rem;
 }
 
-/* Custom Utilities */
+/* Custom utility classes */
 .text-primary {
-  color: var(--primary-color) !important;
-}
-
-.text-red {
-  color: var(--red-color) !important;
+    color: #1e40af;
 }
 
 .bg-primary {
-  background-color: var(--primary-color) !important;
+    background-color: #1e40af;
 }
 
-.bg-primary-gradient {
-  background: linear-gradient(to right, var(--primary-light), var(--primary-dark)) !important;
+.bg-primary-dark {
+    background-color: #1d4ed8;
 }
+
+.border-primary {
+    border-color: #1e40af;
+}
+
+/* Mobile Cart Styles */
+.cart-count, .cart-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: white;
+    background-color: #ef4444;
+    border-radius: 50px;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    z-index: 10;
+}
+
+.cart-badge-visible {
+    animation: cartBadgePulse 0.3s ease-out;
+}
+
+@keyframes cartBadgePulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Mobile-specific cart styles */
+@media (max-width: 768px) {
+    .cart-count, .cart-badge {
+        min-width: 16px;
+        height: 16px;
+        font-size: 10px;
+        top: -6px;
+        right: -6px;
+    }
+
+    .mobile-cart-icon {
+        position: relative;
+        display: inline-block;
+    }
+
+    .mobile-cart-button {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background-color: #1e40af;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+    }
+
+    .mobile-cart-button:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.4);
+    }
+
+    .mobile-cart-button:active {
+        transform: translateY(0);
+    }
+}
+
+/* Mobile notification styles */
+.mobile-notification {
+    animation: slideInFromTop 0.3s ease-out;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced mobile form styles */
+@media (max-width: 768px) {
+    .mobile-form-group {
+        margin-bottom: 1rem;
+    }
+
+    .mobile-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        line-height: 1.5;
+        transition: border-color 0.2s ease;
+    }
+
+    .mobile-input:focus {
+        outline: none;
+        border-color: #1e40af;
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .mobile-button {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .mobile-button-primary {
+        background-color: #1e40af;
+        color: white;
+    }
+
+    .mobile-button-primary:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+    }
+
+    .mobile-button-secondary {
+        background-color: #6b7280;
+        color: white;
+    }
+
+    .mobile-button-secondary:hover {
+        background-color: #4b5563;
+    }
+}
+
+/* Responsive cart table improvements */
+@media (max-width: 768px) {
+    .cart-item-mobile {
+        padding: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+        background: white;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-item-mobile:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .mobile-quantity-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 8px 0;
+    }
+
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid #d1d5db;
+        background: white;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 600;
+        color: #374151;
+        transition: all 0.2s ease;
+    }
+
+    .quantity-btn:hover {
+        background-color: #f3f4f6;
+        border-color: #9ca3af;
+    }
+
+    .quantity-btn:active {
+        background-color: #e5e7eb;
+    }
+
+    .quantity-input {
+        width: 60px;
+        height: 32px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 14px;
+    }
+}
+
 
 /* Testimonial card */
 .testimonial-card {
@@ -289,7 +493,7 @@ p {
   width: 100%;
 }
 
-/* Sticky Navbar */
+/* StickyNavbar */
 .navbar-sticky {
   position: relative;
   background-color: white;
@@ -718,17 +922,17 @@ p {
   .cart-item-mobile {
     padding: 0.75rem;
   }
-  
+
   .cart-item-mobile img {
     width: 60px;
     height: 60px;
   }
-  
+
   .cart-quantity-input {
     font-size: 14px;
     padding: 0.25rem 0.5rem;
   }
-  
+
   /* Checkout form optimizations */
   .checkout-form input,
   .checkout-form textarea,
@@ -736,28 +940,28 @@ p {
     font-size: 16px; /* Prevents zoom on iOS */
     padding: 0.75rem;
   }
-  
+
   /* Order summary optimizations */
   .order-summary-item {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .order-summary-item .item-details {
     width: 100%;
     margin-bottom: 0.5rem;
   }
-  
+
   .order-summary-item .item-price {
     align-self: flex-end;
   }
-  
+
   /* Mobile button improvements */
   .mobile-button {
     min-height: 44px; /* iOS touch target */
     font-size: 16px;
   }
-  
+
   /* Sticky checkout button for mobile */
   .mobile-checkout-button {
     position: sticky;
