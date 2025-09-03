@@ -94,40 +94,25 @@
                             </form>
                         </div>
                         
-                        <div class="border-t pt-3">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-sm text-gray-600">Quantity:</span>
-                                <div class="mobile-quantity-controls">
-                                    <button type="button" class="quantity-btn" onclick="updateQuantity({{ item.id }}, -1)">
-                                        <i class="fas fa-minus text-xs"></i>
-                                    </button>
-                                    <input type="number" 
-                                           id="quantity-{{ item.id }}" 
-                                           value="{{ item.quantity }}" 
-                                           min="1" max="10" 
-                                           class="quantity-input"
-                                           onchange="updateCartItem({{ item.id }}, this.value)">
-                                    <button type="button" class="quantity-btn" onclick="updateQuantity({{ item.id }}, 1)">
-                                        <i class="fas fa-plus text-xs"></i>
-                                    </button>
-                                </div>
+                        <div class="flex items-center justify-between border-t pt-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-600">Qty:</span>
+                                <form method="post" action="{% url 'update_cart_item' item.id %}" class="update-cart-form flex items-center space-x-2">
+                                    {% csrf_token %}
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="10" 
+                                           class="w-16 px-2 py-1 text-center border border-gray-300 rounded-md text-sm">
+                                    <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700">Update</button>
+                                </form>
                             </div>
-                            <div class="flex items-center justify-between">
-                                <button onclick="removeCartItem({{ item.id }})" 
-                                        class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center">
-                                    <i class="fas fa-trash-alt mr-1"></i>
-                                    Remove
-                                </button>
-                                <div class="text-right">
-                                    <span class="text-sm text-gray-600">Total:</span>
-                                    <span class="font-medium item-total text-gray-900 block" id="item-total-{{ item.id }}">
-                                        {% if item.product.price %}
-                                            KSh {{ item.get_total_price|floatformat:2 }}
-                                        {% else %}
-                                            Contact for Price
-                                        {% endif %}
-                                    </span>
-                                </div>
+                            <div class="text-right">
+                                <span class="text-sm text-gray-600">Total:</span>
+                                <span class="font-medium item-total text-gray-900 block">
+                                    {% if item.product.price %}
+                                        KSh {{ item.get_total_price|floatformat:2 }}
+                                    {% else %}
+                                        Contact for Price
+                                    {% endif %}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -193,160 +178,29 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    updateCartDisplay(data);
+                    // Update cart totals
+                    document.getElementById('total-items').textContent = data.cart_total;
+                    if (data.cart_subtotal > 0) {
+                        document.getElementById('cart-total').textContent = 'KSh ' + data.cart_subtotal.toFixed(2);
+                    }
+                    
+                    // Update item total
+                    const itemRow = this.closest('[id^="cart-item-"]');
+                    if (data.item_total > 0) {
+                        itemRow.querySelector('.item-total').textContent = 'KSh ' + data.item_total.toFixed(2);
+                    } else {
+                        itemRow.remove();
+                        if (data.cart_total === 0) {
+                            location.reload();
+                        }
+                    }
+                    
                     updateCartCount();
                 }
             })
             .catch(error => console.error('Error:', error));
         });
     });
-    
-    // Initialize cart count on page load
-    updateCartCount();
 });
-
-// Mobile-friendly quantity update function
-function updateQuantity(itemId, change) {
-    const quantityInput = document.getElementById(`quantity-${itemId}`);
-    const currentQuantity = parseInt(quantityInput.value);
-    const newQuantity = Math.max(1, Math.min(10, currentQuantity + change));
-    
-    quantityInput.value = newQuantity;
-    updateCartItem(itemId, newQuantity);
-}
-
-// Update cart item via AJAX
-function updateCartItem(itemId, quantity) {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const formData = new FormData();
-    formData.append('quantity', quantity);
-    formData.append('csrfmiddlewaretoken', csrfToken);
-
-    fetch(`/products/cart/update/${itemId}/`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            updateCartDisplay(data);
-            updateCartCount();
-            showMobileNotification('Cart updated successfully', 'success');
-        } else {
-            showMobileNotification('Error updating cart', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error updating cart:', error);
-        showMobileNotification('Error updating cart', 'error');
-    });
-}
-
-// Remove cart item via AJAX
-function removeCartItem(itemId) {
-    if (!confirm('Remove this item from your cart?')) return;
-    
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const formData = new FormData();
-    formData.append('csrfmiddlewaretoken', csrfToken);
-
-    fetch(`/products/cart/remove/${itemId}/`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            document.getElementById(`cart-item-${itemId}`).remove();
-            updateCartCount();
-            showMobileNotification(data.message, 'success');
-            
-            if (data.cart_total === 0) {
-                setTimeout(() => location.reload(), 1000);
-            }
-        } else {
-            showMobileNotification('Error removing item', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error removing item:', error);
-        showMobileNotification('Error removing item', 'error');
-    });
-}
-
-// Update cart display after AJAX operations
-function updateCartDisplay(data) {
-    // Update total items
-    const totalItemsElement = document.getElementById('total-items');
-    if (totalItemsElement) {
-        totalItemsElement.textContent = data.cart_total;
-    }
-    
-    // Update cart total
-    const cartTotalElement = document.getElementById('cart-total');
-    if (cartTotalElement && data.cart_subtotal !== undefined) {
-        if (data.cart_subtotal > 0) {
-            cartTotalElement.textContent = 'KSh ' + data.cart_subtotal.toFixed(2);
-        } else {
-            cartTotalElement.textContent = 'Contact for Pricing';
-        }
-    }
-    
-    // Update individual item total if available
-    if (data.item_total !== undefined && data.item_id) {
-        const itemTotalElement = document.getElementById(`item-total-${data.item_id}`);
-        if (itemTotalElement) {
-            if (data.item_total > 0) {
-                itemTotalElement.textContent = 'KSh ' + data.item_total.toFixed(2);
-            } else {
-                itemTotalElement.textContent = 'Contact for Price';
-            }
-        }
-    }
-}
-
-// Mobile notification function (if not already defined)
-function showMobileNotification(message, type = 'info') {
-    const existingNotifications = document.querySelectorAll('.mobile-notification');
-    existingNotifications.forEach(notification => notification.remove());
-
-    const notification = document.createElement('div');
-    notification.className = `mobile-notification fixed top-4 left-4 right-4 z-50 p-3 rounded-lg shadow-lg text-white text-sm font-medium ${
-        type === 'success' ? 'bg-green-500' : 
-        type === 'error' ? 'bg-red-500' : 
-        'bg-blue-500'
-    }`;
-    notification.innerHTML = `
-        <div class="flex items-center justify-between">
-            <span>${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(notification);
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
-        }
-    }, 3000);
-}
 </script>
 {% endblock %}

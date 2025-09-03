@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initMobileMenu();
     initScrollToTop();
     initAnimations();
-    updateCartCount(); // Initialize cart count on page load
 });
 
 // Search functionality
@@ -366,102 +365,17 @@ function updateCartCount() {
             'X-Requested-With': 'XMLHttpRequest',
         }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         const cartCountElements = document.querySelectorAll('.cart-count');
         cartCountElements.forEach(element => {
             element.textContent = data.count;
             if (data.count > 0) {
-                element.style.display = 'inline-flex';
-                element.classList.add('cart-badge-visible');
+                element.style.display = 'inline';
             } else {
                 element.style.display = 'none';
-                element.classList.remove('cart-badge-visible');
             }
         });
-        
-        // Update mobile cart count if exists
-        const mobileCartCount = document.getElementById('mobile-cart-count');
-        if (mobileCartCount) {
-            mobileCartCount.textContent = data.count;
-            if (data.count > 0) {
-                mobileCartCount.style.display = 'inline-flex';
-            } else {
-                mobileCartCount.style.display = 'none';
-            }
-        }
     })
-    .catch(error => {
-        console.error('Error updating cart count:', error);
-    });
-}
-
-// Enhanced add to cart function for mobile
-function addToCart(productId, quantity = 1, notes = '') {
-    const formData = new FormData();
-    formData.append('quantity', quantity);
-    formData.append('notes', notes);
-    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-    fetch(`/products/add-to-cart/${productId}/`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            updateCartCount();
-            showMobileNotification(data.message, 'success');
-        } else {
-            showMobileNotification(data.message || 'Error adding to cart', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error adding to cart:', error);
-        showMobileNotification('Error adding product to cart', 'error');
-    });
-}
-
-// Mobile notification system
-function showMobileNotification(message, type = 'info') {
-    // Remove existing notifications
-    const existingNotifications = document.querySelectorAll('.mobile-notification');
-    existingNotifications.forEach(notification => notification.remove());
-
-    const notification = document.createElement('div');
-    notification.className = `mobile-notification fixed top-4 left-4 right-4 z-50 p-3 rounded-lg shadow-lg text-white text-sm font-medium ${
-        type === 'success' ? 'bg-green-500' : 
-        type === 'error' ? 'bg-red-500' : 
-        'bg-blue-500'
-    }`;
-    notification.innerHTML = `
-        <div class="flex items-center justify-between">
-            <span>${message}</span>
-            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-white hover:text-gray-200">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(notification);
-
-    // Auto-remove after 3 seconds
-    setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
-        }
-    }, 3000);
+    .catch(error => console.error('Error updating cart count:', error));
 }
