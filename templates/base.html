@@ -7,10 +7,10 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-    
+
       gtag('config', 'G-3RMG19X8NV');
     </script>
-    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}LIMBS Orthopaedic - Independence starts with limbs{% endblock %}</title>
@@ -518,7 +518,7 @@
     <script>
         // Update cart count function
         function updateCartCount() {
-            fetch('/cart/count/', {
+            fetch('/products/cart/count/', {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -528,7 +528,7 @@
             .then(data => {
                 const cartCount = document.getElementById('cart-count');
                 const mobileCartCount = document.getElementById('mobile-cart-count');
-                
+
                 if (data.count > 0) {
                     if (cartCount) {
                         cartCount.textContent = data.count;
@@ -564,13 +564,13 @@
             .then(data => {
                 if (data.success) {
                     updateCartCount();
-                    
+
                     // Show success message
                     const message = document.createElement('div');
                     message.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50';
                     message.textContent = 'Item added to cart successfully!';
                     document.body.appendChild(message);
-                    
+
                     setTimeout(() => {
                         message.remove();
                     }, 3000);
@@ -587,23 +587,28 @@
 
         // Initialize cart count on page load
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+
+            // Initialize cart count
             updateCartCount();
-            
+
             // Handle add to cart form submissions
             const addToCartForm = document.getElementById('add-to-cart-form');
             if (addToCartForm) {
                 addToCartForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
+
                     const productId = this.action.split('/').slice(-2, -1)[0];
                     const quantity = this.querySelector('[name="quantity"]').value;
                     const notes = this.querySelector('[name="notes"]').value;
-                    
+
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = submitBtn.innerHTML;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
                     submitBtn.disabled = true;
-                    
+
                     addToCart(productId, quantity, notes)
                         .finally(() => {
                             submitBtn.innerHTML = originalText;

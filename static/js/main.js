@@ -367,15 +367,22 @@ function updateCartCount() {
     })
     .then(response => response.json())
     .then(data => {
-        const cartCountElements = document.querySelectorAll('.cart-count');
-        cartCountElements.forEach(element => {
-            element.textContent = data.count;
-            if (data.count > 0) {
-                element.style.display = 'inline';
-            } else {
-                element.style.display = 'none';
+        const cartCount = document.getElementById('cart-count');
+        const mobileCartCount = document.getElementById('mobile-cart-count');
+        
+        if (data.count > 0) {
+            if (cartCount) {
+                cartCount.textContent = data.count;
+                cartCount.style.display = 'flex';
             }
-        });
+            if (mobileCartCount) {
+                mobileCartCount.textContent = data.count;
+                mobileCartCount.style.display = 'flex';
+            }
+        } else {
+            if (cartCount) cartCount.style.display = 'none';
+            if (mobileCartCount) mobileCartCount.style.display = 'none';
+        }
     })
     .catch(error => console.error('Error updating cart count:', error));
 }

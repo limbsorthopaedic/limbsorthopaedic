@@ -997,6 +997,81 @@ p {
 }
 
 .blog-content .info::before {
+
+/* Cart animations and enhancements */
+.cart-item-animation {
+    transition: all 0.3s ease;
+}
+
+.cart-item-removing {
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.cart-count-bounce {
+    animation: bounce 0.6s;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    80% {
+        transform: translateY(-5px);
+    }
+}
+
+.qty-button:active {
+    transform: scale(0.95);
+}
+
+/* Mobile cart enhancements */
+@media (max-width: 768px) {
+    .cart-item {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .qty-controls {
+        touch-action: manipulation;
+        user-select: none;
+    }
+    
+    .qty-controls button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: #10b981;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.error {
+    background: #ef4444;
+}
+
   content: "\f05a";
   color: #4f81d1;
 }
