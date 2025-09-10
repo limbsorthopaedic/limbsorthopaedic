@@ -31,6 +31,20 @@ class AppointmentForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'class': 'w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400', 'placeholder': 'Any additional information or special requirements', 'rows': 4}),
         }
     
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Add "Other" option to service choices
+        choices = list(self.fields['service'].queryset.values_list('id', 'title'))
+        choices.append(('other', 'Other'))
+        self.fields['service'].choices = [('', '---------')] + choices
+        
+        # If user is authenticated, pre-fill the form with their information
+        if user and user.is_authenticated:
+            self.fields['full_name'].initial = f"{user.first_name} {user.last_name}".strip()
+            self.fields['email'].initial = user.email
+    
     def clean_preferred_date(self):
         """Validate that the date is not in the past and not today"""
         date = self.cleaned_data.get('preferred_date')
@@ -52,11 +66,4 @@ class AppointmentForm(forms.ModelForm):
         
         return time
     
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        
-        # If user is authenticated, pre-fill the form with their information
-        if user and user.is_authenticated:
-            self.fields['full_name'].initial = f"{user.first_name} {user.last_name}".strip()
-            self.fields['email'].initial = user.email
+    

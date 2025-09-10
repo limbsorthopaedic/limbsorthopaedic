@@ -116,8 +116,8 @@
                                 {% endif %}
                             </div>
                             
-                            <div>
-                                <label for="{{ form.other_service.id_for_label }}" class="block text-gray-700 font-medium mb-2">Other Service (if not listed above)</label>
+                            <div id="other-service-field" style="display: none;">
+                                <label for="{{ form.other_service.id_for_label }}" class="block text-gray-700 font-medium mb-2">5. Specify Other Service*</label>
                                 {{ form.other_service }}
                                 {% if form.other_service.errors %}
                                 <p class="text-red-500 text-sm mt-1">{{ form.other_service.errors.0 }}</p>
@@ -126,7 +126,7 @@
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="{{ form.preferred_date.id_for_label }}" class="block text-gray-700 font-medium mb-2">5. Preferred Date*</label>
+                                    <label for="{{ form.preferred_date.id_for_label }}" class="block text-gray-700 font-medium mb-2">6. Preferred Date*</label>
                                     {{ form.preferred_date }}
                                     {% if form.preferred_date.errors %}
                                     <p class="text-red-500 text-sm mt-1">{{ form.preferred_date.errors.0 }}</p>
@@ -136,7 +136,7 @@
                                 </div>
                                 
                                 <div>
-                                    <label for="{{ form.preferred_time.id_for_label }}" class="block text-gray-700 font-medium mb-2">6. Preferred Time*</label>
+                                    <label for="{{ form.preferred_time.id_for_label }}" class="block text-gray-700 font-medium mb-2">7. Preferred Time*</label>
                                     {{ form.preferred_time }}
                                     {% if form.preferred_time.errors %}
                                     <p class="text-red-500 text-sm mt-1">{{ form.preferred_time.errors.0 }}</p>
@@ -147,7 +147,7 @@
                             </div>
                             
                             <div>
-                                <label for="{{ form.notes.id_for_label }}" class="block text-gray-700 font-medium mb-2">7. Additional Notes</label>
+                                <label for="{{ form.notes.id_for_label }}" class="block text-gray-700 font-medium mb-2">8. Additional Notes</label>
                                 {{ form.notes }}
                                 {% if form.notes.errors %}
                                 <p class="text-red-500 text-sm mt-1">{{ form.notes.errors.0 }}</p>
@@ -263,4 +263,29 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceSelect = document.getElementById('{{ form.service.id_for_label }}');
+    const otherServiceField = document.getElementById('other-service-field');
+    const otherServiceInput = document.getElementById('{{ form.other_service.id_for_label }}');
+    
+    function toggleOtherServiceField() {
+        if (serviceSelect.value === 'other') {
+            otherServiceField.style.display = 'block';
+            otherServiceInput.required = true;
+        } else {
+            otherServiceField.style.display = 'none';
+            otherServiceInput.required = false;
+            otherServiceInput.value = '';
+        }
+    }
+    
+    // Initialize on page load
+    toggleOtherServiceField();
+    
+    // Listen for changes
+    serviceSelect.addEventListener('change', toggleOtherServiceField);
+});
+</script>
 {% endblock %}
