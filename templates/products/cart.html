@@ -10,7 +10,8 @@
         
         {% if cart_items %}
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="px-6 py-4 bg-gray-50 border-b">
+            <!-- Desktop Header -->
+            <div class="hidden md:block px-6 py-4 bg-gray-50 border-b">
                 <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-600">
                     <div class="col-span-6">Product</div>
                     <div class="col-span-2 text-center">Quantity</div>
@@ -21,7 +22,8 @@
             
             <div class="divide-y divide-gray-200">
                 {% for item in cart_items %}
-                <div class="px-6 py-4" id="cart-item-{{ item.id }}">
+                <!-- Desktop Layout -->
+                <div class="hidden md:block px-6 py-4" id="cart-item-{{ item.id }}">
                     <div class="grid grid-cols-12 gap-4 items-center">
                         <div class="col-span-6">
                             <div class="flex items-center">
@@ -70,6 +72,62 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Mobile Layout -->
+                <div class="md:hidden p-4 space-y-4" id="mobile-cart-item-{{ item.id }}">
+                    <div class="flex items-start space-x-4">
+                        {% if item.product.get_image %}
+                        <img src="{{ item.product.get_image }}" alt="{{ item.product.title }}" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
+                        {% endif %}
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ item.product.title }}</h3>
+                            <p class="text-sm text-gray-600 mb-2">{{ item.product.category.name }}</p>
+                            {% if item.notes %}
+                            <p class="text-sm text-gray-500 bg-gray-50 p-2 rounded">Note: {{ item.notes }}</p>
+                            {% endif %}
+                        </div>
+                        <form method="post" action="{% url 'remove_from_cart' item.id %}" class="flex-shrink-0">
+                            {% csrf_token %}
+                            <button type="submit" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors" title="Remove from cart">
+                                <i class="fas fa-trash-alt text-lg"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <div class="flex items-center space-x-1">
+                            <span class="text-sm font-medium text-gray-700">Qty:</span>
+                            <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                                <button type="button" class="quantity-decrease px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-colors" data-item-id="{{ item.id }}">
+                                    <i class="fas fa-minus text-sm"></i>
+                                </button>
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="10" 
+                                       class="quantity-input w-16 px-2 py-2 text-center border-0 focus:ring-2 focus:ring-primary focus:outline-none" 
+                                       data-item-id="{{ item.id }}" readonly>
+                                <button type="button" class="quantity-increase px-3 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-colors" data-item-id="{{ item.id }}">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600">{{ item.product.formatted_price }}</div>
+                            <div class="font-bold text-lg text-gray-900 item-total">
+                                {% if item.product.price %}
+                                    KSh {{ item.get_total_price|floatformat:2 }}
+                                {% else %}
+                                    Contact for Price
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden form for quantity updates -->
+                    <form method="post" action="{% url 'update_cart_item' item.id %}" class="update-cart-form-mobile hidden">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="{{ item.quantity }}" class="mobile-quantity-hidden">
+                    </form>
+                </div>
                 {% endfor %}
             </div>
             
@@ -114,7 +172,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle AJAX cart updates
+    // Handle AJAX cart updates for desktop
     document.querySelectorAll('.update-cart-form').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -131,29 +189,153 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update cart totals
-                    document.getElementById('total-items').textContent = data.cart_total;
-                    if (data.cart_subtotal > 0) {
-                        document.getElementById('cart-total').textContent = 'KSh ' + data.cart_subtotal.toFixed(2);
-                    }
-                    
-                    // Update item total
-                    const itemRow = this.closest('[id^="cart-item-"]');
-                    if (data.item_total > 0) {
-                        itemRow.querySelector('.item-total').textContent = 'KSh ' + data.item_total.toFixed(2);
-                    } else {
-                        itemRow.remove();
-                        if (data.cart_total === 0) {
-                            location.reload();
-                        }
-                    }
-                    
-                    updateCartCount();
+                    updateCartUI(data);
                 }
             })
             .catch(error => console.error('Error:', error));
         });
     });
+
+    // Mobile quantity controls
+    document.querySelectorAll('.quantity-decrease').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+            const currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                updateQuantity(itemId, currentValue - 1);
+            }
+        });
+    });
+
+    document.querySelectorAll('.quantity-increase').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+            const currentValue = parseInt(input.value);
+            if (currentValue < 10) {
+                updateQuantity(itemId, currentValue + 1);
+            }
+        });
+    });
+
+    function updateQuantity(itemId, newQuantity) {
+        // Add loading state
+        const button = document.querySelector(`[data-item-id="${itemId}"]`);
+        const originalContent = button.innerHTML;
+        
+        // Show loading spinner
+        showQuantityLoading(itemId);
+
+        const formData = new FormData();
+        formData.append('quantity', newQuantity);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch(`/products/cart/update/${itemId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update quantity input
+                const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+                input.value = newQuantity;
+                
+                updateCartUI(data);
+                
+                // Show success animation
+                showQuantitySuccess(itemId);
+            } else {
+                showQuantityError(itemId);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showQuantityError(itemId);
+        })
+        .finally(() => {
+            hideQuantityLoading(itemId);
+        });
+    }
+
+    function updateCartUI(data) {
+        // Update cart totals
+        const totalItems = document.getElementById('total-items');
+        const cartTotal = document.getElementById('cart-total');
+        
+        if (totalItems) totalItems.textContent = data.cart_total;
+        if (cartTotal && data.cart_subtotal > 0) {
+            cartTotal.textContent = 'KSh ' + data.cart_subtotal.toFixed(2);
+        }
+        
+        // Update item totals for both desktop and mobile
+        document.querySelectorAll('.item-total').forEach(element => {
+            const itemContainer = element.closest('[id*="cart-item-"]');
+            if (itemContainer) {
+                const itemId = itemContainer.id.match(/\d+/)[0];
+                if (data.item_total > 0) {
+                    element.textContent = 'KSh ' + data.item_total.toFixed(2);
+                } else {
+                    itemContainer.remove();
+                    if (data.cart_total === 0) {
+                        location.reload();
+                    }
+                }
+            }
+        });
+        
+        updateCartCount();
+    }
+
+    function showQuantityLoading(itemId) {
+        const buttons = document.querySelectorAll(`[data-item-id="${itemId}"]`);
+        buttons.forEach(button => {
+            if (button.classList.contains('quantity-decrease') || button.classList.contains('quantity-increase')) {
+                button.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i>';
+                button.disabled = true;
+            }
+        });
+    }
+
+    function hideQuantityLoading(itemId) {
+        const decreaseBtn = document.querySelector(`.quantity-decrease[data-item-id="${itemId}"]`);
+        const increaseBtn = document.querySelector(`.quantity-increase[data-item-id="${itemId}"]`);
+        
+        if (decreaseBtn) {
+            decreaseBtn.innerHTML = '<i class="fas fa-minus text-sm"></i>';
+            decreaseBtn.disabled = false;
+        }
+        if (increaseBtn) {
+            increaseBtn.innerHTML = '<i class="fas fa-plus text-sm"></i>';
+            increaseBtn.disabled = false;
+        }
+    }
+
+    function showQuantitySuccess(itemId) {
+        const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+        if (input) {
+            input.classList.add('animate-pulse');
+            input.style.borderColor = '#10B981';
+            setTimeout(() => {
+                input.classList.remove('animate-pulse');
+                input.style.borderColor = '';
+            }, 1000);
+        }
+    }
+
+    function showQuantityError(itemId) {
+        const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+        if (input) {
+            input.style.borderColor = '#EF4444';
+            setTimeout(() => {
+                input.style.borderColor = '';
+            }, 2000);
+        }
+    }
 });
 </script>
 {% endblock %}

@@ -80,9 +80,9 @@
                     <a href="{% url 'appointment' %}" class="btn btn-primary py-2 px-4 rounded-md text-white hover:bg-primary-dark transition-colors ml-3">Appointment</a>
 
                     <!-- Cart Icon -->
-                    <a href="{% url 'cart_view' %}" class="relative inline-flex items-center p-2 text-gray-700 hover:text-primary transition-colors ml-2">
+                    <a href="{% url 'cart_view' %}" class="relative inline-flex items-center p-2 text-gray-700 hover:text-primary transition-colors ml-2 hover:bg-gray-50 rounded-lg">
                         <i class="fas fa-shopping-cart text-lg"></i>
-                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold transition-transform hover:scale-110" style="display: none;">0</span>
                     </a>
 
                     <!-- User account menu -->
@@ -141,9 +141,12 @@
                 <a href="{% url 'appointment' %}" class="block py-2 px-4 text-sm font-bold text-white bg-primary hover:bg-primary-dark my-2">Book an Appointment</a>
                 
                 <!-- Mobile Cart -->
-                <a href="{% url 'cart_view' %}" class="block py-2 px-4 text-sm hover:bg-gray-100 flex items-center justify-between">
-                    <span>Shopping Cart</span>
-                    <span id="mobile-cart-count" class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold" style="display: none;">0</span>
+                <a href="{% url 'cart_view' %}" class="block py-3 px-4 text-sm hover:bg-gray-100 flex items-center justify-between rounded-lg mx-2 transition-colors">
+                    <span class="flex items-center">
+                        <i class="fas fa-shopping-cart mr-3 text-primary"></i>
+                        Shopping Cart
+                    </span>
+                    <span id="mobile-cart-count" class="bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold transition-transform" style="display: none;">0</span>
                 </a>
 
                 {% if user.is_authenticated %}

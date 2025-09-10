@@ -214,7 +214,57 @@ function displaySearchSuggestions(suggestions, container) {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize search functionality
     initSearchFunctionality();
+    
+    // Initialize mobile cart enhancements
+    initMobileCartEnhancements();
 });
+
+function initMobileCartEnhancements() {
+    // Add haptic feedback for mobile touch events (if supported)
+    if ('vibrate' in navigator) {
+        document.querySelectorAll('.quantity-decrease, .quantity-increase').forEach(button => {
+            button.addEventListener('touchstart', function() {
+                navigator.vibrate(10); // Short vibration for feedback
+            });
+        });
+    }
+    
+    // Improve cart count updates with animations
+    const originalUpdateCartCount = window.updateCartCount;
+    window.updateCartCount = function() {
+        fetch('/products/cart/count/', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const cartCount = document.getElementById('cart-count');
+            const mobileCartCount = document.getElementById('mobile-cart-count');
+            
+            if (data.count > 0) {
+                if (cartCount) {
+                    cartCount.textContent = data.count;
+                    cartCount.style.display = 'flex';
+                    cartCount.style.animation = 'cartPulse 0.3s ease-in-out';
+                }
+                if (mobileCartCount) {
+                    mobileCartCount.textContent = data.count;
+                    mobileCartCount.style.display = 'flex';
+                    mobileCartCount.style.animation = 'cartPulse 0.3s ease-in-out';
+                }
+            } else {
+                if (cartCount) cartCount.style.display = 'none';
+                if (mobileCartCount) mobileCartCount.style.display = 'none';
+            }
+        })
+        .catch(error => console.error('Error updating cart count:', error));
+    };
+    
+    // Initialize cart count on page load
+    updateCartCount();
+}
 
 function initThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle');
