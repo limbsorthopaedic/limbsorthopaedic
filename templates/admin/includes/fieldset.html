@@ -1,0 +1,208 @@
+
+{% load i18n %}
+
+<fieldset class="module{% if fieldset.classes %} {{ fieldset.classes }}{% endif %}">
+  {% if fieldset.name %}
+    <h2>
+      <span class="material-icons">
+        {% if 'personal' in fieldset.classes or 'Personal' in fieldset.name %}person
+        {% elif 'contact' in fieldset.classes or 'Contact' in fieldset.name %}contact_mail
+        {% elif 'medical' in fieldset.classes or 'Medical' in fieldset.name %}medical_services
+        {% elif 'address' in fieldset.classes or 'Address' in fieldset.name %}location_on
+        {% elif 'image' in fieldset.classes or 'Image' in fieldset.name %}image
+        {% elif 'content' in fieldset.classes or 'Content' in fieldset.name %}article
+        {% elif 'settings' in fieldset.classes or 'Settings' in fieldset.name %}settings
+        {% elif 'date' in fieldset.classes or 'Date' in fieldset.name %}event
+        {% elif 'permission' in fieldset.classes or 'Permission' in fieldset.name %}security
+        {% else %}folder
+        {% endif %}
+      </span>
+      {{ fieldset.name }}
+    </h2>
+  {% endif %}
+  
+  {% if fieldset.description %}
+    <div class="description">{{ fieldset.description|safe }}</div>
+  {% endif %}
+  
+  {% for line in fieldset %}
+    <div class="form-row{% if line.errors %} errors{% endif %}">
+      {% for error in line.errors %}
+        <ul class="errorlist">
+          <li>{{ error }}</li>
+        </ul>
+      {% endfor %}
+      
+      {% if line.fields|length_is:'1' %}
+        {% for field in line %}
+          <div{% if not line.fields|length_is:'1' %} class="field-box"{% endif %}>
+            {% if field.field.name %}
+              {{ field.errors }}
+              {% if field.is_checkbox %}
+                <div class="checkbox-wrapper">
+                  {{ field.field }}
+                  <label for="{{ field.field.id_for_label }}" class="vCheckboxLabel">
+                    <span class="material-icons">check_box_outline_blank</span>
+                    {{ field.field.label }}
+                  </label>
+                </div>
+              {% else %}
+                <label for="{{ field.field.id_for_label }}" class="required">
+                  {% if field.field.widget.input_type == 'email' %}
+                    <span class="material-icons">email</span>
+                  {% elif field.field.widget.input_type == 'password' %}
+                    <span class="material-icons">lock</span>
+                  {% elif field.field.widget.input_type == 'url' %}
+                    <span class="material-icons">link</span>
+                  {% elif field.field.widget.input_type == 'tel' %}
+                    <span class="material-icons">phone</span>
+                  {% elif field.field.widget.input_type == 'file' %}
+                    <span class="material-icons">upload_file</span>
+                  {% elif field.field.widget.input_type == 'date' %}
+                    <span class="material-icons">event</span>
+                  {% elif field.field.widget.input_type == 'number' %}
+                    <span class="material-icons">pin</span>
+                  {% elif 'textarea' in field.field.widget.__class__.__name__.lower or 'ckeditor' in field.field.widget.__class__.__name__.lower %}
+                    <span class="material-icons">description</span>
+                  {% elif 'select' in field.field.widget.__class__.__name__.lower %}
+                    <span class="material-icons">arrow_drop_down</span>
+                  {% else %}
+                    <span class="material-icons">edit</span>
+                  {% endif %}
+                  {{ field.field.label }}{% if field.field.required %}{% endif %}
+                </label>
+                {{ field.field }}
+              {% endif %}
+              
+              {% if field.field.help_text %}
+                <p class="help">{{ field.field.help_text|safe }}</p>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for field in line %}
+          <div class="field-box">
+            {% if field.field.name %}
+              {{ field.errors }}
+              {% if field.is_checkbox %}
+                <div class="checkbox-wrapper">
+                  {{ field.field }}
+                  <label for="{{ field.field.id_for_label }}" class="vCheckboxLabel">
+                    <span class="material-icons">check_box_outline_blank</span>
+                    {{ field.field.label }}
+                  </label>
+                </div>
+              {% else %}
+                <label for="{{ field.field.id_for_label }}" class="required">
+                  {% if field.field.widget.input_type == 'email' %}
+                    <span class="material-icons">email</span>
+                  {% elif field.field.widget.input_type == 'password' %}
+                    <span class="material-icons">lock</span>
+                  {% elif field.field.widget.input_type == 'url' %}
+                    <span class="material-icons">link</span>
+                  {% elif field.field.widget.input_type == 'tel' %}
+                    <span class="material-icons">phone</span>
+                  {% elif field.field.widget.input_type == 'file' %}
+                    <span class="material-icons">upload_file</span>
+                  {% elif field.field.widget.input_type == 'date' %}
+                    <span class="material-icons">event</span>
+                  {% elif field.field.widget.input_type == 'number' %}
+                    <span class="material-icons">pin</span>
+                  {% elif 'textarea' in field.field.widget.__class__.__name__.lower or 'ckeditor' in field.field.widget.__class__.__name__.lower %}
+                    <span class="material-icons">description</span>
+                  {% elif 'select' in field.field.widget.__class__.__name__.lower %}
+                    <span class="material-icons">arrow_drop_down</span>
+                  {% else %}
+                    <span class="material-icons">edit</span>
+                  {% endif %}
+                  {{ field.field.label }}{% if field.field.required %}{% endif %}
+                </label>
+                {{ field.field }}
+              {% endif %}
+              
+              {% if field.field.help_text %}
+                <p class="help">{{ field.field.help_text|safe }}</p>
+              {% endif %}
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  {% endfor %}
+</fieldset>
+
+<style>
+/* Additional fieldset specific styling */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(52, 189, 242, 0.05);
+  border-radius: 8px;
+  border: 2px solid rgba(52, 189, 242, 0.1);
+  transition: all 0.3s ease;
+}
+
+.checkbox-wrapper:hover {
+  border-color: rgba(52, 189, 242, 0.3);
+  background: rgba(52, 189, 242, 0.1);
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  margin-right: 0.75rem;
+  transform: scale(1.3);
+}
+
+.checkbox-wrapper label.vCheckboxLabel {
+  margin: 0;
+  font-weight: 500;
+  color: #1e266f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-wrapper label .material-icons {
+  color: #34bdf2;
+  margin-right: 0.5rem;
+}
+
+.field-box {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-row .field-box + .field-box {
+  margin-left: 1rem;
+}
+
+.description {
+  background: rgba(52, 189, 242, 0.05);
+  padding: 1rem 1.5rem;
+  color: #1e266f;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+}
+
+.description::before {
+  content: 'info';
+  font-family: 'Material Icons';
+  margin-right: 0.75rem;
+  color: #34bdf2;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .form-row .field-box + .field-box {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+}
+</style>
