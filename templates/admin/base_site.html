@@ -1,40 +1,159 @@
+
 {% extends "admin/base.html" %}
 {% load static %}
 
-{% block title %}{{ title }} | {{ site_title|default:_('LIMBS Orthopaedic Admin') }}{% endblock %}
+{% block title %}{{ title }} | LIMBS Orthopaedic Healthcare System{% endblock %}
 
 {% block extrastyle %}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+/* Additional Material Dashboard Enhancements */
+.admin-header {
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  box-shadow: 0 4px 20px rgba(52, 189, 242, 0.3);
+  border-bottom: 3px solid rgba(255,255,255,0.1);
+}
+
+.admin-branding {
+  display: flex;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+.admin-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  margin-right: 1rem;
+  border: 2px solid rgba(255,255,255,0.3);
+  transition: all 0.3s ease;
+}
+
+.admin-logo:hover {
+  transform: scale(1.05);
+  border-color: rgba(255,255,255,0.5);
+}
+
+.site-title {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.site-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-left: 0.5rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 0.9rem;
+  gap: 1rem;
+}
+
+.user-welcome {
+  background: rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.admin-date {
+  background: rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.logout-form {
+  display: inline;
+}
+
+.logout-btn {
+  background: rgba(244, 67, 54, 0.2);
+  color: white;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: rgba(244, 67, 54, 0.3);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+</style>
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name">
-    <img src="{% static 'images/logo.jpg' %}" alt="LIMBS Orthopaedic" style="max-height: 36px; margin-right: 10px; vertical-align: middle;">
-    <span>{{ site_header|default:_('LIMBS Orthopaedic Administration') }}</span>
-</h1>
+<div class="admin-branding">
+  <img src="{% static 'images/limbs_logo.jpg' %}" alt="LIMBS Orthopaedic" class="admin-logo">
+  <div>
+    <h1 class="site-title">
+      {{ site_header|default:"LIMBS Orthopaedic" }}
+      <span class="site-subtitle">Healthcare System</span>
+    </h1>
+  </div>
+</div>
 {% endblock %}
 
 {% block welcome-msg %}
-    <strong>{% firstof user.get_short_name user.get_username %}</strong> | 
-    <span class="admin-date">{% now "jS F Y" %}</span>
+<div class="user-info">
+  <span class="user-welcome">
+    <span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem;">person</span>
+    <strong>{% firstof user.get_short_name user.get_username %}</strong>
+  </span>
+  <span class="admin-date">
+    <span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem;">today</span>
+    {% now "jS F Y" %}
+  </span>
+</div>
 {% endblock %}
 
 {% block userlinks %}
-    {% if site_url %}
-        <a href="{{ site_url }}">View Site</a> /
+<div style="display: flex; align-items: center; gap: 1rem;">
+  {% if site_url %}
+    <a href="{{ site_url }}" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+      <span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem;">web</span>
+      View Site
+    </a>
+  {% endif %}
+  
+  {% if user.is_active and user.is_staff %}
+    {% url 'django-admindocs-docroot' as docsroot %}
+    {% if docsroot %}
+      <a href="{{ docsroot }}" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+        <span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem;">help</span>
+        Documentation
+      </a>
     {% endif %}
-    {% if user.is_active and user.is_staff %}
-        {% url 'django-admindocs-docroot' as docsroot %}
-        {% if docsroot %}
-            <a href="{{ docsroot }}">Documentation</a> /
-        {% endif %}
-    {% endif %}
-    {% if user.has_usable_password %}
-        <a href="{% url 'admin:password_change' %}">Change Password</a> /
-    {% endif %}
-    <form id="logout-form" method="post" action="{% url 'admin_logout' %}" style="display:inline;">
-        {% csrf_token %}
-        <a href="#" onclick="document.getElementById('logout-form').submit(); return false;">Logout</a>
-    </form>
+  {% endif %}
+  
+  {% if user.has_usable_password %}
+    <a href="{% url 'admin:password_change' %}" style="color: white; text-decoration: none; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+      <span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem;">lock</span>
+      Change Password
+    </a>
+  {% endif %}
+  
+  <form class="logout-form" method="post" action="{% url 'admin_logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="logout-btn">
+      <span class="material-icons" style="font-size: 1rem; margin-right: 0.5rem;">logout</span>
+      Logout
+    </button>
+  </form>
+</div>
 {% endblock %}

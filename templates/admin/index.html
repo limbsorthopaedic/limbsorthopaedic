@@ -1,43 +1,698 @@
-{% extends "admin/index.html" %}
-{% load i18n %}
 
-{% block content %}
-<div class="dashboard-link-container" style="margin-bottom: 20px;">
-    <a href="{% url 'admin_dashboard' %}" class="dashboard-link">
-        <i class="fas fa-tachometer-alt"></i>
-        {% translate "Go to Interactive Dashboard" %}
-    </a>
-</div>
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
 
+{% block title %}Healthcare Admin | {{ site_title|default:_('LIMBS Orthopaedic Admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
+/* Material Dashboard Index Styling */
+.admin-index {
+  padding: 2rem;
+  background: linear-gradient(135deg, #fefefe 0%, #f5f7fa 100%);
+  min-height: calc(100vh - 120px);
+  font-family: 'Roboto', sans-serif;
+}
+
+.welcome-header {
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 25px rgba(52, 189, 242, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4caf50, #2196f3, #ff9800, #f44336);
+}
+
+.welcome-title {
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.welcome-title .material-icons {
+  font-size: 2.5rem;
+  margin-right: 1rem;
+  opacity: 0.9;
+}
+
+.welcome-subtitle {
+  opacity: 0.9;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
 .dashboard-link-container {
-    margin-bottom: 20px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    text-align: center;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid rgba(52, 189, 242, 0.1);
 }
 
 .dashboard-link {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #417690;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 4px;
-    font-weight: 500;
-    transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(52, 189, 242, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.dashboard-link:hover::before {
+  left: 100%;
 }
 
 .dashboard-link:hover {
-    background-color: #2b5070;
-    color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(52, 189, 242, 0.4);
+  color: white;
+  text-decoration: none;
 }
 
-.dashboard-link i {
-    margin-right: 8px;
+.dashboard-link .material-icons {
+  margin-right: 0.75rem;
+  font-size: 1.5rem;
+}
+
+/* App List Grid */
+.app-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Module Styling */
+.module {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(52, 189, 242, 0.1);
+  position: relative;
+}
+
+.module::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--module-color, #34bdf2), transparent);
+}
+
+.module:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Color coding for different modules */
+.module.auth { --module-color: #4caf50; }
+.module.accounts { --module-color: #2196f3; }
+.module.appointments { --module-color: #ff9800; }
+.module.services { --module-color: #9c27b0; }
+.module.products { --module-color: #f44336; }
+.module.blog { --module-color: #607d8b; }
+.module.testimonials { --module-color: #795548; }
+.module.notifications { --module-color: #ff5722; }
+.module.surveys { --module-color: #3f51b5; }
+.module.staff_chat { --module-color: #00bcd4; }
+.module.analytics { --module-color: #8bc34a; }
+.module.gallery { --module-color: #e91e63; }
+.module.careers { --module-color: #ffc107; }
+
+.module h2, .module caption {
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  color: white;
+  margin: 0;
+  padding: 1.5rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.module h2 .material-icons {
+  font-size: 1.5rem;
+  opacity: 0.9;
+}
+
+.module table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.module table tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.module table tr:hover {
+  background: rgba(52, 189, 242, 0.05);
+}
+
+.module table tr:last-child {
+  border-bottom: none;
+}
+
+.module table th {
+  background: transparent;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #1e266f;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.module table td {
+  padding: 1rem 1.5rem;
+  border: none;
+  vertical-align: middle;
+}
+
+.module table th a,
+.module table td a {
+  color: #1e266f;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.module table th a:hover,
+.module table td a:hover {
+  color: #34bdf2;
+}
+
+/* Action Links */
+.addlink, .changelink, .viewlink {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.addlink::before,
+.changelink::before,
+.viewlink::before {
+  font-family: 'Material Icons';
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.addlink::before { content: 'add_circle'; }
+.changelink::before { content: 'edit'; }
+.viewlink::before { content: 'visibility'; }
+
+.addlink {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+  color: white;
+}
+
+.changelink {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+}
+
+.viewlink {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+}
+
+.addlink:hover,
+.changelink:hover,
+.viewlink:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  color: white;
+}
+
+/* Model Icons */
+.model-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  margin-right: 0.75rem;
+  color: white;
+  font-size: 1rem;
+}
+
+.model-user .model-icon { background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); }
+.model-group .model-icon { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); }
+.model-doctor .model-icon { background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); }
+.model-appointment .model-icon { background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); }
+.model-service .model-icon { background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); }
+.model-product .model-icon { background: linear-gradient(135deg, #607d8b 0%, #455a64 100%); }
+.model-blogpost .model-icon { background: linear-gradient(135deg, #795548 0%, #5d4037 100%); }
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6c757d;
+}
+
+.empty-state .material-icons {
+  font-size: 4rem;
+  color: #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+  color: #6c757d;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Recent Actions */
+.recent-actions {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-top: 2rem;
+  overflow: hidden;
+  border: 1px solid rgba(52, 189, 242, 0.1);
+}
+
+.recent-actions h3 {
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  color: white;
+  margin: 0;
+  padding: 1.5rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.recent-actions h3 .material-icons {
+  margin-right: 0.75rem;
+  font-size: 1.5rem;
+}
+
+.recent-actions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recent-actions li {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.recent-actions li:hover {
+  background: rgba(52, 189, 242, 0.05);
+}
+
+.recent-actions li:last-child {
+  border-bottom: none;
+}
+
+.recent-actions .action-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #34bdf2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .app-list-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-index {
+    padding: 1rem;
+  }
+  
+  .welcome-header {
+    padding: 1.5rem;
+  }
+  
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  
+  .app-list-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .module table th,
+  .module table td {
+    padding: 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .dashboard-link {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Loading Animation */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e9ecef;
+  border-top: 4px solid #34bdf2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
 }
 </style>
+{% endblock %}
 
-{{ block.super }}
+{% block content %}
+<div class="admin-index">
+  <!-- Welcome Header -->
+  <div class="welcome-header fade-in-up">
+    <h1 class="welcome-title">
+      <span class="material-icons">local_hospital</span>
+      Welcome to Healthcare Admin
+    </h1>
+    <p class="welcome-subtitle">LIMBS Orthopaedic Management System</p>
+  </div>
+
+  <!-- Dashboard Link -->
+  <div class="dashboard-link-container fade-in-up">
+    <a href="{% url 'admin_dashboard' %}" class="dashboard-link">
+      <span class="material-icons">dashboard</span>
+      {% translate "Go to Interactive Dashboard" %}
+    </a>
+  </div>
+
+  <!-- App List Grid -->
+  <div class="app-list-grid fade-in-up">
+    {% if available_apps %}
+      {% for app in available_apps %}
+        <div class="module {{ app.app_label }}">
+          <h2>
+            <span>{{ app.name }}</span>
+            {% if app.app_label == 'auth' %}
+              <span class="material-icons">security</span>
+            {% elif app.app_label == 'accounts' %}
+              <span class="material-icons">people</span>
+            {% elif app.app_label == 'appointments' %}
+              <span class="material-icons">event</span>
+            {% elif app.app_label == 'services' %}
+              <span class="material-icons">medical_services</span>
+            {% elif app.app_label == 'products' %}
+              <span class="material-icons">inventory</span>
+            {% elif app.app_label == 'blog' %}
+              <span class="material-icons">article</span>
+            {% elif app.app_label == 'testimonials' %}
+              <span class="material-icons">rate_review</span>
+            {% elif app.app_label == 'notifications' %}
+              <span class="material-icons">notifications</span>
+            {% elif app.app_label == 'surveys' %}
+              <span class="material-icons">poll</span>
+            {% elif app.app_label == 'staff_chat' %}
+              <span class="material-icons">chat</span>
+            {% elif app.app_label == 'analytics' %}
+              <span class="material-icons">analytics</span>
+            {% elif app.app_label == 'gallery' %}
+              <span class="material-icons">photo_library</span>
+            {% elif app.app_label == 'careers' %}
+              <span class="material-icons">work</span>
+            {% else %}
+              <span class="material-icons">apps</span>
+            {% endif %}
+          </h2>
+          
+          {% if app.models %}
+            <table>
+              <tbody>
+                {% for model in app.models %}
+                  <tr class="model-{{ model.object_name|lower }}">
+                    {% if model.admin_url %}
+                      <th scope="row">
+                        <a href="{{ model.admin_url }}">
+                          <div class="model-icon">
+                            <span class="material-icons">
+                              {% if model.object_name|lower == 'user' %}person
+                              {% elif model.object_name|lower == 'group' %}group
+                              {% elif model.object_name|lower == 'doctor' %}medical_services
+                              {% elif model.object_name|lower == 'appointment' %}event
+                              {% elif model.object_name|lower == 'service' %}healing
+                              {% elif model.object_name|lower == 'product' %}inventory_2
+                              {% elif model.object_name|lower == 'blogpost' %}article
+                              {% elif model.object_name|lower == 'testimonial' %}star
+                              {% elif model.object_name|lower == 'notification' %}notifications
+                              {% elif model.object_name|lower == 'survey' %}poll
+                              {% elif model.object_name|lower == 'response' %}quiz
+                              {% elif model.object_name|lower == 'staffchatmessage' %}chat_bubble
+                              {% elif model.object_name|lower == 'gallery' %}photo
+                              {% elif model.object_name|lower == 'career' %}work
+                              {% else %}settings
+                              {% endif %}
+                            </span>
+                          </div>
+                          {{ model.name }}
+                        </a>
+                      </th>
+                    {% else %}
+                      <th scope="row">
+                        <div class="model-icon">
+                          <span class="material-icons">settings</span>
+                        </div>
+                        {{ model.name }}
+                      </th>
+                    {% endif %}
+
+                    {% if model.add_url %}
+                      <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+                    {% else %}
+                      <td>&nbsp;</td>
+                    {% endif %}
+
+                    {% if model.admin_url and model.view_only %}
+                      <td><a href="{{ model.admin_url }}" class="viewlink">{% translate 'View' %}</a></td>
+                    {% elif model.admin_url %}
+                      <td><a href="{{ model.admin_url }}" class="changelink">{% translate 'Change' %}</a></td>
+                    {% else %}
+                      <td>&nbsp;</td>
+                    {% endif %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="empty-state">
+              <span class="material-icons">inbox</span>
+              <h3>No models available</h3>
+              <p>No models are registered for this application.</p>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="module">
+        <div class="empty-state">
+          <span class="material-icons">apps</span>
+          <h3>No applications available</h3>
+          <p>No applications have been configured for this admin site.</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Actions -->
+  {% load log %}
+  {% get_admin_log 10 as admin_log for_user user %}
+  {% if admin_log %}
+    <div class="recent-actions fade-in-up">
+      <h3>
+        <span class="material-icons">history</span>
+        {% translate 'Recent actions' %}
+      </h3>
+      <ul>
+        {% for entry in admin_log %}
+          <li>
+            <div class="action-icon">
+              {% if entry.is_addition %}
+                <span class="material-icons">add</span>
+              {% elif entry.is_change %}
+                <span class="material-icons">edit</span>
+              {% elif entry.is_deletion %}
+                <span class="material-icons">delete</span>
+              {% else %}
+                <span class="material-icons">history</span>
+              {% endif %}
+            </div>
+            <div>
+              {% if entry.is_deletion or not entry.get_admin_url %}
+                {{ entry.object_repr }}
+              {% else %}
+                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+              {% endif %}
+              <br>
+              <span style="color: #6c757d; font-size: 0.8rem;">
+                {% if entry.content_type %}
+                  <span>{{ entry.content_type.name|capfirst }}</span>
+                {% else %}
+                  <span>{% translate 'Unknown content' %}</span>
+                {% endif %}
+                - {{ entry.action_time|date:"M d, Y H:i" }}
+              </span>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+// Add loading states and animations
+document.addEventListener('DOMContentLoaded', function() {
+  // Animate modules on load
+  const modules = document.querySelectorAll('.module');
+  modules.forEach((module, index) => {
+    setTimeout(() => {
+      module.style.animation = 'fadeInUp 0.6s ease-out';
+    }, index * 100);
+  });
+
+  // Add ripple effect to buttons
+  const buttons = document.querySelectorAll('.addlink, .changelink, .viewlink, .dashboard-link');
+  buttons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      const ripple = document.createElement('span');
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      ripple.classList.add('ripple');
+      
+      this.appendChild(ripple);
+      
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+    });
+  });
+});
+
+// Add ripple CSS
+const style = document.createElement('style');
+style.textContent = `
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+  }
+  
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+`;
+document.head.appendChild(style);
+</script>
 {% endblock %}

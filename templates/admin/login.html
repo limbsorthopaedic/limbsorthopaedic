@@ -1,109 +1,339 @@
+
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
-{% block extrastyle %}{{ block.super }}
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style type="text/css">
+/* Material Dashboard Login Styling */
 body.login {
-  background: #f3f4f6;
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 2rem;
 }
 
 .login #container {
-  max-width: 400px;
-  margin: 60px auto;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 26px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 0;
+  max-width: 450px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.login #container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4caf50, #2196f3, #ff9800, #f44336);
 }
 
 .login #header {
   background: transparent;
   box-shadow: none;
-  padding-top: 30px;
-  padding-bottom: 20px;
-}
-
-.login #content {
-  padding: 20px;
+  padding: 3rem 2rem 1rem;
+  text-align: center;
 }
 
 .login #header h1 {
-  font-size: 1.3em;
-  text-align: center;
-  color: var(--primary);
+  color: #1e266f;
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .login #header h1 img {
-  display: block;
-  margin: 0 auto 10px;
-  max-height: 60px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  border: 4px solid #34bdf2;
+  padding: 8px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(52, 189, 242, 0.3);
+}
+
+.healthcare-subtitle {
+  color: #6c757d;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.healthcare-subtitle .material-icons {
+  margin-right: 0.5rem;
+  color: #34bdf2;
+}
+
+.login #content {
+  padding: 2rem;
+}
+
+.login-form {
+  margin-top: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
 }
 
 .login label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   font-weight: 500;
+  color: #1e266f;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
 }
 
-.login input[type=text], .login input[type=password] {
+.login label .material-icons {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+  color: #34bdf2;
+}
+
+.login input[type=text], 
+.login input[type=password] {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 15px;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8f9fa;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.login input[type=text]:focus,
+.login input[type=password]:focus {
+  border-color: #34bdf2;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(52, 189, 242, 0.1);
+  transform: translateY(-2px);
 }
 
 .login .submit-row {
-  padding: 15px 0 0 0;
+  padding: 2rem 0 1rem 0;
   text-align: center;
   border-top: none;
   background: transparent;
 }
 
 .login .submit-row input {
-  display: block;
   width: 100%;
-  padding: 12px;
-  background: var(--primary);
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
   color: white;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 25px;
   font-weight: 500;
-  transition: background 0.3s ease;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login .submit-row input::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.login .submit-row input:hover::before {
+  left: 100%;
 }
 
 .login .submit-row input:hover {
-  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 189, 242, 0.4);
+}
+
+.login .submit-row input:active {
+  transform: translateY(0);
 }
 
 .login .errornote {
-  background: #fee2e2;
-  color: #7f1d1d;
-  border-radius: 4px;
-  padding: 12px 15px;
-  font-size: 14px;
-  margin-bottom: 20px;
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  border: none;
+  box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+  display: flex;
+  align-items: center;
+}
+
+.login .errornote::before {
+  content: '';
+  font-family: 'Material Icons';
+  content: 'error';
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
 }
 
 .login .form-row {
   padding: 0;
   border-bottom: none;
+  margin-bottom: 0;
 }
 
+.password-reset-link {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.password-reset-link a {
+  color: #34bdf2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.password-reset-link a::before {
+  content: 'help';
+  font-family: 'Material Icons';
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.password-reset-link a:hover {
+  background: rgba(52, 189, 242, 0.1);
+  transform: translateY(-1px);
+}
+
+.login-footer {
+  background: #f8f9fa;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.8rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.security-notice {
+  background: rgba(76, 175, 80, 0.1);
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+}
+
+.security-notice .material-icons {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  color: #4caf50;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  body.login {
+    padding: 1rem;
+  }
+  
+  .login #container {
+    margin: 1rem 0;
+  }
+  
+  .login #header {
+    padding: 2rem 1rem 1rem;
+  }
+  
+  .login #content {
+    padding: 1rem;
+  }
+  
+  .login #header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .login #header h1 img {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* Loading Animation */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-left: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Focus animations */
+@keyframes focusRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(52, 189, 242, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(52, 189, 242, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 189, 242, 0);
+  }
+}
+
+.login input[type=text]:focus,
+.login input[type=password]:focus {
+  animation: focusRing 0.6s ease-out;
+}
 </style>
 {% endblock %}
 
 {% block bodyclass %}{{ block.super }} login{% endblock %}
 
 {% block usertools %}{% endblock %}
-
 {% block nav-global %}{% endblock %}
-
 {% block nav-sidebar %}{% endblock %}
-
 {% block content_title %}{% endblock %}
-
 {% block breadcrumbs %}{% endblock %}
 
 {% block content %}
@@ -122,38 +352,62 @@ body.login {
 {% endif %}
 
 <div id="content-main">
-
-{% if user.is_authenticated %}
-<p class="errornote">
-{% blocktranslate trimmed %}
-    You are authenticated as {{ username }}, but are not authorized to
-    access this page. Would you like to login to a different account?
-{% endblocktranslate %}
-</p>
-{% endif %}
-
-<form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
-  <div class="form-row">
-    {{ form.username.errors }}
-    <label for="id_username">{{ form.username.label }}:</label>
-    {{ form.username }}
-  </div>
-  <div class="form-row">
-    {{ form.password.errors }}
-    <label for="id_password">{{ form.password.label }}:</label>
-    {{ form.password }}
-    <input type="hidden" name="next" value="{{ next }}">
-  </div>
-  {% url 'admin_password_reset' as password_reset_url %}
-  {% if password_reset_url %}
-  <div class="password-reset-link" style="margin: 15px 0; text-align: center;">
-    <a href="{{ password_reset_url }}" style="color: var(--primary);">{% translate 'Forgotten your password or username?' %}</a>
-  </div>
+  {% if user.is_authenticated %}
+  <p class="errornote">
+  {% blocktranslate trimmed %}
+      You are authenticated as {{ username }}, but are not authorized to
+      access this page. Would you like to login to a different account?
+  {% endblocktranslate %}
+  </p>
   {% endif %}
-  <div class="submit-row">
-    <input type="submit" value="{% translate 'Log in' %}">
-  </div>
-</form>
 
+  <form action="{{ app_path }}" method="post" id="login-form" class="login-form">
+    {% csrf_token %}
+    
+    <div class="healthcare-subtitle">
+      <span class="material-icons">local_hospital</span>
+      Healthcare Management System
+    </div>
+
+    <div class="form-group">
+      <label for="id_username">
+        <span class="material-icons">person</span>
+        {{ form.username.label }}:
+      </label>
+      {{ form.username.errors }}
+      {{ form.username }}
+    </div>
+
+    <div class="form-group">
+      <label for="id_password">
+        <span class="material-icons">lock</span>
+        {{ form.password.label }}:
+      </label>
+      {{ form.password.errors }}
+      {{ form.password }}
+      <input type="hidden" name="next" value="{{ next }}">
+    </div>
+
+    {% url 'admin_password_reset' as password_reset_url %}
+    {% if password_reset_url %}
+    <div class="password-reset-link">
+      <a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a>
+    </div>
+    {% endif %}
+
+    <div class="submit-row">
+      <input type="submit" value="{% translate 'Sign In to Healthcare System' %}">
+    </div>
+
+    <div class="security-notice">
+      <span class="material-icons">security</span>
+      Your session is encrypted and secure
+    </div>
+  </form>
+</div>
+
+<div class="login-footer">
+  <p>© 2025 LIMBS Orthopaedic Ltd. All rights reserved.</p>
+  <p>Healthcare Management System v2.0</p>
 </div>
 {% endblock %}

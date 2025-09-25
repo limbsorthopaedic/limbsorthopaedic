@@ -1,115 +1,354 @@
-{% extends "jazzmin/base.html" %}
+
+{% extends "admin/base_site.html" %}
 {% load i18n static notification_tags %}
 
-{% block extrahead %}
-    {{ block.super }}
-    <script src="{% static 'js/admin_notifications.js' %}"></script>
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Notification System Styling */
+.notification-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-bell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.notification-bell:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+  color: white;
+  text-decoration: none;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 2px solid white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+  }
+}
+
+.notification-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  max-height: 500px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  border: 1px solid rgba(52, 189, 242, 0.1);
+}
+
+.notification-dropdown:hover .notification-dropdown-menu {
+  display: block;
+}
+
+.notification-header {
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-item {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background: rgba(52, 189, 242, 0.05);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item.read {
+  opacity: 0.7;
+}
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.notification-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.notification-icon.appointment {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+}
+
+.notification-icon.comment {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+}
+
+.notification-icon.testimonial {
+  background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+}
+
+.notification-text {
+  flex: 1;
+}
+
+.notification-message {
+  font-size: 0.9rem;
+  color: #1e266f;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.mark-read-btn {
+  background: linear-gradient(135deg, #34bdf2 0%, #1e266f 100%);
+  color: white;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mark-read-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(52, 189, 242, 0.3);
+}
+
+.mark-all-read {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.mark-all-read:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.notification-footer {
+  padding: 1rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}
+
+.view-all-link {
+  color: #34bdf2;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.view-all-link:hover {
+  color: #1e266f;
+  text-decoration: none;
+}
+
+.no-notifications {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-notifications .material-icons {
+  font-size: 2rem;
+  color: #e0e0e0;
+  margin-bottom: 0.5rem;
+}
+</style>
 {% endblock %}
 
 {% block userlinks %}
-    {% if user.is_authenticated and user.is_staff %}
-        <li class="nav-item dropdown">
-            <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell"></i>
-                {% with count=unread_notifications_count %}
-                    {% if count > 0 %}
-                        <span class="badge badge-danger navbar-badge notification-badge">{{ count }}</span>
-                    {% endif %}
-                {% endwith %}
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" style="width: 350px; max-height: 500px; overflow-y: auto;">
-                <span class="dropdown-header">Notifications</span>
-                <div class="dropdown-divider"></div>
-                
-                {% if unread_notifications_count > 0 %}
-                    <a href="#" id="mark-all-notifications-read" class="dropdown-item dropdown-footer text-center">
-                        <i class="fas fa-check-circle"></i> Mark All as Read
-                    </a>
-                    <div class="dropdown-divider"></div>
-                {% endif %}
-                
-                <div id="notifications-container">
-                    <!-- This would be populated with actual notifications from the database -->
-                    {% comment %}
-                    {% for notification in notifications %}
-                        <div class="dropdown-item notification-item {% if notification.is_read %}read{% endif %}">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <i class="{{ notification.category.icon }} mr-2"></i>
-                                    <span>{{ notification.message }}</span>
-                                </div>
-                                {% if not notification.is_read %}
-                                    <button class="btn btn-sm btn-outline-primary mark-notification-read" 
-                                            data-notification-id="{{ notification.id }}">
-                                        Mark Read
-                                    </button>
-                                {% endif %}
-                            </div>
-                            <div class="text-muted small mt-1">
-                                <span>{{ notification.created_at|date:"M d, Y H:i" }}</span>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <span class="dropdown-item text-center">No notifications</span>
-                    {% endfor %}
-                    {% endcomment %}
-                    
-                    <!-- Placeholder notifications for testing -->
-                    <div class="dropdown-item notification-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-calendar-alt mr-2"></i>
-                                <span>New appointment: John Doe - April 12, 2025</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary mark-notification-read" 
-                                    data-notification-id="1">
-                                Mark Read
-                            </button>
-                        </div>
-                        <div class="text-muted small mt-1">
-                            <span>Apr 10, 2025 10:25</span>
-                        </div>
-                    </div>
-                    
-                    <div class="dropdown-item notification-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-comment mr-2"></i>
-                                <span>New blog comment from Sarah on "Latest Prosthetics"</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary mark-notification-read" 
-                                    data-notification-id="2">
-                                Mark Read
-                            </button>
-                        </div>
-                        <div class="text-muted small mt-1">
-                            <span>Apr 9, 2025 15:40</span>
-                        </div>
-                    </div>
-                    
-                    <div class="dropdown-item notification-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-star mr-2"></i>
-                                <span>New 5-star testimonial from Michael K.</span>
-                            </div>
-                            <button class="btn btn-sm btn-outline-primary mark-notification-read" 
-                                    data-notification-id="3">
-                                Mark Read
-                            </button>
-                        </div>
-                        <div class="text-muted small mt-1">
-                            <span>Apr 9, 2025 11:15</span>
-                        </div>
-                    </div>
+<div style="display: flex; align-items: center; gap: 1rem;">
+  {% if user.is_authenticated and user.is_staff %}
+    <div class="notification-dropdown">
+      <a href="#" class="notification-bell" title="{% trans 'Notifications' %}">
+        <span class="material-icons">notifications</span>
+        {% with count=unread_notifications_count %}
+          {% if count > 0 %}
+            <span class="notification-badge">{{ count }}</span>
+          {% endif %}
+        {% endwith %}
+      </a>
+      
+      <div class="notification-dropdown-menu">
+        <div class="notification-header">
+          <span>Notifications</span>
+          {% if unread_notifications_count > 0 %}
+            <button class="mark-all-read" id="mark-all-notifications-read">
+              Mark All Read
+            </button>
+          {% endif %}
+        </div>
+        
+        <div id="notifications-container">
+          <!-- Placeholder notifications for testing -->
+          <div class="notification-item">
+            <div class="notification-content">
+              <div class="notification-icon appointment">
+                <span class="material-icons">event</span>
+              </div>
+              <div class="notification-text">
+                <div class="notification-message">New appointment: John Doe - April 12, 2025</div>
+                <div class="notification-time">Apr 10, 2025 10:25</div>
+                <div class="notification-actions">
+                  <button class="mark-read-btn" data-notification-id="1">
+                    Mark Read
+                  </button>
                 </div>
-                
-                <div class="dropdown-divider"></div>
-                <a href="{% url 'admin:notifications_notification_changelist' %}" class="dropdown-item dropdown-footer">
-                    See All Notifications
-                </a>
+              </div>
             </div>
-        </li>
-    {% endif %}
-    {{ block.super }}
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-content">
+              <div class="notification-icon comment">
+                <span class="material-icons">comment</span>
+              </div>
+              <div class="notification-text">
+                <div class="notification-message">New blog comment from Sarah on "Latest Prosthetics"</div>
+                <div class="notification-time">Apr 9, 2025 15:40</div>
+                <div class="notification-actions">
+                  <button class="mark-read-btn" data-notification-id="2">
+                    Mark Read
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="notification-item">
+            <div class="notification-content">
+              <div class="notification-icon testimonial">
+                <span class="material-icons">star</span>
+              </div>
+              <div class="notification-text">
+                <div class="notification-message">New 5-star testimonial from Michael K.</div>
+                <div class="notification-time">Apr 9, 2025 11:15</div>
+                <div class="notification-actions">
+                  <button class="mark-read-btn" data-notification-id="3">
+                    Mark Read
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="notification-footer">
+          <a href="{% url 'admin:notifications_notification_changelist' %}" class="view-all-link">
+            See All Notifications
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  
+  {{ block.super }}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle mark as read functionality
+  document.querySelectorAll('.mark-read-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const notificationId = this.getAttribute('data-notification-id');
+      // Add AJAX call here to mark notification as read
+      this.style.display = 'none';
+      this.closest('.notification-item').classList.add('read');
+    });
+  });
+
+  // Handle mark all as read
+  const markAllBtn = document.getElementById('mark-all-notifications-read');
+  if (markAllBtn) {
+    markAllBtn.addEventListener('click', function() {
+      // Add AJAX call here to mark all notifications as read
+      document.querySelectorAll('.notification-item').forEach(item => {
+        item.classList.add('read');
+      });
+      document.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.style.display = 'none';
+      });
+      document.querySelector('.notification-badge').style.display = 'none';
+      this.style.display = 'none';
+    });
+  }
+});
+</script>
 {% endblock %}
