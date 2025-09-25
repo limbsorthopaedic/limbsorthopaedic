@@ -1,0 +1,384 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block title %}{{ title }} | {% if subtitle %}{{ subtitle }} | {% endif %}{{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Material Dashboard Change List Styling */
+.change-list-container {
+  background: var(--cream);
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+}
+
+.change-list-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.change-list-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4caf50, #2196f3, #ff9800, #f44336);
+}
+
+.change-list-title {
+  font-size: 2rem;
+  font-weight: 300;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.change-list-title .material-icons {
+  font-size: 2.5rem;
+  margin-right: 1rem;
+  opacity: 0.9;
+}
+
+.object-tools {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(52, 189, 242, 0.1);
+}
+
+.object-tools li {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.object-tools a {
+  background: linear-gradient(135deg, var(--success) 0%, #45a049 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  display: inline-flex;
+  align-items: center;
+}
+
+.object-tools a::before {
+  content: '➕';
+  margin-right: 0.5rem;
+}
+
+.object-tools a:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, #45a049 0%, var(--success) 100%);
+}
+
+.changelist-search {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(52, 189, 242, 0.1);
+}
+
+.changelist-search input[type="text"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  background: var(--light);
+}
+
+.changelist-search input[type="text"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(52, 189, 242, 0.1);
+}
+
+.changelist-search input[type="submit"] {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  margin-left: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.results {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  border: 1px solid rgba(52, 189, 242, 0.1);
+}
+
+.results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results th {
+  background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--secondary);
+  border-bottom: 2px solid var(--primary);
+  position: relative;
+}
+
+.results th a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.results td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  transition: var(--transition);
+}
+
+.results tr:hover td {
+  background: rgba(52, 189, 242, 0.05);
+}
+
+.results .action-checkbox-column {
+  width: 40px;
+  text-align: center;
+}
+
+.action-checkbox {
+  transform: scale(1.2);
+}
+
+/* Filters */
+#changelist-filter {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(52, 189, 242, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#changelist-filter h2 {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  margin: -1.5rem -1.5rem 1rem -1.5rem;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+#changelist-filter h3 {
+  color: var(--secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 1rem 0 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+
+#changelist-filter ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#changelist-filter li {
+  margin-bottom: 0.25rem;
+}
+
+#changelist-filter a {
+  color: var(--dark);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  display: block;
+  transition: var(--transition);
+}
+
+#changelist-filter a:hover {
+  background: rgba(52, 189, 242, 0.1);
+  color: var(--primary);
+}
+
+#changelist-filter a.selected {
+  background: var(--primary);
+  color: white;
+  font-weight: 500;
+}
+
+/* Actions */
+.actions {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(52, 189, 242, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.actions select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  min-width: 200px;
+}
+
+.actions button {
+  background: linear-gradient(135deg, var(--warning) 0%, #f57c00 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Pagination */
+.paginator {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(52, 189, 242, 0.1);
+}
+
+.paginator a, .paginator .this-page {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  margin: 0 0.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: var(--transition);
+  min-width: 40px;
+  text-align: center;
+}
+
+.paginator a {
+  background: var(--light);
+  color: var(--dark);
+}
+
+.paginator a:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.paginator .this-page {
+  background: var(--primary);
+  color: white;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .change-list-container {
+    padding: 1rem;
+  }
+  
+  .change-list-header {
+    padding: 1.5rem;
+  }
+  
+  .change-list-title {
+    font-size: 1.5rem;
+  }
+  
+  .results table {
+    font-size: 0.8rem;
+  }
+  
+  .results th, .results td {
+    padding: 0.5rem;
+  }
+  
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="change-list-container">
+  <div class="change-list-header">
+    <h1 class="change-list-title">
+      <span class="material-icons">list</span>
+      {{ title }}
+      {% if subtitle %}<span style="font-size: 1.2rem; opacity: 0.8; margin-left: 1rem;">{{ subtitle }}</span>{% endif %}
+    </h1>
+  </div>
+
+  {% block object-tools %}
+    {% if has_add_permission %}
+      <ul class="object-tools">
+        {% block object-tools-items %}
+          <li>
+            {% url cl.opts|admin_urlname:'add' as add_url %}
+            <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+              {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+          </li>
+        {% endblock %}
+      </ul>
+    {% endif %}
+  {% endblock %}
+
+  {% block search %}{% search_form cl %}{% endblock %}
+
+  {% block date_hierarchy %}{% date_hierarchy cl %}{% endblock %}
+
+  <form method="post" novalidate>{% csrf_token %}
+    {% block result_list %}
+      {% if action_form and actions_on_top and cl.show_admin_actions %}
+        <div class="actions">
+          {% admin_actions %}
+        </div>
+      {% endif %}
+      {% result_list cl %}
+      {% if action_form and actions_on_bottom and cl.show_admin_actions %}
+        <div class="actions">
+          {% admin_actions %}
+        </div>
+      {% endif %}
+    {% endblock %}
+  </form>
+
+  {% block pagination %}{% pagination cl %}{% endblock %}
+</div>
+{% endblock %}

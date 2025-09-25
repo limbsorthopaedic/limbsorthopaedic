@@ -1,0 +1,46 @@
+
+{% load i18n %}
+
+<div class="submit-row">
+  {% if show_save %}
+    <input type="submit" value="{% trans 'Save' %}" class="default" name="_save">
+  {% endif %}
+  
+  {% if show_delete_link %}
+    {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+    <a href="{% add_preserved_filters delete_url %}" class="deletelink">{% trans "Delete" %}</a>
+  {% endif %}
+  
+  {% if show_save_as_new %}
+    <input type="submit" value="{% trans 'Save as new' %}" name="_saveasnew">
+  {% endif %}
+  
+  {% if show_save_and_add_another %}
+    <input type="submit" value="{% trans 'Save and add another' %}" name="_addanother">
+  {% endif %}
+  
+  {% if show_save_and_continue %}
+    <input type="submit" value="{% trans 'Save and continue editing' %}" name="_continue">
+  {% endif %}
+  
+  {% if show_close %}
+    <a href="{{ cancel_url }}" class="closelink" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); color: white; padding: 0.75rem 2rem; border-radius: 25px; text-decoration: none; font-weight: 500; transition: var(--transition); box-shadow: var(--shadow-sm);">{% trans 'Close' %}</a>
+  {% endif %}
+</div>
+
+<style>
+.submit-row input[type="submit"]:not(.default) {
+  background: linear-gradient(135deg, var(--info) 0%, #1976d2 100%) !important;
+}
+
+.submit-row input[name="_saveasnew"] {
+  background: linear-gradient(135deg, var(--warning) 0%, #f57c00 100%) !important;
+}
+
+.closelink:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  color: white !important;
+  text-decoration: none !important;
+}
+</style>
