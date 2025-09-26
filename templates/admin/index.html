@@ -470,11 +470,15 @@
     <p class="welcome-subtitle">LIMBS Orthopaedic Management System</p>
   </div>
 
-  <!-- Dashboard Link -->
+  <!-- Dashboard Links -->
   <div class="dashboard-link-container fade-in-up">
-    <a href="{% url 'admin_dashboard' %}" class="dashboard-link">
+    <a href="{% url 'admin_dashboard' %}" class="dashboard-link" style="margin-right: 15px;">
       <span class="material-icons">dashboard</span>
       {% translate "Go to Interactive Dashboard" %}
+    </a>
+    <a href="{% url 'admin_invoice_generator' %}" class="dashboard-link" style="background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%); box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);">
+      <span class="material-icons">receipt_long</span>
+      {% translate "Generate Invoice" %}
     </a>
   </div>
 

@@ -318,6 +318,12 @@ def admin_dashboard(request):
     return render(request, 'admin/dashboard.html', context)
 
 
+@staff_member_required
+def admin_invoice_generator(request):
+    """Invoice generator view for admin users"""
+    return render(request, 'admin/invoice_generator.html')
+
+
 @require_POST
 def admin_logout_view(request):
     """Custom admin logout view that redirects to homepage"""

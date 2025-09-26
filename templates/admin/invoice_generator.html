@@ -1,0 +1,905 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Invoice Generator | {{ site_title|default:_('LIMBS Orthopaedic Admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.invoice-container {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #2C3E50;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: calc(100vh - 120px);
+    padding: 20px;
+}
+
+.invoice-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #34bdf2, #7aeaff);
+}
+
+.header h1 {
+    color: #34bdf2;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+}
+
+.card h2 {
+    color: #34bdf2;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #34bdf2;
+    box-shadow: 0 0 0 3px rgba(52, 189, 242, 0.1);
+}
+
+.service-entry {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: #f8f9fa;
+}
+
+.btn {
+    background: linear-gradient(135deg, #34bdf2, #7aeaff);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(52, 189, 242, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(52, 189, 242, 0.4);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.stats {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.stats h3 {
+    color: #34bdf2;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #34bdf2;
+}
+
+.stat-label {
+    color: #666;
+    margin-top: 5px;
+}
+
+.invoice-preview {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #34bdf2;
+}
+
+.clinic-info h2 {
+    color: #34bdf2;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.clinic-info p {
+    color: #666;
+    margin: 2px 0;
+}
+
+.invoice-details {
+    text-align: right;
+}
+
+.invoice-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.patient-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.services-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.services-table th,
+.services-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.services-table th {
+    background: #34bdf2;
+    color: white;
+    font-weight: bold;
+}
+
+.services-table tr:hover {
+    background: #f8f9fa;
+}
+
+.totals {
+    text-align: right;
+    margin-top: 30px;
+}
+
+.totals table {
+    margin-left: auto;
+    border-collapse: collapse;
+}
+
+.totals td {
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.totals .total-row {
+    background: #27AE60;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.print-btn {
+    background: #27AE60;
+    margin-top: 20px;
+}
+
+.success-message {
+    background: #27AE60;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: center;
+    display: none;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #34bdf2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .invoice-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-wrapper">
+        <div class="header">
+            <h1>
+                <span class="material-icons" style="font-size: 3rem;">receipt_long</span>
+                LIMBS Orthopaedic Limited
+            </h1>
+            <p>Professional Invoice Management System</p>
+        </div>
+
+        <div class="stats">
+            <h3>
+                <span class="material-icons">analytics</span>
+                Quick Statistics
+            </h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalInvoices">0</div>
+                    <div class="stat-label">Total Invoices</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRevenue">KSh 0</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastInvoice">-</div>
+                    <div class="stat-label">Last Invoice</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>
+                    <span class="material-icons">person</span>
+                    Patient Information
+                </h2>
+                <form id="invoiceForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="patientName">Patient Name</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientAddress">Address</label>
+                        <textarea id="patientAddress" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhone">Phone Number</label>
+                        <input type="tel" id="patientPhone" required>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="material-icons">medical_services</span>
+                    Services & Items
+                </h2>
+                <div id="servicesContainer">
+                    <div class="service-entry">
+                        <div class="form-group">
+                            <label for="service1">Service/Item Description</label>
+                            <input type="text" id="service1" placeholder="Enter service or item description">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="quantity1">Quantity</label>
+                                <input type="number" id="quantity1" min="1" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="price1">Unit Price (KSh)</label>
+                                <input type="number" id="price1" min="0" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" id="addService" style="background: #27AE60; margin: 10px 5px;">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">add_circle</span>
+                    Add Another Service
+                </button>
+                <button class="btn btn-full" id="generateInvoice">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>
+                    Generate Invoice
+                </button>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <span class="material-icons" style="margin-right: 10px;">check_circle</span>
+            Invoice generated successfully!
+        </div>
+
+        <div class="invoice-preview" id="invoicePreview">
+            <div class="invoice-header">
+                <div class="clinic-info">
+                    <h2>LIMBS ORTHOPAEDIC LIMITED</h2>
+                    <p>ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                    <p>Phone: +254 705 347 657 | Email: info@limbsorthopaedic.org</p>
+                    <p>Website: https://limbsorthopaedic.org</p>
+                </div>
+                <div class="invoice-details">
+                    <div style="font-size: 2rem; font-weight: bold; color: #34bdf2;">INVOICE</div>
+                    <div class="invoice-number" id="invoiceNumber"></div>
+                    <div id="invoiceDate"></div>
+                    <div id="trackingCode" style="font-family: monospace; color: #666;"></div>
+                </div>
+            </div>
+
+            <div class="patient-info">
+                <h3 style="color: #34bdf2; margin-bottom: 15px;">BILL TO:</h3>
+                <div id="patientDetails"></div>
+            </div>
+
+            <table class="services-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th style="text-align: right;">Unit Price</th>
+                        <th style="text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                    <!-- Selected services will be populated here -->
+                </tbody>
+            </table>
+
+            <div class="totals">
+                <table>
+                    <tr>
+                        <td>Subtotal:</td>
+                        <td id="subtotal" style="text-align: right;"></td>
+                    </tr>
+                    <tr>
+                        <td>VAT (16%):</td>
+                        <td id="vatAmount" style="text-align: right;"></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>TOTAL:</td>
+                        <td id="totalAmount" style="text-align: right;"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <p style="font-style: italic; color: #666;">Thank you for choosing LIMBS Orthopaedic Limited for your orthopaedic care needs.</p>
+                <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">For any questions about this invoice, please contact us at the above phone number or email address.</p>
+            </div>
+
+            <button class="btn print-btn" onclick="printInvoice()">
+                <span class="material-icons" style="margin-right: 5px;">print</span>
+                Print Invoice
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configuration matching the original Google Apps Script
+const CLINIC_CONFIG = {
+    name: "LIMBS ORTHOPAEDIC LIMITED",
+    address: "ICIPE Road, Kasarani, Nairobi, Kenya",
+    phone: "+254 705 347 657",
+    email: "info@limbsorthopaedic.org",
+    website: "https://limbsorthopaedic.org"
+};
+
+// Store invoices and service entries
+let invoices = JSON.parse(localStorage.getItem('limbsInvoices') || '[]');
+let serviceCount = 1;
+
+// Initialize the application
+function initializeApp() {
+    updateStats();
+}
+
+// Add new service entry
+function addServiceEntry() {
+    serviceCount++;
+    const servicesContainer = document.getElementById('servicesContainer');
+    const newServiceEntry = document.createElement('div');
+    newServiceEntry.className = 'service-entry';
+    newServiceEntry.innerHTML = `
+        <div class="form-group">
+            <label for="service${serviceCount}">Service/Item Description</label>
+            <input type="text" id="service${serviceCount}" placeholder="Enter service or item description">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 50px; gap: 15px; align-items: end;">
+            <div class="form-group">
+                <label for="quantity${serviceCount}">Quantity</label>
+                <input type="number" id="quantity${serviceCount}" min="1" value="1">
+            </div>
+            <div class="form-group">
+                <label for="price${serviceCount}">Unit Price (KSh)</label>
+                <input type="number" id="price${serviceCount}" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <button class="btn" onclick="removeService(this)" style="background: #e74c3c; padding: 10px; height: 40px;">
+                <span class="material-icons" style="font-size: 1rem;">close</span>
+            </button>
+        </div>
+    `;
+    servicesContainer.appendChild(newServiceEntry);
+}
+
+// Remove service entry
+function removeService(button) {
+    button.closest('.service-entry').remove();
+}
+
+// Get all service entries
+function getServiceEntries() {
+    const services = [];
+    const serviceEntries = document.querySelectorAll('.service-entry');
+    
+    serviceEntries.forEach((entry, index) => {
+        const serviceInput = entry.querySelector(`input[id^="service"]`);
+        const quantityInput = entry.querySelector(`input[id^="quantity"]`);
+        const priceInput = entry.querySelector(`input[id^="price"]`);
+        
+        const serviceName = serviceInput.value.trim();
+        const quantity = parseInt(quantityInput.value) || 1;
+        const unitPrice = parseFloat(priceInput.value) || 0;
+        
+        if (serviceName && unitPrice > 0) {
+            services.push({
+                name: serviceName,
+                quantity: quantity,
+                unitPrice: unitPrice,
+                totalPrice: quantity * unitPrice
+            });
+        }
+    });
+    
+    return services;
+}
+
+// Generate invoice number
+function generateInvoiceNumber() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '');
+    const todayInvoices = invoices.filter(inv => inv.date === now.toLocaleDateString('en-GB'));
+    const sequence = (todayInvoices.length + 1).toString().padStart(3, '0');
+    return `LOL-${dateStr}-${sequence}`;
+}
+
+// Generate tracking code
+function generateTrackingCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const generateSegment = (length) => {
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    };
+    return `LOL-${generateSegment(5)}-${generateSegment(5)}`;
+}
+
+// Update statistics
+function updateStats() {
+    document.getElementById('totalInvoices').textContent = invoices.length;
+    
+    const totalRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
+    document.getElementById('totalRevenue').textContent = `KSh ${totalRevenue.toLocaleString()}`;
+    
+    const lastInvoice = invoices.length > 0 ? 
+        invoices[invoices.length - 1].date : '-';
+    document.getElementById('lastInvoice').textContent = lastInvoice;
+}
+
+// Add service entry event listener
+document.getElementById('addService').addEventListener('click', addServiceEntry);
+
+// Generate invoice
+document.getElementById('generateInvoice').addEventListener('click', function() {
+    const patientName = document.getElementById('patientName').value.trim();
+    const patientAddress = document.getElementById('patientAddress').value.trim();
+    const patientPhone = document.getElementById('patientPhone').value.trim();
+
+    // Validation
+    if (!patientName || !patientAddress || !patientPhone) {
+        alert('Please fill in all patient information fields.');
+        return;
+    }
+
+    const services = getServiceEntries();
+    if (services.length === 0) {
+        alert('Please add at least one service with valid details.');
+        return;
+    }
+
+    // Show loading state
+    this.innerHTML = '<span class="loading"></span> Generating...';
+    this.disabled = true;
+
+    // Generate invoice data
+    setTimeout(() => {
+        const invoiceData = createInvoiceData(patientName, patientAddress, patientPhone, services);
+        
+        // Save invoice
+        invoices.push(invoiceData);
+        localStorage.setItem('limbsInvoices', JSON.stringify(invoices));
+        
+        // Display invoice
+        displayInvoice(invoiceData);
+        
+        // Show success message
+        showSuccessMessage();
+        
+        // Reset form
+        resetForm();
+        
+        // Update stats
+        updateStats();
+        
+        // Reset button
+        this.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Invoice';
+        this.disabled = false;
+    }, 1000);
+});
+
+// Create invoice data
+function createInvoiceData(patientName, patientAddress, patientPhone, services) {
+    const now = new Date();
+    
+    const subtotal = services.reduce((sum, service) => sum + service.totalPrice, 0);
+    const tax = subtotal * 0.16; // 16% VAT
+    const total = subtotal + tax;
+
+    return {
+        invoiceNumber: generateInvoiceNumber(),
+        trackingCode: generateTrackingCode(),
+        date: now.toLocaleDateString('en-GB'),
+        patientName,
+        patientAddress,
+        patientPhone,
+        services: services,
+        subtotal,
+        tax,
+        total,
+        createdAt: now.toISOString()
+    };
+}
+
+// Display invoice
+function displayInvoice(invoiceData) {
+    const preview = document.getElementById('invoicePreview');
+    
+    document.getElementById('invoiceNumber').textContent = `Invoice #: ${invoiceData.invoiceNumber}`;
+    document.getElementById('invoiceDate').textContent = `Date: ${invoiceData.date}`;
+    document.getElementById('trackingCode').textContent = `Tracking: ${invoiceData.trackingCode}`;
+    
+    document.getElementById('patientDetails').innerHTML = `
+        <div><strong>${invoiceData.patientName}</strong></div>
+        <div>${invoiceData.patientAddress}</div>
+        <div>Phone: ${invoiceData.patientPhone}</div>
+    `;
+
+    const servicesTableBody = document.getElementById('servicesTableBody');
+    servicesTableBody.innerHTML = '';
+    
+    invoiceData.services.forEach((service, index) => {
+        const row = servicesTableBody.insertRow();
+        row.innerHTML = `
+            <td>${service.name}</td>
+            <td style="text-align: center;">${service.quantity}</td>
+            <td style="text-align: right;">KSh ${service.unitPrice.toLocaleString()}</td>
+            <td style="text-align: right;">KSh ${service.totalPrice.toLocaleString()}</td>
+        `;
+        if (index % 2 === 1) {
+            row.style.backgroundColor = '#f8f9fa';
+        }
+    });
+
+    document.getElementById('subtotal').textContent = `KSh ${invoiceData.subtotal.toLocaleString()}`;
+    document.getElementById('vatAmount').textContent = `KSh ${invoiceData.tax.toLocaleString()}`;
+    document.getElementById('totalAmount').textContent = `KSh ${invoiceData.total.toLocaleString()}`;
+    
+    preview.style.display = 'block';
+    preview.classList.add('fade-in');
+    preview.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Show success message
+function showSuccessMessage() {
+    const message = document.getElementById('successMessage');
+    message.style.display = 'block';
+    message.classList.add('fade-in');
+    
+    setTimeout(() => {
+        message.style.display = 'none';
+    }, 3000);
+}
+
+// Reset form
+function resetForm() {
+    document.getElementById('patientName').value = '';
+    document.getElementById('patientAddress').value = '';
+    document.getElementById('patientPhone').value = '';
+    
+    // Reset services container to just one entry
+    const servicesContainer = document.getElementById('servicesContainer');
+    servicesContainer.innerHTML = `
+        <div class="service-entry">
+            <div class="form-group">
+                <label for="service1">Service/Item Description</label>
+                <input type="text" id="service1" placeholder="Enter service or item description">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="quantity1">Quantity</label>
+                    <input type="number" id="quantity1" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="price1">Unit Price (KSh)</label>
+                    <input type="number" id="price1" min="0" step="0.01" placeholder="0.00">
+                </div>
+            </div>
+        </div>
+    `;
+    serviceCount = 1;
+}
+
+// Print invoice
+function printInvoice() {
+    try {
+        // Create a simplified print version by cloning the invoice content
+        const invoiceElement = document.getElementById('invoicePreview');
+        const printContent = invoiceElement.cloneNode(true);
+        
+        // Remove the print button from the cloned content
+        const printBtn = printContent.querySelector('.print-btn');
+        if (printBtn) {
+            printBtn.remove();
+        }
+        
+        // Create print styles
+        const printStyles = `
+            <style>
+                @media print {
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 0; 
+                        padding: 20px; 
+                        color: #2C3E50; 
+                        background: white;
+                    }
+                    .invoice-header { 
+                        display: flex; 
+                        justify-content: space-between; 
+                        margin-bottom: 30px; 
+                        padding-bottom: 20px; 
+                        border-bottom: 3px solid #34bdf2; 
+                    }
+                    .clinic-info h2 { 
+                        color: #34bdf2; 
+                        font-size: 24px; 
+                        margin-bottom: 10px; 
+                    }
+                    .patient-info { 
+                        background: #f8f9fa; 
+                        padding: 20px; 
+                        border-radius: 10px; 
+                        margin-bottom: 30px; 
+                    }
+                    .services-table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-bottom: 30px; 
+                    }
+                    .services-table th, .services-table td { 
+                        padding: 12px; 
+                        text-align: left; 
+                        border-bottom: 1px solid #ddd; 
+                    }
+                    .services-table th { 
+                        background: #34bdf2; 
+                        color: white; 
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+                    .totals { 
+                        text-align: right; 
+                        margin-top: 30px; 
+                    }
+                    .totals table { 
+                        margin-left: auto; 
+                        border-collapse: collapse; 
+                    }
+                    .totals td { 
+                        padding: 10px 20px; 
+                        border-bottom: 1px solid #ddd; 
+                    }
+                    .total-row { 
+                        background: #27AE60 !important; 
+                        color: white !important; 
+                        font-weight: bold; 
+                        -webkit-print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+                    .print-btn { 
+                        display: none !important; 
+                    }
+                }
+            </style>
+        `;
+        
+        // Create new window for printing
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        
+        if (!printWindow) {
+            // If popup is blocked, use alternative method
+            alert('Please allow popups for printing, or use your browser\'s print function (Ctrl+P)');
+            window.print();
+            return;
+        }
+        
+        // Write content to new window
+        printWindow.document.open();
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Invoice - LIMBS Orthopaedic</title>
+                ${printStyles}
+            </head>
+            <body>
+                ${printContent.innerHTML}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        
+        // Wait for content to load then print
+        setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }, 450);
+        
+    } catch (error) {
+        console.error('Print error:', error);
+        // Fallback: use browser's native print
+        alert('Using browser print function. Please print the current page.');
+        window.print();
+    }
+}
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+{% endblock %}

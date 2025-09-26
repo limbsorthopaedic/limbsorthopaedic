@@ -8,7 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.contrib.admin import AdminSite
-from .admin_views import admin_dashboard, admin_logout_view
+from .admin_views import admin_dashboard, admin_logout_view, admin_invoice_generator
 from core import views as core_views
 
 from django.contrib.sitemaps.views import sitemap
@@ -42,6 +42,7 @@ sitemaps = {
 urlpatterns = [
     # Use only adminlimbsorth as the primary admin URL
     path('adminlimbsorth/dashboard/', admin_dashboard, name='admin_dashboard'),
+    path('adminlimbsorth/invoice-generator/', admin_invoice_generator, name='admin_invoice_generator'),
     path('adminlimbsorth/logout/', admin_logout_view, name='admin_logout'),
     path('adminlimbsorth/', admin.site.urls),  # Primary admin URL
     path('set-theme/', core_views.set_theme_preference, name='set_theme'),
