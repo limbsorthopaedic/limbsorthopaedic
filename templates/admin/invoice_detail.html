@@ -165,18 +165,278 @@
 }
 
 @media print {
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        font-family: 'Roboto', Arial, sans-serif !important;
+        font-size: 12pt !important;
+        line-height: 1.4 !important;
+        color: #2C3E50 !important;
+    }
+    
     .invoice-actions {
         display: none !important;
     }
     
     .invoice-container {
-        background: white;
-        padding: 0;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
     }
     
     .invoice-preview {
-        box-shadow: none;
-        padding: 20px;
+        box-shadow: none !important;
+        padding: 30px !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        background: white !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    
+    .invoice-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        margin-bottom: 40px !important;
+        padding-bottom: 20px !important;
+        border-bottom: 3px solid #34bdf2 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .clinic-info h2 {
+        color: #34bdf2 !important;
+        font-size: 24pt !important;
+        margin-bottom: 10px !important;
+        font-weight: bold !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    
+    .clinic-info p {
+        color: #666 !important;
+        margin: 2px 0 !important;
+        font-size: 11pt !important;
+    }
+    
+    .invoice-details {
+        text-align: right !important;
+    }
+    
+    .invoice-details > div:first-child {
+        font-size: 24pt !important;
+        font-weight: bold !important;
+        color: #34bdf2 !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .invoice-number {
+        font-size: 18pt !important;
+        font-weight: bold !important;
+        color: #2C3E50 !important;
+        margin: 5px 0 !important;
+    }
+    
+    .invoice-details > div:not(:first-child):not(.invoice-number) {
+        font-size: 11pt !important;
+        color: #666 !important;
+        margin: 3px 0 !important;
+    }
+    
+    .patient-info {
+        background: #f8f9fa !important;
+        padding: 20px !important;
+        border-radius: 10px !important;
+        margin-bottom: 30px !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .patient-info h3 {
+        color: #34bdf2 !important;
+        margin-bottom: 15px !important;
+        font-size: 14pt !important;
+        font-weight: bold !important;
+    }
+    
+    .patient-info div {
+        font-size: 11pt !important;
+        color: #2C3E50 !important;
+        margin: 3px 0 !important;
+    }
+    
+    .services-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 30px !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .services-table th,
+    .services-table td {
+        padding: 15px !important;
+        text-align: left !important;
+        border-bottom: 1px solid #ddd !important;
+        font-size: 11pt !important;
+    }
+    
+    .services-table th {
+        background: #34bdf2 !important;
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 11pt !important;
+    }
+    
+    .services-table tr:nth-child(even) {
+        background: #f8f9fa !important;
+    }
+    
+    .services-table td[style*="text-align: center"] {
+        text-align: center !important;
+    }
+    
+    .services-table td[style*="text-align: right"] {
+        text-align: right !important;
+    }
+    
+    .totals {
+        text-align: right !important;
+        margin-top: 30px !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .totals table {
+        margin-left: auto !important;
+        border-collapse: collapse !important;
+    }
+    
+    .totals td {
+        padding: 10px 20px !important;
+        border-bottom: 1px solid #ddd !important;
+        font-size: 12pt !important;
+    }
+    
+    .totals td:first-child {
+        font-weight: bold !important;
+        color: #2C3E50 !important;
+    }
+    
+    .totals td:last-child {
+        text-align: right !important;
+        font-family: monospace !important;
+    }
+    
+    .totals .total-row {
+        background: #27AE60 !important;
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 14pt !important;
+    }
+    
+    .totals .total-row td {
+        border-bottom: none !important;
+    }
+    
+    .status-info {
+        background: #e3f2fd !important;
+        border-left: 4px solid #2196f3 !important;
+        padding: 15px !important;
+        margin: 20px 0 !important;
+        border-radius: 0 5px 5px 0 !important;
+        page-break-inside: avoid !important;
+        font-size: 11pt !important;
+    }
+    
+    /* Payment Methods Section */
+    .invoice-preview > div:nth-last-child(3) {
+        margin-top: 40px !important;
+        padding: 30px !important;
+        background: #f8f9fa !important;
+        border-radius: 10px !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .invoice-preview > div:nth-last-child(3) h3 {
+        color: #34bdf2 !important;
+        margin-bottom: 20px !important;
+        text-align: center !important;
+        font-size: 16pt !important;
+        font-weight: bold !important;
+    }
+    
+    .invoice-preview > div:nth-last-child(3) > div {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 30px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .invoice-preview > div:nth-last-child(3) > div > div {
+        background: white !important;
+        padding: 20px !important;
+        border-radius: 8px !important;
+        border-left: 4px solid #34bdf2 !important;
+    }
+    
+    .invoice-preview > div:nth-last-child(3) > div > div:last-child {
+        border-left-color: #27AE60 !important;
+    }
+    
+    .invoice-preview > div:nth-last-child(3) h4 {
+        color: #2C3E50 !important;
+        margin-bottom: 15px !important;
+        font-weight: bold !important;
+        font-size: 12pt !important;
+    }
+    
+    .invoice-preview > div:nth-last-child(3) p,
+    .invoice-preview > div:nth-last-child(3) div > div > div {
+        font-size: 10pt !important;
+        line-height: 1.4 !important;
+        color: #2C3E50 !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* Footer Thank You Section */
+    .invoice-preview > div:last-child {
+        text-align: center !important;
+        margin-top: 40px !important;
+        padding-top: 30px !important;
+        border-top: 2px solid #e0e0e0 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .invoice-preview > div:last-child p {
+        font-size: 11pt !important;
+        color: #666 !important;
+        margin: 10px 0 !important;
+        font-style: italic !important;
+    }
+    
+    .invoice-preview > div:last-child p:last-child {
+        font-size: 10pt !important;
+        color: #999 !important;
+    }
+    
+    /* Page setup */
+    @page {
+        margin: 0.75in !important;
+        size: A4 !important;
+    }
+    
+    /* Hide any buttons or interactive elements */
+    button,
+    .btn,
+    a[onclick],
+    input,
+    select,
+    textarea {
+        display: none !important;
     }
 }
 
