@@ -23,7 +23,7 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 # Configure custom error handlers - these will be used when DEBUG is False
 HANDLER404 = 'limbs_orthopaedic.views.handler404'
-HANDLER403 = 'limbs_orthopaedic.views.handler403' 
+HANDLER403 = 'limbs_orthopaedic.views.handler403'
 HANDLER500 = 'limbs_orthopaedic.views.handler500'
 
 ALLOWED_HOSTS = ['limbsorthopaedic.org', 'www.limbsorthopaedic.org']
@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
 
     # Project apps
+    'limbs_orthopaedic.apps.LimbsOrthopaedicConfig',
     'core',
     'services',
     'products',
@@ -89,7 +90,7 @@ SITE_ID = 1
 
 # SEO Settings
 META_TITLE = 'LIMBS Orthopaedic - Premier Orthopaedic Care in Nairobi, Kenya'
-META_DESCRIPTION = 'Leading orthopaedic facility in Nairobi, Kenya specializing in prosthetics, orthotic devices, Aeroplane splint, AFO, Arch support, Axillary crutch, Calcaneal spur insole, Cockup splint, Derotator Harness, Elbow conformer, Elbow crutch, bow legs, knock knees, Genu Varus, Genu Valgum, Hand resting splint, HKAFO, HTHKAFO, KAFO, Lateral and Medial wedges, Neck collar, Prosthetic Socket replacement, SMAFO, Spinal Brace, Wheelchair, Standing And Sitting AID, THKAFO, Transfemoral prosthesis, Transtibial Prosthesis, Walking crutches, GRAFO, and mobility aids. Professional care for independence and enhanced mobility.'
+META_DESCRIPTION = 'Leading orthopaedic facility in Nairobi, Kenya specializing in prosthetics, orthotic devices, Aeroplane splint, AFO, Arch support, Axillary crutch, Calcaneal spur insole, Cockup splint, Derotator Harness, Elbow conformer, Elbow crutch, bow legs, knock knees, Genu Varus, Genu Valgum, Hand resting splint, HKAFO, HTHKAFO, KAFO, Lateral and Medial wedges, Neck collar, Prosthetic Socket replacement, SMAFO, Spinal Brace, Wheelchair, Standing And Sitting AID, THKAFO, Transfemoral prosthesis, Transtibial prosthesis, Walking crutches, GRAFO, and mobility aids. Professional care for independence and enhanced mobility.'
 META_KEYWORDS = 'orthopaedic Nairobi, prosthetics Kenya, Aeroplane splint, AFO, Arch support, Axillary crutch, Calcaneal spur insole, Cockup splint, Derotator Harness, Elbow conformer, Elbow crutch, bow legs, knock knees, Genu Varus, Genu Valgum, Hand resting splint, HKAFO, HTHKAFO, KAFO, Lateral and Medial wedges, Neck collar, Prosthetic Socket replacement, SMAFO, Spinal Brace, Wheelchair, Standing And Sitting AID, THKAFO, Transfemoral prosthesis, Transtibial Prosthesis, Walking crutches, GRAFO, mobility aids, physiotherapy, rehabilitation, LIMBS Orthopaedic'
 
 # Additional SEO settings

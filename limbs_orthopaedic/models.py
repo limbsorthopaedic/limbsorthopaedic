@@ -37,6 +37,7 @@ class Invoice(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        app_label = 'limbs_orthopaedic'
         ordering = ['-created_at']
     
     def __str__(self):
@@ -53,6 +54,9 @@ class InvoiceItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    class Meta:
+        app_label = 'limbs_orthopaedic'
     
     def __str__(self):
         return f"{self.description} - {self.quantity} x KSh {self.unit_price}"
