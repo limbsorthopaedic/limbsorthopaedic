@@ -76,3 +76,4 @@ sent_emails/
 local_settings.py
 tmp/
 
+attached_assets/
