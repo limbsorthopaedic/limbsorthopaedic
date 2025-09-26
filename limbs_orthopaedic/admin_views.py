@@ -321,7 +321,19 @@ def admin_dashboard(request):
 @staff_member_required
 def admin_invoice_generator(request):
     """Invoice generator view for admin users"""
-    return render(request, 'admin/invoice_generator.html')
+    try:
+        context = {
+            'title': 'Invoice Generator',
+            'site_title': 'LIMBS Orthopaedic Admin',
+            'site_header': 'LIMBS Orthopaedic Administration',
+        }
+        return render(request, 'admin/invoice_generator.html', context)
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error in invoice generator view: {str(e)}")
+        from django.http import HttpResponse
+        return HttpResponse(f"Error loading invoice generator: {str(e)}", status=500)
 
 
 @require_POST
