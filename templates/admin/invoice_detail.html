@@ -1,0 +1,321 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ invoice.invoice_number }} | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+.invoice-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 120px);
+}
+
+.invoice-actions {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #34bdf2, #7aeaff);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27AE60, #2ECC71);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.invoice-preview {
+    background: white;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #34bdf2;
+}
+
+.clinic-info h2 {
+    color: #34bdf2;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.clinic-info p {
+    color: #666;
+    margin: 2px 0;
+}
+
+.invoice-details {
+    text-align: right;
+}
+
+.invoice-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.patient-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.services-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.services-table th,
+.services-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.services-table th {
+    background: #34bdf2;
+    color: white;
+    font-weight: bold;
+}
+
+.services-table tr:hover {
+    background: #f8f9fa;
+}
+
+.totals {
+    text-align: right;
+    margin-top: 30px;
+}
+
+.totals table {
+    margin-left: auto;
+    border-collapse: collapse;
+}
+
+.totals td {
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.totals .total-row {
+    background: #27AE60;
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.status-info {
+    background: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+@media print {
+    .invoice-actions {
+        display: none !important;
+    }
+    
+    .invoice-container {
+        background: white;
+        padding: 0;
+    }
+    
+    .invoice-preview {
+        box-shadow: none;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .invoice-header {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .invoice-details {
+        text-align: left;
+    }
+    
+    .invoice-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-actions">
+        <a href="{% url 'admin_invoice_list' %}" class="btn btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to List
+        </a>
+        <a href="{% url 'admin_invoice_edit' invoice.id %}" class="btn btn-warning">
+            <span class="material-icons">edit</span>
+            Edit Invoice
+        </a>
+        <button onclick="printInvoice()" class="btn btn-success">
+            <span class="material-icons">print</span>
+            Print Invoice
+        </button>
+        <a href="#" onclick="shareInvoice()" class="btn btn-primary">
+            <span class="material-icons">share</span>
+            Share Invoice
+        </a>
+    </div>
+
+    <div class="invoice-preview" id="invoicePreview">
+        <div class="invoice-header">
+            <div class="clinic-info">
+                <h2>LIMBS ORTHOPAEDIC LIMITED</h2>
+                <p>ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                <p>Phone: +254 705 347 657 | Email: info@limbsorthopaedic.org</p>
+                <p>Website: https://limbsorthopaedic.org</p>
+            </div>
+            <div class="invoice-details">
+                <div style="font-size: 2rem; font-weight: bold; color: #34bdf2;">INVOICE</div>
+                <div class="invoice-number">Invoice #: {{ invoice.invoice_number }}</div>
+                <div>Date: {{ invoice.created_at|date:"M d, Y" }}</div>
+                <div style="font-family: monospace; color: #666;">Tracking: {{ invoice.tracking_code }}</div>
+            </div>
+        </div>
+
+        <div class="patient-info">
+            <h3 style="color: #34bdf2; margin-bottom: 15px;">BILL TO:</h3>
+            <div><strong>{{ invoice.patient_name }}</strong></div>
+            <div>{{ invoice.patient_address }}</div>
+            <div>Phone: {{ invoice.patient_phone }}</div>
+        </div>
+
+        <table class="services-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th style="text-align: right;">Unit Price</th>
+                    <th style="text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.items.all %}
+                <tr {% if forloop.counter|divisibleby:2 %}style="background: #f8f9fa;"{% endif %}>
+                    <td>{{ item.description }}</td>
+                    <td style="text-align: center;">{{ item.quantity }}</td>
+                    <td style="text-align: right;">KSh {{ item.unit_price|floatformat:2 }}</td>
+                    <td style="text-align: right;">KSh {{ item.total_price|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="totals">
+            <table>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td style="text-align: right;">KSh {{ invoice.subtotal|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>VAT (16%):</td>
+                    <td style="text-align: right;">KSh {{ invoice.tax_amount|floatformat:2 }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td>TOTAL:</td>
+                    <td style="text-align: right;">KSh {{ invoice.total_amount|floatformat:2 }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="status-info">
+            <strong>Status:</strong> {{ invoice.get_status_display }}
+            {% if invoice.notes %}
+                <br><strong>Notes:</strong> {{ invoice.notes }}
+            {% endif %}
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+            <p style="font-style: italic; color: #666;">Thank you for choosing LIMBS Orthopaedic Limited for your orthopaedic care needs.</p>
+            <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">For any questions about this invoice, please contact us at the above phone number or email address.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function printInvoice() {
+    window.print();
+}
+
+function shareInvoice() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Invoice {{ invoice.invoice_number }} - LIMBS Orthopaedic',
+            text: 'Invoice for {{ invoice.patient_name }}',
+            url: window.location.href
+        });
+    } else {
+        // Fallback: copy URL to clipboard
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Invoice URL copied to clipboard!');
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,304 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Invoice List | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+.invoice-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 120px);
+}
+
+.invoice-header {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.invoice-header h1 {
+    color: #34bdf2;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0;
+}
+
+.filters {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.filters form {
+    display: grid;
+    grid-template-columns: 1fr 200px 200px auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.filters input, .filters select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.btn {
+    background: linear-gradient(135deg, #34bdf2, #7aeaff);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27AE60, #2ECC71);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.invoices-table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.invoices-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.invoices-table th,
+.invoices-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.invoices-table th {
+    background: #34bdf2;
+    color: white;
+    font-weight: bold;
+}
+
+.invoices-table tr:hover {
+    background: #f8f9fa;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-draft {
+    background: #f39c12;
+    color: white;
+}
+
+.status-sent {
+    background: #3498db;
+    color: white;
+}
+
+.status-paid {
+    background: #27ae60;
+    color: white;
+}
+
+.status-cancelled {
+    background: #e74c3c;
+    color: white;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+}
+
+.actions a {
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.no-invoices {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.no-invoices .material-icons {
+    font-size: 4rem;
+    opacity: 0.3;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .filters form {
+        grid-template-columns: 1fr;
+    }
+    
+    .invoices-table {
+        overflow-x: auto;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-header">
+        <h1>
+            <span class="material-icons" style="font-size: 2rem;">receipt_long</span>
+            Invoice Management
+        </h1>
+        <p>View, edit, and manage all invoices</p>
+    </div>
+
+    <div class="filters">
+        <form method="get">
+            <div>
+                <input type="text" name="search" placeholder="Search invoices..." value="{{ search_query }}">
+            </div>
+            <div>
+                <select name="status">
+                    <option value="">All Statuses</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn">
+                    <span class="material-icons">search</span>
+                    Search
+                </button>
+            </div>
+            <div>
+                <a href="{% url 'admin_invoice_generator' %}" class="btn btn-success">
+                    <span class="material-icons">add</span>
+                    New Invoice
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="invoices-table">
+        {% if invoices %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Patient</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                        <tr>
+                            <td>
+                                <strong>{{ invoice.invoice_number }}</strong><br>
+                                <small style="color: #666;">{{ invoice.tracking_code }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ invoice.patient_name }}</strong><br>
+                                <small style="color: #666;">{{ invoice.patient_phone }}</small>
+                            </td>
+                            <td>{{ invoice.created_at|date:"M d, Y H:i" }}</td>
+                            <td>KSh {{ invoice.total_amount|floatformat:2 }}</td>
+                            <td>
+                                <span class="status-badge status-{{ invoice.status }}">
+                                    {{ invoice.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="{% url 'admin_invoice_detail' invoice.id %}" class="btn" style="font-size: 12px; padding: 5px 10px;">
+                                        <span class="material-icons" style="font-size: 14px;">visibility</span>
+                                        View
+                                    </a>
+                                    <a href="{% url 'admin_invoice_edit' invoice.id %}" class="btn btn-warning" style="font-size: 12px; padding: 5px 10px;">
+                                        <span class="material-icons" style="font-size: 14px;">edit</span>
+                                        Edit
+                                    </a>
+                                    <a href="#" onclick="deleteInvoice({{ invoice.id }}, '{{ invoice.invoice_number }}')" class="btn btn-danger" style="font-size: 12px; padding: 5px 10px;">
+                                        <span class="material-icons" style="font-size: 14px;">delete</span>
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-invoices">
+                <div class="material-icons">receipt_long</div>
+                <h3>No invoices found</h3>
+                <p>{% if search_query or status_filter %}No invoices match your search criteria.{% else %}No invoices have been created yet.{% endif %}</p>
+                <a href="{% url 'admin_invoice_generator' %}" class="btn btn-success">
+                    <span class="material-icons">add</span>
+                    Create First Invoice
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function deleteInvoice(invoiceId, invoiceNumber) {
+    if (confirm(`Are you sure you want to delete invoice ${invoiceNumber}? This action cannot be undone.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/adminlimbsorth/invoices/${invoiceId}/delete/`;
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

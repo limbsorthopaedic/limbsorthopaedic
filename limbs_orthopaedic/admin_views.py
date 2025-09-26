@@ -1,11 +1,13 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncMonth, TruncWeek, TruncDay
 from django.utils import timezone
+from django.http import JsonResponse, HttpResponse
+from django.contrib import messages
 from datetime import timedelta, datetime
 import json
 
@@ -21,6 +23,7 @@ from gallery.models import Gallery
 from staff_chat.models import StaffChatMessage
 from testimonials.models import Testimonial
 from careers.models import Career, CareerApplication
+from limbs_orthopaedic.models import Invoice, InvoiceItem
 from django.utils import timezone
 from datetime import datetime
 
@@ -322,10 +325,19 @@ def admin_dashboard(request):
 def admin_invoice_generator(request):
     """Invoice generator view for admin users"""
     try:
+        # Get actual statistics from database
+        invoices = Invoice.objects.all()
+        total_invoices = invoices.count()
+        total_revenue = invoices.aggregate(total=Sum('total_amount'))['total'] or 0
+        last_invoice = invoices.first()
+        
         context = {
             'title': 'Invoice Generator',
             'site_title': 'LIMBS Orthopaedic Admin',
             'site_header': 'LIMBS Orthopaedic Administration',
+            'total_invoices': total_invoices,
+            'total_revenue': total_revenue,
+            'last_invoice': last_invoice,
         }
         return render(request, 'admin/invoice_generator.html', context)
     except Exception as e:
@@ -334,6 +346,204 @@ def admin_invoice_generator(request):
         logger.error(f"Error in invoice generator view: {str(e)}")
         from django.http import HttpResponse
         return HttpResponse(f"Error loading invoice generator: {str(e)}", status=500)
+
+
+@staff_member_required
+def admin_invoice_list(request):
+    """List all invoices"""
+    invoices = Invoice.objects.all().order_by('-created_at')
+    
+    # Handle search
+    search_query = request.GET.get('search', '')
+    if search_query:
+        invoices = invoices.filter(
+            Q(invoice_number__icontains=search_query) |
+            Q(patient_name__icontains=search_query) |
+            Q(tracking_code__icontains=search_query)
+        )
+    
+    # Handle status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        invoices = invoices.filter(status=status_filter)
+    
+    context = {
+        'title': 'Invoice List',
+        'invoices': invoices,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'status_choices': Invoice.STATUS_CHOICES,
+    }
+    return render(request, 'admin/invoice_list.html', context)
+
+
+@staff_member_required
+def admin_invoice_detail(request, invoice_id):
+    """View invoice details"""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    context = {
+        'title': f'Invoice {invoice.invoice_number}',
+        'invoice': invoice,
+    }
+    return render(request, 'admin/invoice_detail.html', context)
+
+
+@staff_member_required
+def admin_invoice_edit(request, invoice_id):
+    """Edit invoice"""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    
+    if request.method == 'POST':
+        try:
+            # Update invoice data
+            invoice.patient_name = request.POST.get('patient_name')
+            invoice.patient_address = request.POST.get('patient_address')
+            invoice.patient_phone = request.POST.get('patient_phone')
+            invoice.status = request.POST.get('status', 'draft')
+            invoice.notes = request.POST.get('notes', '')
+            
+            # Clear existing items and add new ones
+            invoice.items.all().delete()
+            
+            subtotal = 0
+            services_data = json.loads(request.POST.get('services_data', '[]'))
+            
+            for service in services_data:
+                if service.get('name') and service.get('unitPrice', 0) > 0:
+                    quantity = int(service.get('quantity', 1))
+                    unit_price = float(service.get('unitPrice', 0))
+                    
+                    InvoiceItem.objects.create(
+                        invoice=invoice,
+                        description=service['name'],
+                        quantity=quantity,
+                        unit_price=unit_price,
+                        total_price=quantity * unit_price
+                    )
+                    subtotal += quantity * unit_price
+            
+            # Update totals
+            tax_amount = subtotal * 0.16  # 16% VAT
+            invoice.subtotal = subtotal
+            invoice.tax_amount = tax_amount
+            invoice.total_amount = subtotal + tax_amount
+            invoice.save()
+            
+            messages.success(request, f'Invoice {invoice.invoice_number} updated successfully!')
+            return redirect('admin_invoice_detail', invoice_id=invoice.id)
+            
+        except Exception as e:
+            messages.error(request, f'Error updating invoice: {str(e)}')
+    
+    # Prepare services data for the form
+    services_data = []
+    for item in invoice.items.all():
+        services_data.append({
+            'name': item.description,
+            'quantity': item.quantity,
+            'unitPrice': float(item.unit_price),
+            'totalPrice': float(item.total_price)
+        })
+    
+    context = {
+        'title': f'Edit Invoice {invoice.invoice_number}',
+        'invoice': invoice,
+        'services_data': json.dumps(services_data),
+    }
+    return render(request, 'admin/invoice_edit.html', context)
+
+
+@staff_member_required
+@require_POST
+def admin_save_invoice(request):
+    """Save a new invoice to database"""
+    try:
+        # Get form data
+        patient_name = request.POST.get('patient_name', '').strip()
+        patient_address = request.POST.get('patient_address', '').strip()
+        patient_phone = request.POST.get('patient_phone', '').strip()
+        
+        # Validate required fields
+        if not all([patient_name, patient_address, patient_phone]):
+            return JsonResponse({'success': False, 'error': 'All patient fields are required'})
+        
+        # Parse services data
+        services_data = json.loads(request.POST.get('services_data', '[]'))
+        if not services_data:
+            return JsonResponse({'success': False, 'error': 'At least one service is required'})
+        
+        # Generate invoice number and tracking code
+        now = datetime.now()
+        date_str = now.strftime('%Y%m%d')
+        today_invoices = Invoice.objects.filter(created_at__date=now.date()).count()
+        sequence = str(today_invoices + 1).zfill(3)
+        invoice_number = f"LOL-{date_str}-{sequence}"
+        
+        # Generate tracking code
+        import uuid
+        tracking_code = f"LOL-{uuid.uuid4().hex[:5].upper()}-{uuid.uuid4().hex[:5].upper()}"
+        
+        # Calculate totals
+        subtotal = 0
+        for service in services_data:
+            if service.get('name') and service.get('unitPrice', 0) > 0:
+                quantity = int(service.get('quantity', 1))
+                unit_price = float(service.get('unitPrice', 0))
+                subtotal += quantity * unit_price
+        
+        tax_amount = subtotal * 0.16  # 16% VAT
+        total_amount = subtotal + tax_amount
+        
+        # Create invoice
+        invoice = Invoice.objects.create(
+            invoice_number=invoice_number,
+            tracking_code=tracking_code,
+            patient_name=patient_name,
+            patient_address=patient_address,
+            patient_phone=patient_phone,
+            subtotal=subtotal,
+            tax_amount=tax_amount,
+            total_amount=total_amount,
+            created_by=request.user
+        )
+        
+        # Create invoice items
+        for service in services_data:
+            if service.get('name') and service.get('unitPrice', 0) > 0:
+                quantity = int(service.get('quantity', 1))
+                unit_price = float(service.get('unitPrice', 0))
+                
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    description=service['name'],
+                    quantity=quantity,
+                    unit_price=unit_price,
+                    total_price=quantity * unit_price
+                )
+        
+        return JsonResponse({
+            'success': True,
+            'invoice_id': invoice.id,
+            'invoice_number': invoice_number,
+            'tracking_code': tracking_code,
+            'total_amount': float(total_amount)
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@staff_member_required
+def admin_invoice_delete(request, invoice_id):
+    """Delete an invoice"""
+    if request.method == 'POST':
+        invoice = get_object_or_404(Invoice, id=invoice_id)
+        invoice_number = invoice.invoice_number
+        invoice.delete()
+        messages.success(request, f'Invoice {invoice_number} deleted successfully!')
+        return redirect('admin_invoice_list')
+    
+    return redirect('admin_invoice_list')
 
 
 @require_POST

@@ -1,0 +1,360 @@
+
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Edit {{ invoice.invoice_number }} | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+.invoice-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 120px);
+}
+
+.invoice-header {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.invoice-header h1 {
+    color: #34bdf2;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0;
+}
+
+.edit-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #34bdf2;
+    box-shadow: 0 0 0 3px rgba(52, 189, 242, 0.1);
+}
+
+.service-entry {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: #f8f9fa;
+}
+
+.btn {
+    background: linear-gradient(135deg, #34bdf2, #7aeaff);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(52, 189, 242, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(52, 189, 242, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27AE60, #2ECC71);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-header">
+        <h1>
+            <span class="material-icons" style="font-size: 2rem;">edit</span>
+            Edit Invoice {{ invoice.invoice_number }}
+        </h1>
+        <p>Modify invoice details and services</p>
+    </div>
+
+    <div class="edit-form">
+        <form method="POST" id="editInvoiceForm">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <div>
+                    <h3 style="color: #34bdf2; margin-bottom: 20px;">
+                        <span class="material-icons" style="margin-right: 10px;">person</span>
+                        Patient Information
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label for="patient_name">Patient Name</label>
+                        <input type="text" id="patient_name" name="patient_name" value="{{ invoice.patient_name }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient_address">Address</label>
+                        <textarea id="patient_address" name="patient_address" rows="3" required>{{ invoice.patient_address }}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="patient_phone">Phone Number</label>
+                        <input type="tel" id="patient_phone" name="patient_phone" value="{{ invoice.patient_phone }}" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: #34bdf2; margin-bottom: 20px;">
+                        <span class="material-icons" style="margin-right: 10px;">settings</span>
+                        Invoice Settings
+                    </h3>
+                    
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status">
+                            {% for value, label in invoice.STATUS_CHOICES %}
+                                <option value="{{ value }}" {% if invoice.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes" name="notes" rows="4" placeholder="Additional notes or comments">{{ invoice.notes }}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" value="{{ invoice.invoice_number }}" disabled style="background: #f8f9fa;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tracking Code</label>
+                        <input type="text" value="{{ invoice.tracking_code }}" disabled style="background: #f8f9fa;">
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 style="color: #34bdf2; margin-bottom: 20px;">
+                    <span class="material-icons" style="margin-right: 10px;">medical_services</span>
+                    Services & Items
+                </h3>
+                
+                <div id="servicesContainer">
+                    <!-- Services will be loaded here by JavaScript -->
+                </div>
+                
+                <button type="button" class="btn btn-success" id="addService" style="margin: 10px 5px;">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">add_circle</span>
+                    Add Another Service
+                </button>
+            </div>
+            
+            <div class="form-actions">
+                <div>
+                    <a href="{% url 'admin_invoice_detail' invoice.id %}" class="btn btn-secondary">
+                        <span class="material-icons">arrow_back</span>
+                        Cancel
+                    </a>
+                </div>
+                
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn btn-success">
+                        <span class="material-icons">save</span>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+            
+            <input type="hidden" id="services_data" name="services_data">
+        </form>
+    </div>
+</div>
+
+<script>
+// Load existing services data
+let serviceCount = 0;
+let servicesData = {{ services_data|safe }};
+
+// Initialize the form
+function initializeForm() {
+    loadExistingServices();
+}
+
+// Load existing services into the form
+function loadExistingServices() {
+    const container = document.getElementById('servicesContainer');
+    container.innerHTML = '';
+    
+    if (servicesData.length === 0) {
+        addServiceEntry();
+    } else {
+        servicesData.forEach((service, index) => {
+            addServiceEntry(service);
+        });
+    }
+}
+
+// Add new service entry
+function addServiceEntry(serviceData = null) {
+    serviceCount++;
+    const servicesContainer = document.getElementById('servicesContainer');
+    const newServiceEntry = document.createElement('div');
+    newServiceEntry.className = 'service-entry';
+    newServiceEntry.innerHTML = `
+        <div class="form-group">
+            <label for="service${serviceCount}">Service/Item Description</label>
+            <input type="text" id="service${serviceCount}" placeholder="Enter service or item description" value="${serviceData ? serviceData.name : ''}">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr ${servicesContainer.children.length > 0 ? '50px' : ''}; gap: 15px; align-items: end;">
+            <div class="form-group">
+                <label for="quantity${serviceCount}">Quantity</label>
+                <input type="number" id="quantity${serviceCount}" min="1" value="${serviceData ? serviceData.quantity : 1}">
+            </div>
+            <div class="form-group">
+                <label for="price${serviceCount}">Unit Price (KSh)</label>
+                <input type="number" id="price${serviceCount}" min="0" step="0.01" placeholder="0.00" value="${serviceData ? serviceData.unitPrice : ''}">
+            </div>
+            ${servicesContainer.children.length > 0 ? `
+            <button type="button" class="btn btn-danger" onclick="removeService(this)" style="padding: 10px; height: 40px;">
+                <span class="material-icons" style="font-size: 1rem;">close</span>
+            </button>
+            ` : ''}
+        </div>
+    `;
+    servicesContainer.appendChild(newServiceEntry);
+}
+
+// Remove service entry
+function removeService(button) {
+    if (document.getElementById('servicesContainer').children.length > 1) {
+        button.closest('.service-entry').remove();
+    } else {
+        alert('At least one service is required.');
+    }
+}
+
+// Get all service entries
+function getServiceEntries() {
+    const services = [];
+    const serviceEntries = document.querySelectorAll('.service-entry');
+    
+    serviceEntries.forEach((entry, index) => {
+        const serviceInput = entry.querySelector(`input[id^="service"]`);
+        const quantityInput = entry.querySelector(`input[id^="quantity"]`);
+        const priceInput = entry.querySelector(`input[id^="price"]`);
+        
+        const serviceName = serviceInput.value.trim();
+        const quantity = parseInt(quantityInput.value) || 1;
+        const unitPrice = parseFloat(priceInput.value) || 0;
+        
+        if (serviceName && unitPrice > 0) {
+            services.push({
+                name: serviceName,
+                quantity: quantity,
+                unitPrice: unitPrice,
+                totalPrice: quantity * unitPrice
+            });
+        }
+    });
+    
+    return services;
+}
+
+// Add service entry event listener
+document.getElementById('addService').addEventListener('click', () => addServiceEntry());
+
+// Form submission
+document.getElementById('editInvoiceForm').addEventListener('submit', function(e) {
+    const services = getServiceEntries();
+    
+    if (services.length === 0) {
+        e.preventDefault();
+        alert('Please add at least one service with valid details.');
+        return;
+    }
+    
+    // Set services data in hidden field
+    document.getElementById('services_data').value = JSON.stringify(services);
+});
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initializeForm);
+</script>
+{% endblock %}

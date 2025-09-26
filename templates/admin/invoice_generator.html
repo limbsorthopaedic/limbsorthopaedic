@@ -367,16 +367,28 @@
             </h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-value" id="totalInvoices">0</div>
+                    <div class="stat-value">{{ total_invoices }}</div>
                     <div class="stat-label">Total Invoices</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="totalRevenue">KSh 0</div>
+                    <div class="stat-value">KSh {{ total_revenue|floatformat:2 }}</div>
                     <div class="stat-label">Total Revenue</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="lastInvoice">-</div>
+                    <div class="stat-value">
+                        {% if last_invoice %}
+                            {{ last_invoice.created_at|date:"M d, Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
                     <div class="stat-label">Last Invoice</div>
+                </div>
+                <div class="stat-item">
+                    <a href="{% url 'admin_invoice_list' %}" class="btn" style="text-decoration: none; padding: 10px 20px; display: inline-block;">
+                        <span class="material-icons" style="margin-right: 5px;">list</span>
+                        View All Invoices
+                    </a>
                 </div>
             </div>
         </div>
@@ -519,12 +531,11 @@ const CLINIC_CONFIG = {
 };
 
 // Store invoices and service entries
-let invoices = JSON.parse(localStorage.getItem('limbsInvoices') || '[]');
 let serviceCount = 1;
 
 // Initialize the application
 function initializeApp() {
-    updateStats();
+    // Statistics are now loaded from server, no need to update from localStorage
 }
 
 // Add new service entry
@@ -609,16 +620,57 @@ function generateTrackingCode() {
     return `LOL-${generateSegment(5)}-${generateSegment(5)}`;
 }
 
-// Update statistics
-function updateStats() {
-    document.getElementById('totalInvoices').textContent = invoices.length;
+// Save invoice to database
+function saveInvoiceToDatabase(invoiceData, generateButton) {
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    formData.append('patient_name', invoiceData.patientName);
+    formData.append('patient_address', invoiceData.patientAddress);
+    formData.append('patient_phone', invoiceData.patientPhone);
+    formData.append('services_data', JSON.stringify(invoiceData.services));
     
-    const totalRevenue = invoices.reduce((sum, inv) => sum + inv.total, 0);
-    document.getElementById('totalRevenue').textContent = `KSh ${totalRevenue.toLocaleString()}`;
-    
-    const lastInvoice = invoices.length > 0 ? 
-        invoices[invoices.length - 1].date : '-';
-    document.getElementById('lastInvoice').textContent = lastInvoice;
+    fetch('{% url "admin_save_invoice" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update invoice data with server response
+            invoiceData.invoiceNumber = data.invoice_number;
+            invoiceData.trackingCode = data.tracking_code;
+            invoiceData.total = data.total_amount;
+            invoiceData.invoiceId = data.invoice_id;
+            
+            // Display invoice
+            displayInvoice(invoiceData);
+            
+            // Show success message with link to view invoice
+            showSuccessMessage(data.invoice_id);
+            
+            // Reset form
+            resetForm();
+            
+            // Refresh the page to update statistics
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            alert('Error saving invoice: ' + data.error);
+        }
+        
+        // Reset button
+        generateButton.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Invoice';
+        generateButton.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error saving invoice:', error);
+        alert('Error saving invoice. Please try again.');
+        
+        // Reset button
+        generateButton.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Invoice';
+        generateButton.disabled = false;
+    });
 }
 
 // Add service entry event listener
@@ -650,25 +702,8 @@ document.getElementById('generateInvoice').addEventListener('click', function() 
     setTimeout(() => {
         const invoiceData = createInvoiceData(patientName, patientAddress, patientPhone, services);
         
-        // Save invoice
-        invoices.push(invoiceData);
-        localStorage.setItem('limbsInvoices', JSON.stringify(invoices));
-        
-        // Display invoice
-        displayInvoice(invoiceData);
-        
-        // Show success message
-        showSuccessMessage();
-        
-        // Reset form
-        resetForm();
-        
-        // Update stats
-        updateStats();
-        
-        // Reset button
-        this.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Invoice';
-        this.disabled = false;
+        // Save invoice to database
+        saveInvoiceToDatabase(invoiceData, this);
     }, 1000);
 });
 
@@ -735,14 +770,26 @@ function displayInvoice(invoiceData) {
 }
 
 // Show success message
-function showSuccessMessage() {
+function showSuccessMessage(invoiceId) {
     const message = document.getElementById('successMessage');
+    if (invoiceId) {
+        message.innerHTML = `
+            <span class="material-icons" style="margin-right: 10px;">check_circle</span>
+            Invoice generated successfully! 
+            <a href="/adminlimbsorth/invoices/${invoiceId}/" style="color: white; text-decoration: underline; margin-left: 10px;">View Invoice</a>
+        `;
+    } else {
+        message.innerHTML = `
+            <span class="material-icons" style="margin-right: 10px;">check_circle</span>
+            Invoice generated successfully!
+        `;
+    }
     message.style.display = 'block';
     message.classList.add('fade-in');
     
     setTimeout(() => {
         message.style.display = 'none';
-    }, 3000);
+    }, 5000);
 }
 
 // Reset form

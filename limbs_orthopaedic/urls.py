@@ -8,7 +8,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.contrib.admin import AdminSite
-from .admin_views import admin_dashboard, admin_logout_view, admin_invoice_generator
+from .admin_views import (
+    admin_dashboard, admin_logout_view, admin_invoice_generator,
+    admin_invoice_list, admin_invoice_detail, admin_invoice_edit,
+    admin_save_invoice, admin_invoice_delete
+)
 from core import views as core_views
 
 from django.contrib.sitemaps.views import sitemap
@@ -43,6 +47,11 @@ urlpatterns = [
     # Use only adminlimbsorth as the primary admin URL
     path('adminlimbsorth/dashboard/', admin_dashboard, name='admin_dashboard'),
     path('adminlimbsorth/invoice-generator/', admin_invoice_generator, name='admin_invoice_generator'),
+    path('adminlimbsorth/invoices/', admin_invoice_list, name='admin_invoice_list'),
+    path('adminlimbsorth/invoices/<int:invoice_id>/', admin_invoice_detail, name='admin_invoice_detail'),
+    path('adminlimbsorth/invoices/<int:invoice_id>/edit/', admin_invoice_edit, name='admin_invoice_edit'),
+    path('adminlimbsorth/invoices/<int:invoice_id>/delete/', admin_invoice_delete, name='admin_invoice_delete'),
+    path('adminlimbsorth/save-invoice/', admin_save_invoice, name='admin_save_invoice'),
     path('adminlimbsorth/logout/', admin_logout_view, name='admin_logout'),
     path('adminlimbsorth/', admin.site.urls),  # Primary admin URL
     path('set-theme/', core_views.set_theme_preference, name='set_theme'),

@@ -5,6 +5,28 @@ This file configures both the primary and secondary admin sites.
 
 from django.contrib import admin
 from django.apps import apps
+from .models import Invoice, InvoiceItem
+
+
+@admin.register(Invoice)
+class InvoiceAdmin(admin.ModelAdmin):
+    list_display = ['invoice_number', 'patient_name', 'total_amount', 'status', 'created_at']
+    list_filter = ['status', 'created_at']
+    search_fields = ['invoice_number', 'patient_name', 'tracking_code']
+    readonly_fields = ['invoice_number', 'tracking_code', 'created_by', 'created_at', 'updated_at']
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # If creating new invoice
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(InvoiceItem)
+class InvoiceItemAdmin(admin.ModelAdmin):
+    list_display = ['invoice', 'description', 'quantity', 'unit_price', 'total_price']
+    list_filter = ['invoice__status']
+    search_fields = ['description', 'invoice__invoice_number']
+
 
 # Create function to register models that can be called after secondary_admin_site is created
 def register_models_to_secondary_admin(secondary_admin_site):
@@ -21,7 +43,7 @@ def register_models_to_secondary_admin(secondary_admin_site):
         try:
             # Get the ModelAdmin class that Django admin is using (if it exists)
             model_admin = type(admin.site._registry.get(model, admin.ModelAdmin))
-            
+
             # Check if the model is already registered with the main admin site
             if model in admin.site._registry:
                 # Register the same model with the secondary admin site
