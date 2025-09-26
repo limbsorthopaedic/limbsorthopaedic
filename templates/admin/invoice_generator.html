@@ -576,7 +576,7 @@ const CLINIC_CONFIG = {
     website: "https://limbsorthopaedic.org"
 };
 
-// Store invoices and service entries
+// Store service entries
 let serviceCount = 1;
 
 // Initialize the application
@@ -648,8 +648,9 @@ function getServiceEntries() {
 function generateInvoiceNumber() {
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '');
-    const todayInvoices = invoices.filter(inv => inv.date === now.toLocaleDateString('en-GB'));
-    const sequence = (todayInvoices.length + 1).toString().padStart(3, '0');
+    // Since we're saving to database, the server will generate the actual invoice number
+    // This is just a placeholder for the preview
+    const sequence = Math.floor(Math.random() * 999 + 1).toString().padStart(3, '0');
     return `LOL-${dateStr}-${sequence}`;
 }
 
