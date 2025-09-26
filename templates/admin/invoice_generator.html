@@ -1,4 +1,3 @@
-
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
@@ -276,17 +275,32 @@
     margin-left: auto;
     border-collapse: collapse;
 }
-
-.totals td {
-    padding: 10px 20px;
-    border-bottom: 1px solid #ddd;
-}
-
 .totals .total-row {
     background: #27AE60;
     color: white;
     font-weight: bold;
     font-size: 1.2rem;
+}
+.payment-methods {
+    margin-top: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+.payment-methods h3 {
+    color: #34bdf2;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.payment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.payment-method {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .print-btn {
@@ -332,18 +346,22 @@
     .main-content {
         grid-template-columns: 1fr;
     }
-    
+
     .header h1 {
         font-size: 2rem;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .invoice-header {
         flex-direction: column;
         gap: 20px;
+    }
+
+    .payment-grid {
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -507,6 +525,34 @@
                 </table>
             </div>
 
+            <div class="payment-methods">
+                <h3>Payment Methods</h3>
+                <div class="payment-grid">
+                    <div class="payment-method">
+                        <h4>1. BANK PAYMENT</h4>
+                        <p><strong>REF:</strong> BANK DETAILS WITH REFERENCE TO THE ABOVE</p>
+                        <p>THE FOLLOWING ARE DETAILS FOR TRANSFER OF FUNDS IN KES.</p>
+                        <ul>
+                            <li><strong>BANK ACCOUNT NAME:</strong> LIMBS ORTHOPAEDIC LIMITED.</li>
+                            <li><strong>BANK ACCOUNT:</strong> 1290426139</li>
+                            <li><strong>SWIFT CODE:</strong> KCBLKENX</li>
+                            <li><strong>BANK CODE/BRANCH CODE:</strong> 01107</li>
+                            <li><strong>BRANCH NAME:</strong> TOM MBOYA</li>
+                            <li><strong>PIN:</strong> P052046452B</li>
+                        </ul>
+                    </div>
+                    <div class="payment-method">
+                        <h4>2. M-PESA PAYBILL</h4>
+                        <ul>
+                            <li><strong>Paybill Number:</strong> 522533</li>
+                            <li><strong>Account Number:</strong> 5807001</li>
+                            <li><strong>Business Name:</strong> LIMBS ORTHOPAEDIC LTD</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
             <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
                 <p style="font-style: italic; color: #666;">Thank you for choosing LIMBS Orthopaedic Limited for your orthopaedic care needs.</p>
                 <p style="font-size: 0.9rem; color: #999; margin-top: 10px;">For any questions about this invoice, please contact us at the above phone number or email address.</p>
@@ -575,16 +621,16 @@ function removeService(button) {
 function getServiceEntries() {
     const services = [];
     const serviceEntries = document.querySelectorAll('.service-entry');
-    
+
     serviceEntries.forEach((entry, index) => {
         const serviceInput = entry.querySelector(`input[id^="service"]`);
         const quantityInput = entry.querySelector(`input[id^="quantity"]`);
         const priceInput = entry.querySelector(`input[id^="price"]`);
-        
+
         const serviceName = serviceInput.value.trim();
         const quantity = parseInt(quantityInput.value) || 1;
         const unitPrice = parseFloat(priceInput.value) || 0;
-        
+
         if (serviceName && unitPrice > 0) {
             services.push({
                 name: serviceName,
@@ -594,7 +640,7 @@ function getServiceEntries() {
             });
         }
     });
-    
+
     return services;
 }
 
@@ -628,7 +674,7 @@ function saveInvoiceToDatabase(invoiceData, generateButton) {
     formData.append('patient_address', invoiceData.patientAddress);
     formData.append('patient_phone', invoiceData.patientPhone);
     formData.append('services_data', JSON.stringify(invoiceData.services));
-    
+
     fetch('{% url "admin_save_invoice" %}', {
         method: 'POST',
         body: formData
@@ -641,16 +687,16 @@ function saveInvoiceToDatabase(invoiceData, generateButton) {
             invoiceData.trackingCode = data.tracking_code;
             invoiceData.total = data.total_amount;
             invoiceData.invoiceId = data.invoice_id;
-            
+
             // Display invoice
             displayInvoice(invoiceData);
-            
+
             // Show success message with link to view invoice
             showSuccessMessage(data.invoice_id);
-            
+
             // Reset form
             resetForm();
-            
+
             // Refresh the page to update statistics
             setTimeout(() => {
                 window.location.reload();
@@ -658,7 +704,7 @@ function saveInvoiceToDatabase(invoiceData, generateButton) {
         } else {
             alert('Error saving invoice: ' + data.error);
         }
-        
+
         // Reset button
         generateButton.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Invoice';
         generateButton.disabled = false;
@@ -666,7 +712,7 @@ function saveInvoiceToDatabase(invoiceData, generateButton) {
     .catch(error => {
         console.error('Error saving invoice:', error);
         alert('Error saving invoice. Please try again.');
-        
+
         // Reset button
         generateButton.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Invoice';
         generateButton.disabled = false;
@@ -701,7 +747,7 @@ document.getElementById('generateInvoice').addEventListener('click', function() 
     // Generate invoice data
     setTimeout(() => {
         const invoiceData = createInvoiceData(patientName, patientAddress, patientPhone, services);
-        
+
         // Save invoice to database
         saveInvoiceToDatabase(invoiceData, this);
     }, 1000);
@@ -710,7 +756,7 @@ document.getElementById('generateInvoice').addEventListener('click', function() 
 // Create invoice data
 function createInvoiceData(patientName, patientAddress, patientPhone, services) {
     const now = new Date();
-    
+
     const subtotal = services.reduce((sum, service) => sum + service.totalPrice, 0);
     const tax = subtotal * 0.16; // 16% VAT
     const total = subtotal + tax;
@@ -733,11 +779,11 @@ function createInvoiceData(patientName, patientAddress, patientPhone, services) 
 // Display invoice
 function displayInvoice(invoiceData) {
     const preview = document.getElementById('invoicePreview');
-    
+
     document.getElementById('invoiceNumber').textContent = `Invoice #: ${invoiceData.invoiceNumber}`;
     document.getElementById('invoiceDate').textContent = `Date: ${invoiceData.date}`;
     document.getElementById('trackingCode').textContent = `Tracking: ${invoiceData.trackingCode}`;
-    
+
     document.getElementById('patientDetails').innerHTML = `
         <div><strong>${invoiceData.patientName}</strong></div>
         <div>${invoiceData.patientAddress}</div>
@@ -746,7 +792,7 @@ function displayInvoice(invoiceData) {
 
     const servicesTableBody = document.getElementById('servicesTableBody');
     servicesTableBody.innerHTML = '';
-    
+
     invoiceData.services.forEach((service, index) => {
         const row = servicesTableBody.insertRow();
         row.innerHTML = `
@@ -763,7 +809,7 @@ function displayInvoice(invoiceData) {
     document.getElementById('subtotal').textContent = `KSh ${invoiceData.subtotal.toLocaleString()}`;
     document.getElementById('vatAmount').textContent = `KSh ${invoiceData.tax.toLocaleString()}`;
     document.getElementById('totalAmount').textContent = `KSh ${invoiceData.total.toLocaleString()}`;
-    
+
     preview.style.display = 'block';
     preview.classList.add('fade-in');
     preview.scrollIntoView({ behavior: 'smooth' });
@@ -786,7 +832,7 @@ function showSuccessMessage(invoiceId) {
     }
     message.style.display = 'block';
     message.classList.add('fade-in');
-    
+
     setTimeout(() => {
         message.style.display = 'none';
     }, 5000);
@@ -797,7 +843,7 @@ function resetForm() {
     document.getElementById('patientName').value = '';
     document.getElementById('patientAddress').value = '';
     document.getElementById('patientPhone').value = '';
-    
+
     // Reset services container to just one entry
     const servicesContainer = document.getElementById('servicesContainer');
     servicesContainer.innerHTML = `
@@ -827,13 +873,13 @@ function printInvoice() {
         // Create a simplified print version by cloning the invoice content
         const invoiceElement = document.getElementById('invoicePreview');
         const printContent = invoiceElement.cloneNode(true);
-        
+
         // Remove the print button from the cloned content
         const printBtn = printContent.querySelector('.print-btn');
         if (printBtn) {
             printBtn.remove();
         }
-        
+
         // Create print styles
         const printStyles = `
             <style>
@@ -898,23 +944,55 @@ function printInvoice() {
                         -webkit-print-color-adjust: exact;
                         color-adjust: exact;
                     }
+                    .payment-methods {
+                        margin-top: 40px;
+                        padding: 20px;
+                        background: #f8f9fa;
+                        border-radius: 10px;
+                    }
+                    .payment-methods h3 {
+                        color: #34bdf2;
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                    .payment-grid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 20px;
+                    }
+                    .payment-method {
+                        background: white;
+                        padding: 15px;
+                        border-radius: 8px;
+                    }
+                    .payment-method h4 {
+                        color: #34bdf2;
+                        margin-bottom: 10px;
+                    }
+                    .payment-method p, .payment-method ul {
+                        margin-bottom: 10px;
+                        font-size: 0.95rem;
+                    }
+                    .payment-method ul {
+                        padding-left: 20px;
+                    }
                     .print-btn { 
                         display: none !important; 
                     }
                 }
             </style>
         `;
-        
+
         // Create new window for printing
         const printWindow = window.open('', '_blank', 'width=800,height=600');
-        
+
         if (!printWindow) {
             // If popup is blocked, use alternative method
             alert('Please allow popups for printing, or use your browser\'s print function (Ctrl+P)');
             window.print();
             return;
         }
-        
+
         // Write content to new window
         printWindow.document.open();
         printWindow.document.write(`
@@ -930,14 +1008,14 @@ function printInvoice() {
             </html>
         `);
         printWindow.document.close();
-        
+
         // Wait for content to load then print
         setTimeout(() => {
             printWindow.focus();
             printWindow.print();
             printWindow.close();
         }, 450);
-        
+
     } catch (error) {
         console.error('Print error:', error);
         // Fallback: use browser's native print
