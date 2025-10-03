@@ -19,3 +19,4 @@ sqlparse==0.5.3
 starkbank-ecdsa==2.2.0
 wheel==0.45.1
 whitenoise==6.9.0
+python-docx
