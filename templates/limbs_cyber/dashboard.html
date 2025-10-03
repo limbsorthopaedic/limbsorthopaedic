@@ -364,7 +364,7 @@
                         <a href="{% url 'cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;">
                             <span class="material-icons" style="font-size: 1.2rem;">receipt</span>
                         </a>
-                        <a href="#" onclick="deleteSale({{ sale.id }}); return false;" style="color: #dc3545;">
+                        <a href="javascript:void(0);" onclick="deleteSale({{ sale.id }});" style="color: #dc3545;">
                             <span class="material-icons" style="font-size: 1.2rem;">delete</span>
                         </a>
                     </td>
@@ -539,11 +539,13 @@ function deleteSale(saleId) {
     }
     
     const alertBox = document.getElementById('alertBox');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
-    fetch(`/limbs-cyber/sale/${saleId}/delete/`, {
+    fetch(`/cyber-pos/sale/${saleId}/delete/`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
         }
     })
     .then(response => response.json())
