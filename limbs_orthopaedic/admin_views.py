@@ -766,6 +766,9 @@ def admin_invoice_download(request, invoice_id):
     
     doc.add_paragraph()  # Spacing
     
+    # Add page break before payment methods
+    doc.add_page_break()
+    
     # Payment methods section with enhanced layout
     payment_heading = doc.add_paragraph("PAYMENT METHODS")
     payment_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
