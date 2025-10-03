@@ -73,6 +73,7 @@ urlpatterns = [
     path('staff-chat/', include('staff_chat.urls')),
     path('gallery/', include('gallery.urls')),
     path('careers/', include('careers.urls', namespace='careers')),
+    path('cyber-pos/', include('limbs_cyber.urls')),
 
     # ...existing code...
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},

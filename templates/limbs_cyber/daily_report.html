@@ -1,0 +1,184 @@
+
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Daily Report - {{ report_date }} | Limbs Cyber{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+.report-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 120px);
+}
+
+.report-header {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.summary-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #34bdf2;
+}
+
+.report-table {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #34bdf2;
+    color: white;
+    font-weight: bold;
+}
+
+tr:hover {
+    background: #f8f9fa;
+}
+
+.btn-print {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media print {
+    .btn-print, .no-print {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="color: #1e266f; margin: 0;">Daily Sales Report</h1>
+                <p style="color: #666; margin: 5px 0 0 0;">{{ report_date|date:"F d, Y" }}</p>
+            </div>
+            <a href="{% url 'cyber_daily_report_pdf' report_date|date:'Y-m-d' %}" class="btn-print no-print" target="_blank">
+                <span class="material-icons">print</span>
+                Download PDF
+            </a>
+        </div>
+        
+        <div class="report-summary">
+            <div class="summary-item">
+                <h3 style="margin: 0 0 5px 0; color: #666;">Total Sales</h3>
+                <div style="font-size: 2rem; font-weight: bold; color: #2C3E50;">{{ stats.total_sales }}</div>
+            </div>
+            <div class="summary-item">
+                <h3 style="margin: 0 0 5px 0; color: #666;">Items Sold</h3>
+                <div style="font-size: 2rem; font-weight: bold; color: #2C3E50;">{{ stats.total_items }}</div>
+            </div>
+            <div class="summary-item">
+                <h3 style="margin: 0 0 5px 0; color: #666;">Total Revenue</h3>
+                <div style="font-size: 2rem; font-weight: bold; color: #4caf50;">KSh {{ stats.total_revenue|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-table">
+        <h2 style="color: #1e266f; margin-bottom: 15px;">Product/Service Summary</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product/Service</th>
+                    <th>Unit Price</th>
+                    <th>Quantity Sold</th>
+                    <th>Total Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in product_summary %}
+                <tr>
+                    <td>{{ item.product_service__name }}</td>
+                    <td>KSh {{ item.product_service__unit_price|floatformat:2 }}</td>
+                    <td>{{ item.total_qty }}</td>
+                    <td><strong>KSh {{ item.total_revenue|floatformat:2 }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: #999;">No sales recorded for this date.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-table">
+        <h2 style="color: #1e266f; margin-bottom: 15px;">All Transactions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Transaction #</th>
+                    <th>Product/Service</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th>Customer</th>
+                    <th>Staff</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.sale_date|date:"H:i" }}</td>
+                    <td>{{ sale.transaction_number }}</td>
+                    <td>{{ sale.product_service.name }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td>KSh {{ sale.unit_price|floatformat:2 }}</td>
+                    <td><strong>KSh {{ sale.total_amount|floatformat:2 }}</strong></td>
+                    <td>{{ sale.customer_name|default:"Walk-in" }}</td>
+                    <td>{{ sale.staff.username|default:"Staff" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <p><strong>Payment Method:</strong> M-Pesa Pochi la Biashara - Lipa na Pochi: 0708581688</p>
+        <p><strong>Generated:</strong> {{ report_date|date:"F d, Y" }}</p>
+    </div>
+</div>
+{% endblock %}
