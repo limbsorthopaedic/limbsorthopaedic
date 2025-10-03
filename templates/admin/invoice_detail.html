@@ -483,6 +483,10 @@
             <span class="material-icons">print</span>
             Print Invoice
         </button>
+        <a href="{% url 'admin_invoice_download' invoice.id %}" class="btn btn-primary">
+            <span class="material-icons">download</span>
+            Download Invoice
+        </a>
         <a href="#" onclick="shareInvoice()" class="btn btn-primary">
             <span class="material-icons">share</span>
             Share Invoice

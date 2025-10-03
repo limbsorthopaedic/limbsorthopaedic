@@ -11,7 +11,7 @@ from django.contrib.admin import AdminSite
 from .admin_views import (
     admin_dashboard, admin_logout_view, admin_invoice_generator,
     admin_invoice_list, admin_invoice_detail, admin_invoice_edit,
-    admin_save_invoice, admin_invoice_delete
+    admin_save_invoice, admin_invoice_delete, admin_invoice_download
 )
 from core import views as core_views
 
@@ -51,6 +51,7 @@ urlpatterns = [
     path('adminlimbsorth/invoices/<int:invoice_id>/', admin_invoice_detail, name='admin_invoice_detail'),
     path('adminlimbsorth/invoices/<int:invoice_id>/edit/', admin_invoice_edit, name='admin_invoice_edit'),
     path('adminlimbsorth/invoices/<int:invoice_id>/delete/', admin_invoice_delete, name='admin_invoice_delete'),
+    path('adminlimbsorth/invoices/<int:invoice_id>/download/', admin_invoice_download, name='admin_invoice_download'),
     path('adminlimbsorth/save-invoice/', admin_save_invoice, name='admin_save_invoice'),
     path('adminlimbsorth/logout/', admin_logout_view, name='admin_logout'),
     path('adminlimbsorth/', admin.site.urls),  # Primary admin URL

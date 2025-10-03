@@ -10,6 +10,12 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from datetime import timedelta, datetime
 import json
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+import io
 
 from accounts.models import Doctor, Profile
 from analytics.models import PageVisit
@@ -544,6 +550,189 @@ def admin_invoice_delete(request, invoice_id):
         return redirect('admin_invoice_list')
     
     return redirect('admin_invoice_list')
+
+
+@staff_member_required
+def admin_invoice_download(request, invoice_id):
+    """Download invoice as Word document"""
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    
+    # Create a new Word document
+    doc = Document()
+    
+    # Set up document margins
+    sections = doc.sections
+    for section in sections:
+        section.top_margin = Inches(0.5)
+        section.bottom_margin = Inches(0.5)
+        section.left_margin = Inches(0.5)
+        section.right_margin = Inches(0.5)
+    
+    # Add header with clinic info
+    header_table = doc.add_table(rows=1, cols=2)
+    header_table.autofit = False
+    header_table.allow_autofit = False
+    
+    # Left column - Clinic info
+    left_cell = header_table.rows[0].cells[0]
+    clinic_name = left_cell.paragraphs[0]
+    clinic_name.text = "LIMBS ORTHOPAEDIC LIMITED"
+    clinic_name.runs[0].font.size = Pt(24)
+    clinic_name.runs[0].font.bold = True
+    clinic_name.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    
+    left_cell.add_paragraph("ICIPE Road, Kasarani, Nairobi, Kenya")
+    left_cell.add_paragraph("Phone: +254 705 347 657 | Email: info@limbsorthopaedic.org")
+    left_cell.add_paragraph("Website: https://limbsorthopaedic.org")
+    
+    # Right column - Invoice details
+    right_cell = header_table.rows[0].cells[1]
+    right_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    invoice_title = right_cell.paragraphs[0]
+    invoice_title.text = "INVOICE"
+    invoice_title.runs[0].font.size = Pt(24)
+    invoice_title.runs[0].font.bold = True
+    invoice_title.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    
+    inv_num = right_cell.add_paragraph(f"Invoice #: {invoice.invoice_number}")
+    inv_num.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    inv_num.runs[0].font.bold = True
+    
+    inv_date = right_cell.add_paragraph(f"Date: {invoice.created_at.strftime('%b %d, %Y')}")
+    inv_date.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    tracking = right_cell.add_paragraph(f"Tracking: {invoice.tracking_code}")
+    tracking.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    doc.add_paragraph()  # Spacing
+    
+    # Patient information section
+    patient_heading = doc.add_heading("BILL TO:", level=2)
+    patient_heading.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    
+    doc.add_paragraph(invoice.patient_name).runs[0].font.bold = True
+    doc.add_paragraph(invoice.patient_address)
+    doc.add_paragraph(f"Phone: {invoice.patient_phone}")
+    
+    doc.add_paragraph()  # Spacing
+    
+    # Services table
+    services_table = doc.add_table(rows=1, cols=4)
+    services_table.style = 'Light Grid Accent 1'
+    
+    # Header row
+    header_cells = services_table.rows[0].cells
+    header_cells[0].text = 'Description'
+    header_cells[1].text = 'Quantity'
+    header_cells[2].text = 'Unit Price'
+    header_cells[3].text = 'Total'
+    
+    # Make header bold
+    for cell in header_cells:
+        cell.paragraphs[0].runs[0].font.bold = True
+        cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+        # Set cell background color
+        shading_elm = OxmlElement('w:shd')
+        shading_elm.set(qn('w:fill'), '34BDF2')
+        cell._element.get_or_add_tcPr().append(shading_elm)
+    
+    # Add invoice items
+    for item in invoice.items.all():
+        row_cells = services_table.add_row().cells
+        row_cells[0].text = item.description
+        row_cells[1].text = str(item.quantity)
+        row_cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        row_cells[2].text = f"KSh {item.unit_price:,.2f}"
+        row_cells[2].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        row_cells[3].text = f"KSh {item.total_price:,.2f}"
+        row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    doc.add_paragraph()  # Spacing
+    
+    # Totals section
+    totals_table = doc.add_table(rows=3, cols=2)
+    totals_table.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    # Subtotal
+    totals_table.rows[0].cells[0].text = 'Subtotal:'
+    totals_table.rows[0].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[0].cells[1].text = f"KSh {invoice.subtotal:,.2f}"
+    totals_table.rows[0].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    # VAT
+    totals_table.rows[1].cells[0].text = 'VAT (16%):'
+    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[1].cells[1].text = f"KSh {invoice.tax_amount:,.2f}"
+    totals_table.rows[1].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    # Total
+    totals_table.rows[2].cells[0].text = 'TOTAL:'
+    totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+    totals_table.rows[2].cells[1].text = f"KSh {invoice.total_amount:,.2f}"
+    totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+    totals_table.rows[2].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    
+    # Green background for total row
+    for cell in totals_table.rows[2].cells:
+        shading_elm = OxmlElement('w:shd')
+        shading_elm.set(qn('w:fill'), '27AE60')
+        cell._element.get_or_add_tcPr().append(shading_elm)
+    
+    doc.add_paragraph()  # Spacing
+    
+    # Payment methods section
+    payment_heading = doc.add_heading("PAYMENT METHODS", level=2)
+    payment_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    payment_heading.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    
+    # Bank payment details
+    bank_heading = doc.add_heading("1. BANK PAYMENT", level=3)
+    bank_heading.runs[0].font.color.rgb = RGBColor(44, 62, 80)
+    
+    doc.add_paragraph("REF: BANK DETAILS WITH REFERENCE TO THE ABOVE").runs[0].font.bold = True
+    doc.add_paragraph("THE FOLLOWING ARE DETAILS FOR TRANSFER OF FUNDS IN KES.")
+    
+    doc.add_paragraph("1. BANK ACCOUNT NAME: LIMBS ORTHOPAEDIC LIMITED").runs[0].font.bold = True
+    doc.add_paragraph("2. BANK ACCOUNT: 1290426139").runs[0].font.bold = True
+    doc.add_paragraph("3. SWIFT CODE: KCBLKENX").runs[0].font.bold = True
+    doc.add_paragraph("4. BANK CODE/BRANCH CODE: 01107").runs[0].font.bold = True
+    doc.add_paragraph("5. BRANCH NAME: TOM MBOYA").runs[0].font.bold = True
+    doc.add_paragraph("6. PIN: P052046452B").runs[0].font.bold = True
+    
+    # M-PESA details
+    mpesa_heading = doc.add_heading("2. M-PESA PAYBILL", level=3)
+    mpesa_heading.runs[0].font.color.rgb = RGBColor(44, 62, 80)
+    
+    doc.add_paragraph("a). Paybill Number: 522533").runs[0].font.bold = True
+    doc.add_paragraph("b). Account Number: 5807001").runs[0].font.bold = True
+    doc.add_paragraph("c). Business Name: LIMBS ORTHOPAEDIC LTD").runs[0].font.bold = True
+    
+    doc.add_paragraph()  # Spacing
+    
+    # Footer
+    footer = doc.add_paragraph("Thank you for choosing LIMBS Orthopaedic Limited for your orthopaedic care needs.")
+    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    footer.runs[0].font.italic = True
+    
+    contact_footer = doc.add_paragraph("For any questions about this invoice, please contact us at the above phone number or email address.")
+    contact_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    contact_footer.runs[0].font.size = Pt(10)
+    
+    # Save document to memory
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    # Create HTTP response
+    response = HttpResponse(
+        buffer.getvalue(),
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
+    response['Content-Disposition'] = f'attachment; filename=Invoice_{invoice.invoice_number}.docx'
+    
+    return response
 
 
 @require_POST
