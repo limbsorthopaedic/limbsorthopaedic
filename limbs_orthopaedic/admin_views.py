@@ -554,7 +554,7 @@ def admin_invoice_delete(request, invoice_id):
 
 @staff_member_required
 def admin_invoice_download(request, invoice_id):
-    """Download invoice as Word document"""
+    """Download invoice as Word document with enhanced styling"""
     invoice = get_object_or_404(Invoice, id=invoice_id)
     
     # Create a new Word document
@@ -568,109 +568,193 @@ def admin_invoice_download(request, invoice_id):
         section.left_margin = Inches(0.5)
         section.right_margin = Inches(0.5)
     
+    # Add a colored border line at the top
+    top_border = doc.add_paragraph()
+    top_border_format = top_border.paragraph_format
+    top_border_format.space_after = Pt(0)
+    top_border_format.line_spacing = 0.5
+    
     # Add header with clinic info
     header_table = doc.add_table(rows=1, cols=2)
     header_table.autofit = False
     header_table.allow_autofit = False
     
-    # Left column - Clinic info
+    # Left column - Clinic info with enhanced styling
     left_cell = header_table.rows[0].cells[0]
     clinic_name = left_cell.paragraphs[0]
     clinic_name.text = "LIMBS ORTHOPAEDIC LIMITED"
-    clinic_name.runs[0].font.size = Pt(24)
+    clinic_name.runs[0].font.size = Pt(26)
     clinic_name.runs[0].font.bold = True
     clinic_name.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    clinic_name.runs[0].font.name = 'Roboto'
     
-    left_cell.add_paragraph("ICIPE Road, Kasarani, Nairobi, Kenya")
-    left_cell.add_paragraph("Phone: +254 705 347 657 | Email: info@limbsorthopaedic.org")
-    left_cell.add_paragraph("Website: https://limbsorthopaedic.org")
+    addr_para = left_cell.add_paragraph("ICIPE Road, Kasarani, Nairobi, Kenya")
+    addr_para.runs[0].font.size = Pt(10)
+    addr_para.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
-    # Right column - Invoice details
+    contact_para = left_cell.add_paragraph("Phone: +254 705 347 657 | Email: info@limbsorthopaedic.org")
+    contact_para.runs[0].font.size = Pt(10)
+    contact_para.runs[0].font.color.rgb = RGBColor(102, 102, 102)
+    
+    web_para = left_cell.add_paragraph("Website: https://limbsorthopaedic.org")
+    web_para.runs[0].font.size = Pt(10)
+    web_para.runs[0].font.color.rgb = RGBColor(102, 102, 102)
+    
+    # Right column - Invoice details with enhanced styling
     right_cell = header_table.rows[0].cells[1]
     right_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
     invoice_title = right_cell.paragraphs[0]
     invoice_title.text = "INVOICE"
-    invoice_title.runs[0].font.size = Pt(24)
+    invoice_title.runs[0].font.size = Pt(28)
     invoice_title.runs[0].font.bold = True
     invoice_title.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    invoice_title.runs[0].font.name = 'Roboto'
     
     inv_num = right_cell.add_paragraph(f"Invoice #: {invoice.invoice_number}")
     inv_num.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     inv_num.runs[0].font.bold = True
+    inv_num.runs[0].font.size = Pt(12)
+    inv_num.runs[0].font.color.rgb = RGBColor(44, 62, 80)
     
     inv_date = right_cell.add_paragraph(f"Date: {invoice.created_at.strftime('%b %d, %Y')}")
     inv_date.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    inv_date.runs[0].font.size = Pt(10)
+    inv_date.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
     tracking = right_cell.add_paragraph(f"Tracking: {invoice.tracking_code}")
     tracking.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    tracking.runs[0].font.size = Pt(10)
+    tracking.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
-    doc.add_paragraph()  # Spacing
+    # Add blue border line
+    border_para = doc.add_paragraph()
+    border_para.paragraph_format.space_before = Pt(12)
+    border_para.paragraph_format.space_after = Pt(12)
+    pPr = border_para._element.get_or_add_pPr()
+    pBdr = OxmlElement('w:pBdr')
+    bottom = OxmlElement('w:bottom')
+    bottom.set(qn('w:val'), 'single')
+    bottom.set(qn('w:sz'), '18')
+    bottom.set(qn('w:color'), '34BDF2')
+    pBdr.append(bottom)
+    pPr.append(pBdr)
     
-    # Patient information section
-    patient_heading = doc.add_heading("BILL TO:", level=2)
+    # Patient information section with background color
+    patient_heading = doc.add_paragraph("BILL TO:")
+    patient_heading.runs[0].font.size = Pt(14)
+    patient_heading.runs[0].font.bold = True
     patient_heading.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    patient_heading.paragraph_format.space_before = Pt(6)
+    patient_heading.paragraph_format.space_after = Pt(6)
     
-    doc.add_paragraph(invoice.patient_name).runs[0].font.bold = True
-    doc.add_paragraph(invoice.patient_address)
-    doc.add_paragraph(f"Phone: {invoice.patient_phone}")
+    # Patient info table with background
+    patient_table = doc.add_table(rows=1, cols=1)
+    patient_cell = patient_table.rows[0].cells[0]
+    shading_elm = OxmlElement('w:shd')
+    shading_elm.set(qn('w:fill'), 'F8F9FA')
+    patient_cell._element.get_or_add_tcPr().append(shading_elm)
+    
+    name_para = patient_cell.paragraphs[0]
+    name_para.text = invoice.patient_name
+    name_para.runs[0].font.bold = True
+    name_para.runs[0].font.size = Pt(11)
+    
+    addr_para = patient_cell.add_paragraph(invoice.patient_address)
+    addr_para.runs[0].font.size = Pt(10)
+    
+    phone_para = patient_cell.add_paragraph(f"Phone: {invoice.patient_phone}")
+    phone_para.runs[0].font.size = Pt(10)
     
     doc.add_paragraph()  # Spacing
     
-    # Services table
+    # Services table with enhanced styling
     services_table = doc.add_table(rows=1, cols=4)
     services_table.style = 'Light Grid Accent 1'
     
-    # Header row
+    # Set column widths
+    services_table.columns[0].width = Inches(3.5)
+    services_table.columns[1].width = Inches(1.0)
+    services_table.columns[2].width = Inches(1.5)
+    services_table.columns[3].width = Inches(1.5)
+    
+    # Header row with blue background
     header_cells = services_table.rows[0].cells
     header_cells[0].text = 'Description'
     header_cells[1].text = 'Quantity'
     header_cells[2].text = 'Unit Price'
     header_cells[3].text = 'Total'
     
-    # Make header bold
-    for cell in header_cells:
+    for i, cell in enumerate(header_cells):
         cell.paragraphs[0].runs[0].font.bold = True
+        cell.paragraphs[0].runs[0].font.size = Pt(11)
         cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
-        # Set cell background color
+        if i > 0:
+            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER if i == 1 else WD_ALIGN_PARAGRAPH.RIGHT
+        # Blue background
         shading_elm = OxmlElement('w:shd')
         shading_elm.set(qn('w:fill'), '34BDF2')
         cell._element.get_or_add_tcPr().append(shading_elm)
     
-    # Add invoice items
-    for item in invoice.items.all():
+    # Add invoice items with alternating row colors
+    for idx, item in enumerate(invoice.items.all()):
         row_cells = services_table.add_row().cells
+        
+        # Alternating background
+        if idx % 2 == 1:
+            for cell in row_cells:
+                shading_elm = OxmlElement('w:shd')
+                shading_elm.set(qn('w:fill'), 'F8F9FA')
+                cell._element.get_or_add_tcPr().append(shading_elm)
+        
         row_cells[0].text = item.description
+        row_cells[0].paragraphs[0].runs[0].font.size = Pt(10)
+        
         row_cells[1].text = str(item.quantity)
         row_cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        row_cells[1].paragraphs[0].runs[0].font.size = Pt(10)
+        
         row_cells[2].text = f"KSh {item.unit_price:,.2f}"
         row_cells[2].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        row_cells[2].paragraphs[0].runs[0].font.size = Pt(10)
+        
         row_cells[3].text = f"KSh {item.total_price:,.2f}"
         row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        row_cells[3].paragraphs[0].runs[0].font.size = Pt(10)
     
     doc.add_paragraph()  # Spacing
     
-    # Totals section
+    # Totals section with enhanced styling
     totals_table = doc.add_table(rows=3, cols=2)
     totals_table.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    totals_table.columns[0].width = Inches(1.5)
+    totals_table.columns[1].width = Inches(2.0)
     
     # Subtotal
     totals_table.rows[0].cells[0].text = 'Subtotal:'
     totals_table.rows[0].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[0].cells[0].paragraphs[0].runs[0].font.size = Pt(11)
+    totals_table.rows[0].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(44, 62, 80)
     totals_table.rows[0].cells[1].text = f"KSh {invoice.subtotal:,.2f}"
     totals_table.rows[0].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    totals_table.rows[0].cells[1].paragraphs[0].runs[0].font.size = Pt(11)
     
     # VAT
     totals_table.rows[1].cells[0].text = 'VAT (16%):'
     totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.size = Pt(11)
+    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(44, 62, 80)
     totals_table.rows[1].cells[1].text = f"KSh {invoice.tax_amount:,.2f}"
     totals_table.rows[1].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    totals_table.rows[1].cells[1].paragraphs[0].runs[0].font.size = Pt(11)
     
-    # Total
+    # Total with green background
     totals_table.rows[2].cells[0].text = 'TOTAL:'
     totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.size = Pt(14)
     totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
     totals_table.rows[2].cells[1].text = f"KSh {invoice.total_amount:,.2f}"
     totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.size = Pt(14)
     totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
     totals_table.rows[2].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
     
@@ -682,43 +766,108 @@ def admin_invoice_download(request, invoice_id):
     
     doc.add_paragraph()  # Spacing
     
-    # Payment methods section
-    payment_heading = doc.add_heading("PAYMENT METHODS", level=2)
+    # Payment methods section with enhanced layout
+    payment_heading = doc.add_paragraph("PAYMENT METHODS")
     payment_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    payment_heading.runs[0].font.size = Pt(16)
+    payment_heading.runs[0].font.bold = True
     payment_heading.runs[0].font.color.rgb = RGBColor(52, 189, 242)
+    payment_heading.paragraph_format.space_before = Pt(20)
+    payment_heading.paragraph_format.space_after = Pt(15)
     
-    # Bank payment details
-    bank_heading = doc.add_heading("1. BANK PAYMENT", level=3)
+    # Payment methods in a 2-column table
+    payment_table = doc.add_table(rows=1, cols=2)
+    payment_table.columns[0].width = Inches(3.5)
+    payment_table.columns[1].width = Inches(3.5)
+    
+    # Bank payment cell
+    bank_cell = payment_table.rows[0].cells[0]
+    shading_elm = OxmlElement('w:shd')
+    shading_elm.set(qn('w:fill'), 'FFFFFF')
+    bank_cell._element.get_or_add_tcPr().append(shading_elm)
+    
+    bank_heading = bank_cell.paragraphs[0]
+    bank_heading.text = "1. BANK PAYMENT"
+    bank_heading.runs[0].font.size = Pt(12)
+    bank_heading.runs[0].font.bold = True
     bank_heading.runs[0].font.color.rgb = RGBColor(44, 62, 80)
     
-    doc.add_paragraph("REF: BANK DETAILS WITH REFERENCE TO THE ABOVE").runs[0].font.bold = True
-    doc.add_paragraph("THE FOLLOWING ARE DETAILS FOR TRANSFER OF FUNDS IN KES.")
+    bank_ref = bank_cell.add_paragraph("REF: BANK DETAILS WITH REFERENCE TO THE ABOVE")
+    bank_ref.runs[0].font.bold = True
+    bank_ref.runs[0].font.size = Pt(9)
     
-    doc.add_paragraph("1. BANK ACCOUNT NAME: LIMBS ORTHOPAEDIC LIMITED").runs[0].font.bold = True
-    doc.add_paragraph("2. BANK ACCOUNT: 1290426139").runs[0].font.bold = True
-    doc.add_paragraph("3. SWIFT CODE: KCBLKENX").runs[0].font.bold = True
-    doc.add_paragraph("4. BANK CODE/BRANCH CODE: 01107").runs[0].font.bold = True
-    doc.add_paragraph("5. BRANCH NAME: TOM MBOYA").runs[0].font.bold = True
-    doc.add_paragraph("6. PIN: P052046452B").runs[0].font.bold = True
+    bank_note = bank_cell.add_paragraph("THE FOLLOWING ARE DETAILS FOR TRANSFER OF FUNDS IN KES.")
+    bank_note.runs[0].font.size = Pt(8)
+    bank_note.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
-    # M-PESA details
-    mpesa_heading = doc.add_heading("2. M-PESA PAYBILL", level=3)
+    bank_cell.add_paragraph()
+    
+    details = [
+        "1. BANK ACCOUNT NAME: LIMBS ORTHOPAEDIC LIMITED",
+        "2. BANK ACCOUNT: 1290426139",
+        "3. SWIFT CODE: KCBLKENX",
+        "4. BANK CODE/BRANCH CODE: 01107",
+        "5. BRANCH NAME: TOM MBOYA",
+        "6. PIN: P052046452B"
+    ]
+    
+    for detail in details:
+        para = bank_cell.add_paragraph(detail)
+        para.runs[0].font.size = Pt(9)
+        para.runs[0].font.bold = True
+        para.runs[0].font.color.rgb = RGBColor(44, 62, 80)
+    
+    # M-PESA payment cell
+    mpesa_cell = payment_table.rows[0].cells[1]
+    shading_elm = OxmlElement('w:shd')
+    shading_elm.set(qn('w:fill'), 'FFFFFF')
+    mpesa_cell._element.get_or_add_tcPr().append(shading_elm)
+    
+    mpesa_heading = mpesa_cell.paragraphs[0]
+    mpesa_heading.text = "2. M-PESA PAYBILL"
+    mpesa_heading.runs[0].font.size = Pt(12)
+    mpesa_heading.runs[0].font.bold = True
     mpesa_heading.runs[0].font.color.rgb = RGBColor(44, 62, 80)
     
-    doc.add_paragraph("a). Paybill Number: 522533").runs[0].font.bold = True
-    doc.add_paragraph("b). Account Number: 5807001").runs[0].font.bold = True
-    doc.add_paragraph("c). Business Name: LIMBS ORTHOPAEDIC LTD").runs[0].font.bold = True
+    mpesa_cell.add_paragraph()
+    
+    mpesa_details = [
+        "a). Paybill Number: 522533",
+        "b). Account Number: 5807001",
+        "c). Business Name: LIMBS ORTHOPAEDIC LTD"
+    ]
+    
+    for detail in mpesa_details:
+        para = mpesa_cell.add_paragraph(detail)
+        para.runs[0].font.size = Pt(10)
+        para.runs[0].font.bold = True
+        para.runs[0].font.color.rgb = RGBColor(44, 62, 80)
     
     doc.add_paragraph()  # Spacing
     
-    # Footer
+    # Footer with enhanced styling
+    footer_border = doc.add_paragraph()
+    footer_border.paragraph_format.space_before = Pt(20)
+    footer_border.paragraph_format.space_after = Pt(12)
+    pPr = footer_border._element.get_or_add_pPr()
+    pBdr = OxmlElement('w:pBdr')
+    top = OxmlElement('w:top')
+    top.set(qn('w:val'), 'single')
+    top.set(qn('w:sz'), '12')
+    top.set(qn('w:color'), 'E0E0E0')
+    pBdr.append(top)
+    pPr.append(pBdr)
+    
     footer = doc.add_paragraph("Thank you for choosing LIMBS Orthopaedic Limited for your orthopaedic care needs.")
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer.runs[0].font.italic = True
+    footer.runs[0].font.size = Pt(11)
+    footer.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
     contact_footer = doc.add_paragraph("For any questions about this invoice, please contact us at the above phone number or email address.")
     contact_footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    contact_footer.runs[0].font.size = Pt(10)
+    contact_footer.runs[0].font.size = Pt(9)
+    contact_footer.runs[0].font.color.rgb = RGBColor(153, 153, 153)
     
     # Save document to memory
     buffer = io.BytesIO()
