@@ -358,6 +358,31 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
     
     const formData = new FormData(this);
     const alertBox = document.getElementById('alertBox');
+    const submitButton = this.querySelector('button[type="submit"]');
+    
+    // Validate form
+    const productSelect = document.getElementById('product_service');
+    const quantity = document.getElementById('quantity');
+    
+    if (!productSelect.value) {
+        alertBox.className = 'alert error';
+        alertBox.textContent = 'Please select a product or service.';
+        alertBox.style.display = 'block';
+        setTimeout(() => alertBox.style.display = 'none', 3000);
+        return;
+    }
+    
+    if (!quantity.value || quantity.value < 1) {
+        alertBox.className = 'alert error';
+        alertBox.textContent = 'Please enter a valid quantity.';
+        alertBox.style.display = 'block';
+        setTimeout(() => alertBox.style.display = 'none', 3000);
+        return;
+    }
+    
+    // Disable submit button
+    submitButton.disabled = true;
+    submitButton.textContent = 'Processing...';
     
     fetch('{% url "cyber_create_sale" %}', {
         method: 'POST',
@@ -366,7 +391,12 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
             'X-CSRFToken': formData.get('csrfmiddlewaretoken')
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             alertBox.className = 'alert success';
@@ -377,20 +407,26 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
             document.getElementById('quickSaleForm').reset();
             document.getElementById('totalAmount').textContent = '0.00';
             
-            // Reload page after 2 seconds
-            setTimeout(() => location.reload(), 2000);
+            // Reload page after 1.5 seconds
+            setTimeout(() => location.reload(), 1500);
         } else {
             alertBox.className = 'alert error';
-            alertBox.textContent = data.message;
+            alertBox.textContent = data.message || 'Error recording sale.';
             alertBox.style.display = 'block';
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<span class="material-icons">add_shopping_cart</span> Record Sale';
         }
         
         setTimeout(() => alertBox.style.display = 'none', 5000);
     })
     .catch(error => {
+        console.error('Error:', error);
         alertBox.className = 'alert error';
-        alertBox.textContent = 'An error occurred. Please try again.';
+        alertBox.textContent = 'An error occurred. Please check console for details and try again.';
         alertBox.style.display = 'block';
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<span class="material-icons">add_shopping_cart</span> Record Sale';
+        setTimeout(() => alertBox.style.display = 'none', 5000);
     });
 });
 
