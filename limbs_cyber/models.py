@@ -47,7 +47,7 @@ class ProductService(models.Model):
 
 class Sale(models.Model):
     """Model for recording sales transactions"""
-    transaction_number = models.CharField(max_length=50, unique=True, editable=False)
+    transaction_number = models.CharField(max_length=50, editable=False)
     product_service = models.ForeignKey(ProductService, on_delete=models.PROTECT)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.IntegerField(default=1)

@@ -72,37 +72,67 @@ def cyber_pos_dashboard(request):
 
 @staff_member_required
 def create_sale(request):
-    """Create a new sale transaction"""
+    """Create a new sale transaction (supports multiple products/services)"""
     if request.method == 'POST':
         try:
-            product_id = request.POST.get('product_service')
-            quantity = int(request.POST.get('quantity', 1))
+            product_ids = request.POST.getlist('product_service[]')
+            quantities = request.POST.getlist('quantity[]')
             customer_name = request.POST.get('customer_name', '')
             notes = request.POST.get('notes', '')
             
-            product = get_object_or_404(ProductService, id=product_id, is_active=True)
-            
-            # Check stock
-            if product.current_stock != 999 and product.current_stock < quantity:
+            if not product_ids or not quantities:
                 return JsonResponse({
                     'success': False,
-                    'message': f'Insufficient stock. Only {product.current_stock} available.'
+                    'message': 'Please select at least one product or service.'
                 })
             
-            # Create sale
-            sale = Sale.objects.create(
-                product_service=product,
-                unit_price=product.unit_price,
-                quantity=quantity,
-                customer_name=customer_name,
-                staff=request.user,
-                notes=notes
-            )
+            # Filter out empty selections
+            items = [(pid, qty) for pid, qty in zip(product_ids, quantities) if pid]
+            
+            if not items:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please select at least one product or service.'
+                })
+            
+            total_amount = Decimal('0.00')
+            sales_created = []
+            
+            # Generate a common transaction number for all items in this sale
+            import uuid
+            common_transaction = f"CYBER-{timezone.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+            
+            for product_id, quantity_str in items:
+                quantity = int(quantity_str)
+                product = get_object_or_404(ProductService, id=product_id, is_active=True)
+                
+                # Check stock
+                if product.current_stock != 999 and product.current_stock < quantity:
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Insufficient stock for {product.name}. Only {product.current_stock} available.'
+                    })
+                
+                # Create sale
+                sale = Sale.objects.create(
+                    transaction_number=common_transaction,
+                    product_service=product,
+                    unit_price=product.unit_price,
+                    quantity=quantity,
+                    customer_name=customer_name,
+                    staff=request.user,
+                    notes=notes
+                )
+                
+                sales_created.append(sale)
+                total_amount += sale.total_amount
+            
+            message = f'Sale recorded successfully! {len(sales_created)} item(s) - Total: KSh {total_amount:,.2f}'
             
             return JsonResponse({
                 'success': True,
-                'message': f'Sale recorded successfully! Total: KSh {sale.total_amount:,.2f}',
-                'transaction_number': sale.transaction_number
+                'message': message,
+                'transaction_number': common_transaction
             })
             
         except Exception as e:
@@ -236,6 +266,38 @@ def daily_report_pdf(request, date=None):
     response['Content-Disposition'] = f'attachment; filename="limbs_cyber_report_{report_date}.pdf"'
     
     return response
+
+
+@staff_member_required
+def delete_sale(request, sale_id):
+    """Delete a sale transaction and restore stock"""
+    if request.method == 'POST':
+        try:
+            sale = get_object_or_404(Sale, id=sale_id)
+            
+            # Restore stock if not unlimited
+            if sale.product_service.current_stock != 999:
+                sale.product_service.current_stock += sale.quantity
+                sale.product_service.save()
+            
+            # Store transaction number before deletion
+            transaction_number = sale.transaction_number
+            
+            # Delete the sale
+            sale.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Sale {transaction_number} deleted successfully. Stock restored.'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error: {str(e)}'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 
 @staff_member_required
