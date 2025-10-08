@@ -155,6 +155,7 @@ tr:hover {
                     <th>Qty</th>
                     <th>Unit Price</th>
                     <th>Total</th>
+                    <th>Payment</th>
                     <th>Customer</th>
                     <th>Staff</th>
                 </tr>
@@ -168,6 +169,7 @@ tr:hover {
                     <td>{{ sale.quantity }}</td>
                     <td>KSh {{ sale.unit_price|floatformat:2 }}</td>
                     <td><strong>KSh {{ sale.total_amount|floatformat:2 }}</strong></td>
+                    <td>{{ sale.payment_method }}</td>
                     <td>{{ sale.customer_name|default:"Walk-in" }}</td>
                     <td>{{ sale.staff.username|default:"Staff" }}</td>
                 </tr>

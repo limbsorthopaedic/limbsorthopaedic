@@ -47,6 +47,11 @@ class ProductService(models.Model):
 
 class Sale(models.Model):
     """Model for recording sales transactions"""
+    PAYMENT_METHOD_CHOICES = (
+        ('M-Pesa', 'M-Pesa (0708581688)'),
+        ('Cash', 'Cash'),
+    )
+    
     transaction_number = models.CharField(max_length=50, editable=False)
     product_service = models.ForeignKey(ProductService, on_delete=models.PROTECT)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -54,7 +59,7 @@ class Sale(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     customer_name = models.CharField(max_length=200, blank=True, null=True)
     staff = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    payment_method = models.CharField(max_length=50, default='M-Pesa Pochi (0708581688)')
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES, default='M-Pesa')
     notes = models.TextField(blank=True, null=True)
     receipt_generated = models.BooleanField(default=False)
     sale_date = models.DateTimeField(default=timezone.now)

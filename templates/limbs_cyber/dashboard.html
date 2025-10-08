@@ -215,6 +215,26 @@
 .item-row:last-child {
     border-bottom: none;
 }
+
+.trend-filter-btn {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.trend-filter-btn:hover {
+    background: #e0e0e0;
+}
+
+.trend-filter-btn.active {
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    border-color: #2e7d32;
+}
 </style>
 {% endblock %}
 
@@ -290,6 +310,13 @@
                 <input type="text" id="customer_name" name="customer_name" placeholder="Optional">
             </div>
             <div class="form-group" style="margin-bottom: 15px;">
+                <label for="payment_method">Payment Method *</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="M-Pesa" selected>M-Pesa (0708581688)</option>
+                    <option value="Cash">Cash</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
                 <label for="notes">Notes</label>
                 <input type="text" id="notes" name="notes" placeholder="Optional notes">
             </div>
@@ -308,7 +335,16 @@
     <!-- Charts -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div class="chart-container">
-            <h3 style="color: #1e266f; margin-bottom: 15px;">Daily Revenue Trend (Last 7 Days)</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: #1e266f; margin: 0;">Revenue Trend</h3>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="trend-filter-btn {% if trend_range == '7days' or not trend_range %}active{% endif %}" onclick="changeTrendRange('7days')">7 Days</button>
+                    <button class="trend-filter-btn {% if trend_range == '30days' %}active{% endif %}" onclick="changeTrendRange('30days')">30 Days</button>
+                    <button class="trend-filter-btn {% if trend_range == 'month' %}active{% endif %}" onclick="changeTrendRange('month')">This Month</button>
+                    <button class="trend-filter-btn {% if trend_range == 'year' %}active{% endif %}" onclick="changeTrendRange('year')">This Year</button>
+                    <button class="trend-filter-btn {% if trend_range == 'alltime' %}active{% endif %}" onclick="changeTrendRange('alltime')">All Time</button>
+                </div>
+            </div>
             <canvas id="revenueChart"></canvas>
         </div>
 
@@ -347,6 +383,7 @@
                     <th>Product/Service</th>
                     <th>Qty</th>
                     <th>Total</th>
+                    <th>Payment</th>
                     <th>Customer</th>
                     <th>Actions</th>
                 </tr>
@@ -359,6 +396,7 @@
                     <td>{{ sale.product_service.name }}</td>
                     <td>{{ sale.quantity }}</td>
                     <td>KSh {{ sale.total_amount|floatformat:2 }}</td>
+                    <td>{{ sale.payment_method }}</td>
                     <td>{{ sale.customer_name|default:"Walk-in" }}</td>
                     <td>
                         <a href="{% url 'cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;">
@@ -386,6 +424,10 @@ let rowCounter = 0;
 document.addEventListener('DOMContentLoaded', function() {
     attachRowListeners(0);
 });
+
+function changeTrendRange(range) {
+    window.location.href = '?trend_range=' + range;
+}
 
 function attachRowListeners(rowIndex) {
     const productSelect = document.getElementById(`product_service_${rowIndex}`);
