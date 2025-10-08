@@ -44,16 +44,76 @@ def cyber_pos_dashboard(request):
         .annotate(total_qty=Sum('quantity'), total_revenue=Sum('total_amount'))\
         .order_by('-total_revenue')[:5]
 
-    # Daily revenue trend (last 7 days)
+    # Get trend range from query parameter
+    trend_range = request.GET.get('trend_range', '7days')
+    
+    # Calculate date range based on trend_range
     daily_trend = []
-    for i in range(6, -1, -1):
-        date = today - timedelta(days=i)
-        day_sales = Sale.objects.filter(sale_date__date=date)
-        revenue = sum(sale.total_amount for sale in day_sales)
-        daily_trend.append({
-            'date': date.strftime('%a, %b %d'),
-            'revenue': float(revenue)
-        })
+    if trend_range == '7days':
+        days_back = 7
+        for i in range(days_back - 1, -1, -1):
+            date = today - timedelta(days=i)
+            day_sales = Sale.objects.filter(sale_date__date=date)
+            revenue = sum(sale.total_amount for sale in day_sales)
+            daily_trend.append({
+                'date': date.strftime('%a, %b %d'),
+                'revenue': float(revenue)
+            })
+    elif trend_range == '30days':
+        days_back = 30
+        for i in range(days_back - 1, -1, -1):
+            date = today - timedelta(days=i)
+            day_sales = Sale.objects.filter(sale_date__date=date)
+            revenue = sum(sale.total_amount for sale in day_sales)
+            daily_trend.append({
+                'date': date.strftime('%b %d'),
+                'revenue': float(revenue)
+            })
+    elif trend_range == 'month':
+        # Current month, day by day
+        month_start = today.replace(day=1)
+        current = month_start
+        while current <= today:
+            day_sales = Sale.objects.filter(sale_date__date=current)
+            revenue = sum(sale.total_amount for sale in day_sales)
+            daily_trend.append({
+                'date': current.strftime('%b %d'),
+                'revenue': float(revenue)
+            })
+            current += timedelta(days=1)
+    elif trend_range == 'year':
+        # Current year, month by month
+        year_start = today.replace(month=1, day=1)
+        current = year_start
+        while current <= today:
+            month_end = (current.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+            if month_end > today:
+                month_end = today
+            month_sales = Sale.objects.filter(sale_date__date__range=[current, month_end])
+            revenue = sum(sale.total_amount for sale in month_sales)
+            daily_trend.append({
+                'date': current.strftime('%b %Y'),
+                'revenue': float(revenue)
+            })
+            # Move to next month
+            current = (current.replace(day=28) + timedelta(days=4)).replace(day=1)
+    elif trend_range == 'alltime':
+        # All time, month by month
+        first_sale = Sale.objects.order_by('sale_date').first()
+        if first_sale:
+            current = first_sale.sale_date.date().replace(day=1)
+            while current <= today:
+                month_end = (current.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+                if month_end > today:
+                    month_end = today
+                month_sales = Sale.objects.filter(sale_date__date__range=[current, month_end])
+                revenue = sum(sale.total_amount for sale in month_sales)
+                daily_trend.append({
+                    'date': current.strftime('%b %Y'),
+                    'revenue': float(revenue)
+                })
+                # Move to next month
+                current = (current.replace(day=28) + timedelta(days=4)).replace(day=1)
 
     context = {
         'title': 'Limbs Cyber POS',
@@ -64,6 +124,7 @@ def cyber_pos_dashboard(request):
         'recent_sales': recent_sales,
         'top_items': top_items,
         'daily_trend': json.dumps(daily_trend),
+        'trend_range': trend_range,
     }
 
     return render(request, 'limbs_cyber/dashboard.html', context)
