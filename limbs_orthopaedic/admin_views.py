@@ -565,8 +565,8 @@ def admin_invoice_download(request, invoice_id):
     for section in sections:
         section.top_margin = Inches(0.5)
         section.bottom_margin = Inches(0.5)
-        section.left_margin = Inches(0.5)
-        section.right_margin = Inches(0.5)
+        section.left_margin = Inches(0.3)
+        section.right_margin = Inches(0.3)
     
     # Add a colored border line at the top
     top_border = doc.add_paragraph()
@@ -583,7 +583,7 @@ def admin_invoice_download(request, invoice_id):
     left_cell = header_table.rows[0].cells[0]
     clinic_name = left_cell.paragraphs[0]
     clinic_name.text = "LIMBS ORTHOPAEDIC LIMITED"
-    clinic_name.runs[0].font.size = Pt(26)
+    clinic_name.runs[0].font.size = Pt(18)
     clinic_name.runs[0].font.bold = True
     clinic_name.runs[0].font.color.rgb = RGBColor(52, 189, 242)
     clinic_name.runs[0].font.name = 'Roboto'
@@ -592,7 +592,11 @@ def admin_invoice_download(request, invoice_id):
     addr_para.runs[0].font.size = Pt(10)
     addr_para.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
-    contact_para = left_cell.add_paragraph("Phone: +254 705 347 657 | Email: info@limbsorthopaedic.org")
+    contact_para = left_cell.add_paragraph("Phone: +254705347657, +254714663594, +254719628276")
+    contact_para.runs[0].font.size = Pt(10)
+    contact_para.runs[0].font.color.rgb = RGBColor(102, 102, 102)
+    
+    contact_para = left_cell.add_paragraph("Email: info@limbsorthopaedic.org / limbsorthopaedic@gmail.com")
     contact_para.runs[0].font.size = Pt(10)
     contact_para.runs[0].font.color.rgb = RGBColor(102, 102, 102)
     
@@ -605,7 +609,7 @@ def admin_invoice_download(request, invoice_id):
     right_cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
     invoice_title = right_cell.paragraphs[0]
     invoice_title.text = "INVOICE"
-    invoice_title.runs[0].font.size = Pt(28)
+    invoice_title.runs[0].font.size = Pt(18)
     invoice_title.runs[0].font.bold = True
     invoice_title.runs[0].font.color.rgb = RGBColor(52, 189, 242)
     invoice_title.runs[0].font.name = 'Roboto'
