@@ -284,7 +284,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="product_service_0">Product/Service *</label>
-                            <select class="product-select" id="product_service_0" name="product_service[]" required>
+                            <select style="width:100%; min-height:44px; padding:8px 12px; font-size:14px;" class="product-select" id="product_service_0" name="product_service[]" required>
                                 <option value="">-- Select Product/Service --</option>
                                 {% for product in products %}
                                 <option value="{{ product.id }}" data-price="{{ product.unit_price }}" data-stock="{{ product.current_stock }}">
@@ -311,8 +311,8 @@
             </div>
             <div class="form-group" style="margin-bottom: 15px;">
                 <label for="payment_method">Payment Method *</label>
-                <select id="payment_method" name="payment_method" required>
-                    <option value="M-Pesa" selected>M-Pesa (0708581688)</option>
+                <select style="width:100%; min-height:44px; padding:8px 12px; font-size:14px;" id="payment_method" name="payment_method" required>
+                    <option value="M-Pesa" selected>M-Pesa</option>
                     <option value="Cash">Cash</option>
                 </select>
             </div>
