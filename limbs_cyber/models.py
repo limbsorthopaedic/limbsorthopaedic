@@ -48,7 +48,7 @@ class ProductService(models.Model):
 class Sale(models.Model):
     """Model for recording sales transactions"""
     PAYMENT_METHOD_CHOICES = (
-        ('M-Pesa', 'M-Pesa (0708581688)'),
+        ('M-Pesa', 'M-Pesa'),
         ('Cash', 'Cash'),
     )
     

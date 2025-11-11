@@ -319,7 +319,6 @@ def daily_report_pdf(request, date=None):
         sales_data = [['Time', 'Product/Service', 'Qty', 'Unit Price', 'Total', 'Customer', 'Payment Method']]
 
         for sale in sales:
-            payment_display = 'M-Pesa (0708581688)' if sale.payment_method == 'M-Pesa' else sale.payment_method
             sales_data.append([
                 sale.sale_date.strftime('%H:%M'),
                 sale.product_service.name,
@@ -327,7 +326,7 @@ def daily_report_pdf(request, date=None):
                 f"KSh {sale.unit_price:,.2f}",
                 f"KSh {sale.total_amount:,.2f}",
                 sale.customer_name or '-',
-                payment_display
+                sale.payment_method
             ])
 
         sales_table = Table(sales_data, colWidths=[0.8*inch, 2*inch, 0.5*inch, 1*inch, 1*inch, 1*inch, 1*inch])
@@ -346,9 +345,7 @@ def daily_report_pdf(request, date=None):
 
     # Payment info
     elements.append(Spacer(1, 0.3*inch))
-    # This part is updated to display M-Pesa with specific details
-    payment_display_for_summary = 'M-Pesa (0708581688)' if stats.get('payment_method') == 'M-Pesa' else stats.get('payment_method', '-')
-    elements.append(Paragraph(f'Payment Method Summary: {payment_display_for_summary}', styles['Normal']))
+    elements.append(Paragraph(f'Payment Method Summary: {stats.get("payment_method", "-")}', styles['Normal']))
 
 
     # Build PDF
@@ -536,9 +533,7 @@ def generate_receipt(request, sale_id):
     )
     elements.append(Paragraph(f'TOTAL: KSh {sale.total_amount:,.2f}', total_style))
     elements.append(Spacer(1, 0.2*inch))
-    # This part is updated to display M-Pesa with specific details
-    payment_display = 'M-Pesa (0708581688)' if sale.payment_method == 'M-Pesa' else sale.payment_method
-    elements.append(Paragraph(f'Payment Method: {payment_display}', styles['Normal']))
+    elements.append(Paragraph(f'Payment Method: {sale.payment_method}', styles['Normal']))
 
     # Footer
     elements.append(Spacer(1, 0.5*inch))
