@@ -32,6 +32,28 @@ def cyber_pos_dashboard(request):
     month_start = today.replace(day=1)
     month_stats = Sale.get_period_stats(month_start, today)
 
+    # Last week's statistics
+    last_week_end = week_start - timedelta(days=1)
+    last_week_start = last_week_end - timedelta(days=6)
+    last_week_stats = Sale.get_period_stats(last_week_start, last_week_end)
+
+    # Last month's statistics
+    last_month_end = month_start - timedelta(days=1)
+    last_month_start = last_month_end.replace(day=1)
+    last_month_stats = Sale.get_period_stats(last_month_start, last_month_end)
+
+    # This year's statistics
+    year_start = today.replace(month=1, day=1)
+    year_stats = Sale.get_period_stats(year_start, today)
+
+    # All time statistics
+    all_sales = Sale.objects.all()
+    all_time_stats = {
+        'total_sales': all_sales.count(),
+        'total_revenue': sum(sale.total_amount for sale in all_sales),
+        'total_items': sum(sale.quantity for sale in all_sales),
+    }
+
     # Get active products/services
     products = ProductService.objects.filter(is_active=True).order_by('name')
 
@@ -120,6 +142,10 @@ def cyber_pos_dashboard(request):
         'today_stats': today_stats,
         'week_stats': week_stats,
         'month_stats': month_stats,
+        'last_week_stats': last_week_stats,
+        'last_month_stats': last_month_stats,
+        'year_stats': year_stats,
+        'all_time_stats': all_time_stats,
         'products': products,
         'recent_sales': recent_sales,
         'top_items': top_items,

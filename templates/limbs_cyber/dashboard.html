@@ -35,6 +35,10 @@
 .stat-card.today { border-left-color: #4caf50; }
 .stat-card.week { border-left-color: #ff9800; }
 .stat-card.month { border-left-color: #9c27b0; }
+.stat-card.last-week { border-left-color: #e91e63; }
+.stat-card.last-month { border-left-color: #00bcd4; }
+.stat-card.year { border-left-color: #ff5722; }
+.stat-card.all-time { border-left-color: #607d8b; }
 
 .stat-card h3 {
     color: #666;
@@ -268,6 +272,26 @@
             <h3>Items Sold Today</h3>
             <div class="value">{{ today_stats.total_items }}</div>
             <div class="subvalue">Total Units</div>
+        </div>
+        <div class="stat-card last-week">
+            <h3>Last Week</h3>
+            <div class="value">{{ last_week_stats.total_sales }}</div>
+            <div class="subvalue">KSh {{ last_week_stats.total_revenue|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card last-month">
+            <h3>Last Month</h3>
+            <div class="value">{{ last_month_stats.total_sales }}</div>
+            <div class="subvalue">KSh {{ last_month_stats.total_revenue|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card year">
+            <h3>This Year</h3>
+            <div class="value">{{ year_stats.total_sales }}</div>
+            <div class="subvalue">KSh {{ year_stats.total_revenue|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card all-time">
+            <h3>All Time</h3>
+            <div class="value">{{ all_time_stats.total_sales }}</div>
+            <div class="subvalue">KSh {{ all_time_stats.total_revenue|floatformat:2 }}</div>
         </div>
     </div>
 
