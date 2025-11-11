@@ -94,7 +94,7 @@ tr:hover {
                 <h1 style="color: #1e266f; margin: 0;">Daily Sales Report</h1>
                 <p style="color: #666; margin: 5px 0 0 0;">{{ report_date|date:"F d, Y" }}</p>
             </div>
-            <a href="{% url 'cyber_daily_report_pdf' report_date|date:'Y-m-d' %}" class="btn-print no-print" target="_blank">
+            <a href="{% url 'limbs_cyber:cyber_daily_report_pdf' report_date|date:'Y-m-d' %}" class="btn-print no-print" target="_blank">
                 <span class="material-icons">print</span>
                 Download PDF
             </a>

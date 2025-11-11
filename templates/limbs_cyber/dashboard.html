@@ -1,4 +1,3 @@
-
 {% extends "admin/base_site.html" %}
 {% load static %}
 
@@ -403,11 +402,11 @@
                     <span class="material-icons">today</span>
                     Today's Report
                 </a>
-                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_week' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #e91e63, #c2185b);">
-                    <span class="material-icons">date_range</span>
+                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_week' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #2196f3, #1976d2);">
+                    <span class="material-icons">calendar_today</span>
                     Last Week
                 </a>
-                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_month' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #00bcd4, #0097a7);">
+                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_month' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
                     <span class="material-icons">calendar_month</span>
                     Last Month
                 </a>
@@ -481,7 +480,7 @@ function changeTrendRange(range) {
 function attachRowListeners(rowIndex) {
     const productSelect = document.getElementById(`product_service_${rowIndex}`);
     const quantityInput = document.getElementById(`quantity_${rowIndex}`);
-    
+
     if (productSelect) {
         productSelect.addEventListener('change', calculateTotal);
     }
@@ -496,7 +495,7 @@ function addItemRow() {
     const newRow = document.createElement('div');
     newRow.className = 'item-row';
     newRow.dataset.row = rowCounter;
-    
+
     newRow.innerHTML = `
         <div class="form-row">
             <div class="form-group">
@@ -521,7 +520,7 @@ function addItemRow() {
             </div>
         </div>
     `;
-    
+
     container.appendChild(newRow);
     attachRowListeners(rowCounter);
     calculateTotal();
@@ -536,39 +535,39 @@ function removeItemRow(button) {
 function calculateTotal() {
     let total = 0;
     const rows = document.querySelectorAll('.item-row');
-    
+
     rows.forEach(row => {
         const select = row.querySelector('.product-select');
         const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
-        
+
         if (select && select.selectedIndex > 0) {
             const price = parseFloat(select.options[select.selectedIndex].dataset.price);
             total += price * quantity;
         }
     });
-    
+
     document.getElementById('totalAmount').textContent = total.toFixed(2);
 }
 
 // Handle form submission
 document.getElementById('quickSaleForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(this);
     const alertBox = document.getElementById('alertBox');
     const submitButton = this.querySelector('button[type="submit"]');
-    
+
     // Validate form - check at least one product is selected
     const productSelects = document.querySelectorAll('.product-select');
     let hasValidProduct = false;
-    
+
     for (let select of productSelects) {
         if (select.value) {
             hasValidProduct = true;
             break;
         }
     }
-    
+
     if (!hasValidProduct) {
         alertBox.className = 'alert error';
         alertBox.textContent = 'Please select at least one product or service.';
@@ -576,11 +575,11 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
         setTimeout(() => alertBox.style.display = 'none', 3000);
         return;
     }
-    
+
     // Disable submit button
     submitButton.disabled = true;
     submitButton.innerHTML = '<span class="material-icons">hourglass_empty</span> Processing...';
-    
+
     fetch('{% url "limbs_cyber:cyber_create_sale" %}', {
         method: 'POST',
         body: formData,
@@ -599,7 +598,7 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
             alertBox.className = 'alert success';
             alertBox.textContent = data.message;
             alertBox.style.display = 'block';
-            
+
             // Reload page after 1.5 seconds
             setTimeout(() => location.reload(), 1500);
         } else {
@@ -609,7 +608,7 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
             submitButton.disabled = false;
             submitButton.innerHTML = '<span class="material-icons">add_shopping_cart</span> Record Sale';
         }
-        
+
         setTimeout(() => alertBox.style.display = 'none', 5000);
     })
     .catch(error => {
@@ -628,10 +627,10 @@ function deleteSale(saleId) {
     if (!confirm('Are you sure you want to delete this sale? This action cannot be undone.')) {
         return;
     }
-    
+
     const alertBox = document.getElementById('alertBox');
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
+
     fetch(`{% url 'limbs_cyber:cyber_delete_sale' 0 %}`.replace('/0/', `/${saleId}/`), {
         method: 'POST',
         headers: {
@@ -645,13 +644,13 @@ function deleteSale(saleId) {
             alertBox.className = 'alert success';
             alertBox.textContent = data.message;
             alertBox.style.display = 'block';
-            
+
             // Remove row from table
             const row = document.getElementById(`sale-row-${saleId}`);
             if (row) {
                 row.remove();
             }
-            
+
             // Reload page after 1.5 seconds to update statistics
             setTimeout(() => location.reload(), 1500);
         } else {
@@ -659,7 +658,7 @@ function deleteSale(saleId) {
             alertBox.textContent = data.message || 'Error deleting sale.';
             alertBox.style.display = 'block';
         }
-        
+
         setTimeout(() => alertBox.style.display = 'none', 5000);
     })
     .catch(error => {

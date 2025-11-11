@@ -109,11 +109,11 @@ tr:hover {
                 <p style="color: #666; margin: 5px 0 0 0;">{{ start_date|date:"F d, Y" }} to {{ end_date|date:"F d, Y" }}</p>
             </div>
             <div>
-                <a href="{% url 'cyber_pos_dashboard' %}" class="btn-back no-print">
+                <a href="{% url 'limbs_cyber:cyber_pos_dashboard' %}" class="btn-back no-print">
                     <span class="material-icons">arrow_back</span>
                     Dashboard
                 </a>
-                <a href="{% url 'cyber_period_report_pdf' period_type %}" class="btn-print no-print" target="_blank">
+                <a href="{% url 'limbs_cyber:cyber_period_report_pdf' period_type %}" class="btn-print no-print" target="_blank">
                     <span class="material-icons">print</span>
                     Download PDF
                 </a>
