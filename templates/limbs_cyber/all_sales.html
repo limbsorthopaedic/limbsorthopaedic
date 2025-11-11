@@ -227,7 +227,7 @@ function deleteSale(saleId) {
     
     const csrfToken = '{{ csrf_token }}';
     
-    fetch(`/cyber-pos/sale/${saleId}/delete/`, {
+    fetch(`{% url 'limbs_cyber:cyber_delete_sale' 0 %}`.replace('/0/', `/${saleId}/`), {
         method: 'POST',
         headers: {
             'X-CSRFToken': csrfToken,

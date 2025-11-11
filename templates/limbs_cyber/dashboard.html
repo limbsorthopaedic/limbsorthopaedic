@@ -632,7 +632,7 @@ function deleteSale(saleId) {
     const alertBox = document.getElementById('alertBox');
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     
-    fetch(`/cyber-pos/sale/${saleId}/delete/`, {
+    fetch(`{% url 'limbs_cyber:cyber_delete_sale' 0 %}`.replace('/0/', `/${saleId}/`), {
         method: 'POST',
         headers: {
             'X-CSRFToken': csrfToken,
