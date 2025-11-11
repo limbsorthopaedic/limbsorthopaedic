@@ -394,6 +394,71 @@ def delete_sale(request, sale_id):
 
 
 @staff_member_required
+def sale_detail(request, sale_id):
+    """View details of a specific sale"""
+    sale = get_object_or_404(Sale, id=sale_id)
+    
+    context = {
+        'title': f'Sale Details - {sale.transaction_number}',
+        'sale': sale,
+    }
+    
+    return render(request, 'limbs_cyber/sale_detail.html', context)
+
+
+@staff_member_required
+def all_sales(request):
+    """View all sales with filtering and pagination"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    
+    sales = Sale.objects.select_related('product_service', 'staff').all()
+    
+    # Filtering
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+    search = request.GET.get('search', '')
+    
+    if date_from:
+        sales = sales.filter(sale_date__date__gte=date_from)
+    
+    if date_to:
+        sales = sales.filter(sale_date__date__lte=date_to)
+    
+    if search:
+        sales = sales.filter(
+            Q(transaction_number__icontains=search) |
+            Q(customer_name__icontains=search) |
+            Q(product_service__name__icontains=search)
+        )
+    
+    sales = sales.order_by('-sale_date')
+    
+    # Calculate totals
+    total_sales = sales.count()
+    total_revenue = sum(sale.total_amount for sale in sales)
+    
+    # Pagination
+    paginator = Paginator(sales, 50)  # 50 sales per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'title': 'All Sales Transactions',
+        'sales': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'total_sales': total_sales,
+        'total_revenue': total_revenue,
+        'date_from': date_from or '',
+        'date_to': date_to or '',
+        'search': search,
+    }
+    
+    return render(request, 'limbs_cyber/all_sales.html', context)
+
+
+@staff_member_required
 def generate_receipt(request, sale_id):
     """Generate receipt for a specific sale"""
     sale = get_object_or_404(Sale, id=sale_id)

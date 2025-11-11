@@ -1,0 +1,252 @@
+
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}All Sales | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+.sales-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 120px);
+}
+
+.sales-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    align-items: end;
+}
+
+.sales-table-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+.sales-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sales-table th,
+.sales-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.sales-table th {
+    background: #34bdf2;
+    color: white;
+    font-weight: bold;
+}
+
+.sales-table tr:hover {
+    background: #f8f9fa;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #34bdf2, #2196f3);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination a,
+.pagination span {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+}
+
+.pagination a:hover {
+    background: #34bdf2;
+    color: white;
+}
+
+.pagination .current {
+    background: #34bdf2;
+    color: white;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sales-container">
+    <div class="sales-header">
+        <h1 style="color: #1e266f; margin: 0; display: flex; align-items: center;">
+            <span class="material-icons" style="margin-right: 10px; font-size: 2rem;">list_alt</span>
+            All Sales Transactions
+        </h1>
+        <a href="{% url 'cyber_pos_dashboard' %}" class="btn btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="filter-section">
+        <form method="get" class="filter-form">
+            <div>
+                <label for="date_from">From Date:</label>
+                <input type="date" id="date_from" name="date_from" value="{{ date_from }}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div>
+                <label for="date_to">To Date:</label>
+                <input type="date" id="date_to" name="date_to" value="{{ date_to }}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div>
+                <label for="search">Search:</label>
+                <input type="text" id="search" name="search" value="{{ search }}" placeholder="Transaction, customer, product..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <span class="material-icons">search</span>
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="sales-table-container">
+        <h3 style="color: #1e266f; margin-bottom: 15px;">
+            Total: {{ total_sales }} sale(s) | Revenue: KSh {{ total_revenue|floatformat:2 }}
+        </h3>
+        <table class="sales-table">
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Transaction #</th>
+                    <th>Product/Service</th>
+                    <th>Qty</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Customer</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr>
+                    <td>{{ sale.sale_date|date:"M d, Y H:i" }}</td>
+                    <td>{{ sale.transaction_number }}</td>
+                    <td>{{ sale.product_service.name }}</td>
+                    <td>{{ sale.quantity }}</td>
+                    <td>KSh {{ sale.total_amount|floatformat:2 }}</td>
+                    <td>{{ sale.payment_method }}</td>
+                    <td>{{ sale.customer_name|default:"Walk-in" }}</td>
+                    <td>
+                        <a href="{% url 'cyber_sale_detail' sale.id %}" style="color: #4caf50; margin-right: 10px;" title="View Details">
+                            <span class="material-icons" style="font-size: 1.2rem;">visibility</span>
+                        </a>
+                        <a href="{% url 'cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;" title="Generate Receipt">
+                            <span class="material-icons" style="font-size: 1.2rem;">receipt</span>
+                        </a>
+                        <a href="javascript:void(0);" onclick="deleteSale({{ sale.id }});" style="color: #dc3545;" title="Delete">
+                            <span class="material-icons" style="font-size: 1.2rem;">delete</span>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #999;">No sales found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if search %}&search={{ search }}{% endif %}">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Last &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function deleteSale(saleId) {
+    if (!confirm('Are you sure you want to delete this sale? This action cannot be undone.')) {
+        return;
+    }
+    
+    const csrfToken = '{{ csrf_token }}';
+    
+    fetch(`/cyber-pos/sale/${saleId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.message || 'Error deleting sale.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the sale.');
+    });
+}
+</script>
+{% endblock %}

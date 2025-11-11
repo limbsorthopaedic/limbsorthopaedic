@@ -394,10 +394,16 @@
     <div class="recent-sales">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="color: #1e266f; margin: 0;">Recent Sales</h3>
-            <a href="{% url 'cyber_daily_report_today' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px;">
-                <span class="material-icons">print</span>
-                Today's Report
-            </a>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'cyber_all_sales' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
+                    <span class="material-icons">list</span>
+                    View All Sales
+                </a>
+                <a href="{% url 'cyber_daily_report_today' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px;">
+                    <span class="material-icons">print</span>
+                    Today's Report
+                </a>
+            </div>
         </div>
         <table class="sales-table">
             <thead>
@@ -423,10 +429,13 @@
                     <td>{{ sale.payment_method }}</td>
                     <td>{{ sale.customer_name|default:"Walk-in" }}</td>
                     <td>
-                        <a href="{% url 'cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;">
+                        <a href="{% url 'cyber_sale_detail' sale.id %}" style="color: #4caf50; margin-right: 10px;" title="Read More">
+                            <span class="material-icons" style="font-size: 1.2rem;">visibility</span>
+                        </a>
+                        <a href="{% url 'cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;" title="Generate Receipt">
                             <span class="material-icons" style="font-size: 1.2rem;">receipt</span>
                         </a>
-                        <a href="javascript:void(0);" onclick="deleteSale({{ sale.id }});" style="color: #dc3545;">
+                        <a href="javascript:void(0);" onclick="deleteSale({{ sale.id }});" style="color: #dc3545;" title="Delete Sale">
                             <span class="material-icons" style="font-size: 1.2rem;">delete</span>
                         </a>
                     </td>
