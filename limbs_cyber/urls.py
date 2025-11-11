@@ -11,5 +11,7 @@ urlpatterns = [
     path('report/daily/', views.daily_report, name='cyber_daily_report_today'),
     path('report/daily/<str:date>/', views.daily_report, name='cyber_daily_report'),
     path('report/daily/<str:date>/pdf/', views.daily_report_pdf, name='cyber_daily_report_pdf'),
+    path('report/period/<str:period_type>/', views.period_report, name='cyber_period_report'),
+    path('report/period/<str:period_type>/pdf/', views.period_report_pdf, name='cyber_period_report_pdf'),
     path('receipt/<int:sale_id>/', views.generate_receipt, name='cyber_generate_receipt'),
 ]

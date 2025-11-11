@@ -394,14 +394,30 @@
     <div class="recent-sales">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="color: #1e266f; margin: 0;">Recent Sales</h3>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{% url 'cyber_all_sales' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
                     <span class="material-icons">list</span>
                     View All Sales
                 </a>
-                <a href="{% url 'cyber_daily_report_today' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px;">
-                    <span class="material-icons">print</span>
+                <a href="{% url 'cyber_daily_report_today' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #4caf50, #2e7d32);">
+                    <span class="material-icons">today</span>
                     Today's Report
+                </a>
+                <a href="{% url 'cyber_period_report' 'last_week' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #e91e63, #c2185b);">
+                    <span class="material-icons">date_range</span>
+                    Last Week
+                </a>
+                <a href="{% url 'cyber_period_report' 'last_month' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #00bcd4, #0097a7);">
+                    <span class="material-icons">calendar_month</span>
+                    Last Month
+                </a>
+                <a href="{% url 'cyber_period_report' 'this_year' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #ff5722, #e64a19);">
+                    <span class="material-icons">calendar_today</span>
+                    This Year
+                </a>
+                <a href="{% url 'cyber_period_report' 'last_year' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #607d8b, #455a64);">
+                    <span class="material-icons">history</span>
+                    Last Year
                 </a>
             </div>
         </div>

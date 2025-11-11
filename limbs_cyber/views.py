@@ -260,6 +260,53 @@ def daily_report(request, date=None):
 
 
 @staff_member_required
+def period_report(request, period_type):
+    """Generate period sales report (week, month, year)"""
+    today = timezone.now().date()
+    
+    if period_type == 'last_week':
+        week_start = today - timedelta(days=today.weekday())
+        end_date = week_start - timedelta(days=1)
+        start_date = end_date - timedelta(days=6)
+        title = f'Last Week Report ({start_date} to {end_date})'
+    elif period_type == 'last_month':
+        month_start = today.replace(day=1)
+        end_date = month_start - timedelta(days=1)
+        start_date = end_date.replace(day=1)
+        title = f'Last Month Report ({start_date.strftime("%B %Y")})'
+    elif period_type == 'this_year':
+        start_date = today.replace(month=1, day=1)
+        end_date = today
+        title = f'This Year Report ({start_date.year})'
+    elif period_type == 'last_year':
+        start_date = today.replace(year=today.year-1, month=1, day=1)
+        end_date = today.replace(year=today.year-1, month=12, day=31)
+        title = f'Last Year Report ({start_date.year})'
+    else:
+        return redirect('cyber_pos_dashboard')
+    
+    stats = Sale.get_period_stats(start_date, end_date)
+    sales = stats['sales']
+    
+    # Group by product/service
+    product_summary = sales.values('product_service__name', 'product_service__unit_price')\
+        .annotate(total_qty=Sum('quantity'), total_revenue=Sum('total_amount'))\
+        .order_by('-total_revenue')
+    
+    context = {
+        'title': title,
+        'period_type': period_type,
+        'start_date': start_date,
+        'end_date': end_date,
+        'stats': stats,
+        'sales': sales,
+        'product_summary': product_summary,
+    }
+    
+    return render(request, 'limbs_cyber/period_report.html', context)
+
+
+@staff_member_required
 def daily_report_pdf(request, date=None):
     """Generate PDF of daily sales report"""
     if date:
@@ -355,6 +402,131 @@ def daily_report_pdf(request, date=None):
     response = HttpResponse(buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="limbs_cyber_report_{report_date}.pdf"'
 
+    return response
+
+
+@staff_member_required
+def period_report_pdf(request, period_type):
+    """Generate PDF of period sales report"""
+    today = timezone.now().date()
+    
+    if period_type == 'last_week':
+        week_start = today - timedelta(days=today.weekday())
+        end_date = week_start - timedelta(days=1)
+        start_date = end_date - timedelta(days=6)
+        title = 'LAST WEEK SALES REPORT'
+        subtitle = f'{start_date.strftime("%B %d, %Y")} to {end_date.strftime("%B %d, %Y")}'
+        filename = f'limbs_cyber_last_week_{start_date}_{end_date}.pdf'
+    elif period_type == 'last_month':
+        month_start = today.replace(day=1)
+        end_date = month_start - timedelta(days=1)
+        start_date = end_date.replace(day=1)
+        title = 'LAST MONTH SALES REPORT'
+        subtitle = start_date.strftime("%B %Y")
+        filename = f'limbs_cyber_last_month_{start_date.strftime("%Y_%m")}.pdf'
+    elif period_type == 'this_year':
+        start_date = today.replace(month=1, day=1)
+        end_date = today
+        title = 'THIS YEAR SALES REPORT'
+        subtitle = f'{start_date.year} (Jan 1 - {end_date.strftime("%B %d")})'
+        filename = f'limbs_cyber_this_year_{start_date.year}.pdf'
+    elif period_type == 'last_year':
+        start_date = today.replace(year=today.year-1, month=1, day=1)
+        end_date = today.replace(year=today.year-1, month=12, day=31)
+        title = 'LAST YEAR SALES REPORT'
+        subtitle = str(start_date.year)
+        filename = f'limbs_cyber_last_year_{start_date.year}.pdf'
+    else:
+        return redirect('cyber_pos_dashboard')
+    
+    stats = Sale.get_period_stats(start_date, end_date)
+    sales = stats['sales']
+    
+    # Create PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Title
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor('#1e266f'),
+        spaceAfter=30,
+        alignment=TA_CENTER
+    )
+    
+    elements.append(Paragraph(f'LIMBS CYBER - {title}', title_style))
+    elements.append(Paragraph(subtitle, styles['Normal']))
+    elements.append(Spacer(1, 0.5*inch))
+    
+    # Summary
+    summary_data = [
+        ['Total Sales:', str(stats['total_sales'])],
+        ['Total Items Sold:', str(stats['total_items'])],
+        ['Total Revenue:', f"KSh {stats['total_revenue']:,.2f}"],
+    ]
+    
+    summary_table = Table(summary_data, colWidths=[3*inch, 2*inch])
+    summary_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.lightblue),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    elements.append(summary_table)
+    elements.append(Spacer(1, 0.3*inch))
+    
+    # Sales details
+    if sales.exists():
+        elements.append(Paragraph('Sales Transactions', styles['Heading2']))
+        elements.append(Spacer(1, 0.2*inch))
+        
+        sales_data = [['Date/Time', 'Product/Service', 'Qty', 'Unit Price', 'Total', 'Customer', 'Payment']]
+        
+        for sale in sales:
+            sales_data.append([
+                sale.sale_date.strftime('%m/%d %H:%M'),
+                sale.product_service.name,
+                str(sale.quantity),
+                f"KSh {sale.unit_price:,.2f}",
+                f"KSh {sale.total_amount:,.2f}",
+                sale.customer_name or '-',
+                sale.payment_method
+            ])
+        
+        sales_table = Table(sales_data, colWidths=[0.9*inch, 1.8*inch, 0.5*inch, 1*inch, 1*inch, 1*inch, 0.8*inch])
+        sales_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        elements.append(sales_table)
+    
+    # Payment info
+    elements.append(Spacer(1, 0.3*inch))
+    elements.append(Paragraph('Payment Method: M-Pesa', styles['Normal']))
+    
+    # Build PDF
+    doc.build(elements)
+    buffer.seek(0)
+    
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    
     return response
 
 
