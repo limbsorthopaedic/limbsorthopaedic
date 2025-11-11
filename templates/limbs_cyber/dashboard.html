@@ -395,27 +395,27 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="color: #1e266f; margin: 0;">Recent Sales</h3>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <a href="{% url 'cyber_all_sales' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
+                <a href="{% url 'limbs_cyber:cyber_all_sales' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
                     <span class="material-icons">list</span>
                     View All Sales
                 </a>
-                <a href="{% url 'cyber_daily_report_today' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #4caf50, #2e7d32);">
+                <a href="{% url 'limbs_cyber:cyber_daily_report' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #4caf50, #2e7d32);">
                     <span class="material-icons">today</span>
                     Today's Report
                 </a>
-                <a href="{% url 'cyber_period_report' 'last_week' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #e91e63, #c2185b);">
+                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_week' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #e91e63, #c2185b);">
                     <span class="material-icons">date_range</span>
                     Last Week
                 </a>
-                <a href="{% url 'cyber_period_report' 'last_month' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #00bcd4, #0097a7);">
+                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_month' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #00bcd4, #0097a7);">
                     <span class="material-icons">calendar_month</span>
                     Last Month
                 </a>
-                <a href="{% url 'cyber_period_report' 'this_year' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #ff5722, #e64a19);">
+                <a href="{% url 'limbs_cyber:cyber_period_report' 'this_year' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #ff5722, #e64a19);">
                     <span class="material-icons">calendar_today</span>
                     This Year
                 </a>
-                <a href="{% url 'cyber_period_report' 'last_year' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #607d8b, #455a64);">
+                <a href="{% url 'limbs_cyber:cyber_period_report' 'last_year' %}" class="btn-submit" style="text-decoration: none; padding: 8px 15px; background: linear-gradient(135deg, #607d8b, #455a64);">
                     <span class="material-icons">history</span>
                     Last Year
                 </a>
@@ -445,10 +445,10 @@
                     <td>{{ sale.payment_method }}</td>
                     <td>{{ sale.customer_name|default:"Walk-in" }}</td>
                     <td>
-                        <a href="{% url 'cyber_sale_detail' sale.id %}" style="color: #4caf50; margin-right: 10px;" title="Read More">
+                        <a href="{% url 'limbs_cyber:cyber_sale_detail' sale.id %}" style="color: #4caf50; margin-right: 10px;" title="Read More">
                             <span class="material-icons" style="font-size: 1.2rem;">visibility</span>
                         </a>
-                        <a href="{% url 'cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;" title="Generate Receipt">
+                        <a href="{% url 'limbs_cyber:cyber_generate_receipt' sale.id %}" target="_blank" style="color: #34bdf2; margin-right: 10px;" title="Generate Receipt">
                             <span class="material-icons" style="font-size: 1.2rem;">receipt</span>
                         </a>
                         <a href="javascript:void(0);" onclick="deleteSale({{ sale.id }});" style="color: #dc3545;" title="Delete Sale">
@@ -581,7 +581,7 @@ document.getElementById('quickSaleForm').addEventListener('submit', function(e) 
     submitButton.disabled = true;
     submitButton.innerHTML = '<span class="material-icons">hourglass_empty</span> Processing...';
     
-    fetch('{% url "cyber_create_sale" %}', {
+    fetch('{% url "limbs_cyber:cyber_create_sale" %}', {
         method: 'POST',
         body: formData,
         headers: {
