@@ -11,7 +11,7 @@ class LOLProductService(models.Model):
     name = models.CharField(max_length=255, unique=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -51,7 +51,7 @@ class Patient(models.Model):
         verbose_name="How did you hear about us?"
     )
     unique_code = models.CharField(max_length=10, unique=True, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -103,7 +103,7 @@ class Visit(models.Model):
     treatment_notes = models.TextField(blank=True, null=True)
     next_visit = models.DateField(blank=True, null=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
@@ -168,7 +168,7 @@ class VisitProduct(models.Model):
     price_at_time = models.DecimalField(max_digits=12, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='To Make')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ['-created_at']
@@ -215,7 +215,7 @@ class WorkshopOrder(models.Model):
         related_name='assigned_workshop_orders'
     )
     notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -249,7 +249,7 @@ class LOLPayment(models.Model):
     mpesa_transaction_id = models.CharField(max_length=50, blank=True, null=True)
     payment_date = models.DateTimeField(default=timezone.now)
     paid_by = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
