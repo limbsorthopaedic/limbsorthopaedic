@@ -1,0 +1,137 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}New Visit - Step 2{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">add_circle</span>
+        New Visit - Step 2: Confirm
+    </h1>
+    <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Step 1
+    </a>
+</div>
+
+<!-- Progress -->
+<div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+    <div
+        style="flex: 1; background: var(--lol-success); color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+        <span class="material-icons" style="vertical-align: middle;">check_circle</span>
+        <strong>Step 1:</strong> Patient Selected
+    </div>
+    <div
+        style="flex: 1; background: var(--lol-primary); color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+        <strong>Step 2:</strong> Confirm & Create
+    </div>
+</div>
+
+<!-- Patient Info -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">person</span>
+            Selected Patient
+        </h3>
+        <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ patient.unique_code
+            }}</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Full
+                    Name</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0; font-size: 1.1rem;">{{ patient.full_name }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Gender</small>
+                <p style="margin: 0.25rem 0 0;">
+                    <span class="badge {% if patient.gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">
+                        {{ patient.gender }}
+                    </span>
+                </p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Age</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.age_years }} years {{ patient.age_months }}
+                    months</p>
+            </div>
+
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Category</small>
+                <p style="margin: 0.25rem 0 0;">
+                    <span
+                        class="badge {% if patient.child_or_adult == 'Child' %}badge-warning{% else %}badge-secondary{% endif %}">
+                        {{ patient.child_or_adult }}
+                    </span>
+                </p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Contact</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.contact }}</p>
+            </div>
+
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Residence</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.residence }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Previous
+                    Visits</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.visits.count }} visit(s)</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Visit
+                    Status</small>
+                <p style="margin: 0.25rem 0 0;">
+                    {% if patient.visits.count > 0 %}
+                    <span class="badge badge-secondary">Old (Return Patient)</span>
+                    {% else %}
+                    <span class="badge badge-success">New (First Visit)</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-success);">check_circle</span>
+            Create Visit
+        </h3>
+    </div>
+    <div class="card-body">
+        <p style="color: var(--lol-gray-600); margin-bottom: 1.5rem;">
+            A new visit record will be created for <strong>{{ patient.full_name }}</strong>.
+            The patient's current information will be captured as a snapshot for this visit.
+        </p>
+
+        <form method="post" action="">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-success" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <span class="material-icons">add_circle</span>
+                    Create Visit
+                </button>
+                <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-outline">
+                    <span class="material-icons">arrow_back</span>
+                    Select Different Patient
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

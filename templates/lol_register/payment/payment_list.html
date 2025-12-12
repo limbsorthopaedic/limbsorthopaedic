@@ -1,0 +1,168 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Cash Book{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">payments</span>
+        Cash Book (Payments)
+    </h1>
+    <a href="{% url 'lol_register:payment_create' %}" class="btn btn-primary">
+        <span class="material-icons">add</span>
+        Record Payment
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="stat-card success">
+        <div class="stat-label">Total Expected</div>
+        <div class="stat-value">KSh {{ total_expected|floatformat:2 }}</div>
+    </div>
+    <div class="stat-card primary">
+        <div class="stat-label">Total Paid</div>
+        <div class="stat-value">KSh {{ total_paid|floatformat:2 }}</div>
+    </div>
+    <div class="stat-card {% if total_balance > 0 %}danger{% else %}success{% endif %}">
+        <div class="stat-label">Total Balance</div>
+        <div class="stat-value">KSh {{ total_balance|floatformat:2 }}</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card">
+    <div class="card-body">
+        <form method="get" action="">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                <div style="min-width: 200px;">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="q" class="form-control" placeholder="Patient or M-Pesa ID..."
+                        value="{{ search_query }}">
+                </div>
+                <div style="min-width: 150px;">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+                </div>
+                <div style="min-width: 140px;">
+                    <label class="form-label">Method</label>
+                    <select name="method" class="form-select">
+                        <option value="">All</option>
+                        <option value="LOL-MPESA" {% if method_filter=='LOL-MPESA' %}selected{% endif %}>LOL-MPESA
+                        </option>
+                        <option value="LOL-CASH" {% if method_filter=='LOL-CASH' %}selected{% endif %}>LOL-CASH</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">filter_list</span>
+                    Filter
+                </button>
+                {% if search_query or date_filter or method_filter %}
+                <a href="{% url 'lol_register:payment_list' %}" class="btn btn-outline">
+                    <span class="material-icons">clear</span>
+                    Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Code</th>
+                        <th>Patient Name</th>
+                        <th>Method</th>
+                        <th>Expected</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>M-Pesa ID</th>
+                        <th>Paid By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M d, Y H:i" }}</td>
+                        <td><strong style="color: var(--lol-primary);">{{ payment.visit.patient.unique_code }}</strong>
+                        </td>
+                        <td>{{ payment.visit.patient.full_name }}</td>
+                        <td>
+                            <span
+                                class="badge {% if payment.method == 'LOL-MPESA' %}badge-success{% else %}badge-warning{% endif %}">
+                                {{ payment.method }}
+                            </span>
+                        </td>
+                        <td>KSh {{ payment.expected_pay|floatformat:2 }}</td>
+                        <td><strong style="color: var(--lol-success);">KSh {{
+                                payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
+                        <td>
+                            {% if payment.balance > 0 %}
+                            <span style="color: var(--lol-danger);">KSh {{ payment.balance|floatformat:2 }}</span>
+                            {% else %}
+                            <span style="color: var(--lol-success);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.mpesa_transaction_id|default:"-" }}</td>
+                        <td>{{ payment.paid_by|default:"-" }}</td>
+                        <td style="white-space: nowrap;">
+                            <a href="{% url 'lol_register:visit_detail' payment.visit.pk %}" class="action-link"
+                                title="View Visit">
+                                <span class="material-icons">visibility</span>
+                            </a>
+                            <a href="{% url 'lol_register:payment_update' payment.pk %}" class="action-link"
+                                title="Edit">
+                                <span class="material-icons">edit</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 3rem; color: var(--lol-gray-600);">
+                            <span class="material-icons"
+                                style="font-size: 3rem; display: block; margin-bottom: 1rem;">payments</span>
+                            No payments found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if payments.has_other_pages %}
+<nav class="pagination">
+    {% if payments.has_previous %}
+    <a
+        href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if method_filter %}&method={{ method_filter }}{% endif %}">&laquo;</a>
+    <a
+        href="?page={{ payments.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if method_filter %}&method={{ method_filter }}{% endif %}">&lsaquo;</a>
+    {% endif %}
+
+    {% for num in payments.paginator.page_range %}
+    {% if payments.number == num %}
+    <span class="active"><span>{{ num }}</span></span>
+    {% elif num > payments.number|add:'-3' and num < payments.number|add:'3' %} <a
+        href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if method_filter %}&method={{ method_filter }}{% endif %}">
+        {{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if payments.has_next %}
+        <a
+            href="?page={{ payments.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if method_filter %}&method={{ method_filter }}{% endif %}">&rsaquo;</a>
+        <a
+            href="?page={{ payments.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if method_filter %}&method={{ method_filter }}{% endif %}">&raquo;</a>
+        {% endif %}
+</nav>
+{% endif %}
+{% endblock %}

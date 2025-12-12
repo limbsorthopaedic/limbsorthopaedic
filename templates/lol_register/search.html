@@ -1,0 +1,145 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">search</span>
+        Search Results
+    </h1>
+</div>
+
+<!-- Search Form -->
+<div class="card">
+    <div class="card-body">
+        <form method="get" action="">
+            <div style="display: flex; gap: 1rem;">
+                <input type="text" name="q" class="form-control"
+                    placeholder="Search by patient name or code (LOL-XXXXX)..." value="{{ query }}"
+                    style="max-width: 400px;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">search</span>
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if query %}
+<!-- Patients Results -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">people</span>
+            Patients ({{ patients|length }} found)
+        </h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                        <th>Contact</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td><strong style="color: var(--lol-primary);">{{ patient.unique_code }}</strong></td>
+                        <td>{{ patient.full_name }}</td>
+                        <td>
+                            <span
+                                class="badge {% if patient.gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">{{
+                                patient.gender }}</span>
+                        </td>
+                        <td>{{ patient.age_years }}y {{ patient.age_months }}m</td>
+                        <td>{{ patient.contact }}</td>
+                        <td>
+                            <a href="{% url 'lol_register:patient_detail' patient.pk %}"
+                                class="btn btn-sm btn-outline">View</a>
+                            <a href="{% url 'lol_register:visit_create_step2' patient.pk %}"
+                                class="btn btn-sm btn-success">New Visit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No patients found matching "{{ query }}"
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Visits Results -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">event_note</span>
+            Visits ({{ visits|length }} found)
+        </h3>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Code</th>
+                        <th>Patient Name</th>
+                        <th>Status</th>
+                        <th>Diagnosis</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.created_at|date:"M d, Y H:i" }}</td>
+                        <td><strong style="color: var(--lol-primary);">{{ visit.patient.unique_code }}</strong></td>
+                        <td>{{ visit.patient.full_name }}</td>
+                        <td>
+                            <span
+                                class="badge {% if visit.visit_status == 'New' %}badge-success{% else %}badge-secondary{% endif %}">{{
+                                visit.visit_status }}</span>
+                        </td>
+                        <td>{{ visit.diagnosis|truncatechars:30|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'lol_register:visit_detail' visit.pk %}"
+                                class="btn btn-sm btn-outline">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No visits found matching "{{ query }}"
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body" style="text-align: center; padding: 3rem;">
+        <span class="material-icons" style="font-size: 4rem; color: var(--lol-gray-300);">search</span>
+        <h3 style="color: var(--lol-gray-600); margin-top: 1rem;">Enter a search term</h3>
+        <p style="color: var(--lol-gray-600);">Search by patient name or unique code (LOL-XXXXX)</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,386 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Visit: {{ visit.patient.unique_code }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">event_note</span>
+        Visit Details
+    </h1>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{% url 'lol_register:visit_update_clinician' visit.pk %}" class="btn btn-primary">
+            <span class="material-icons">edit</span>
+            Update Visit
+        </a>
+        <a href="{% url 'lol_register:payment_create_for_visit' visit.pk %}" class="btn btn-success">
+            <span class="material-icons">payments</span>
+            Record Payment
+        </a>
+        <a href="{% url 'lol_register:visit_list' %}" class="btn btn-outline">
+            <span class="material-icons">arrow_back</span>
+            Back
+        </a>
+    </div>
+</div>
+
+<!-- Visit Summary Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+    <div class="stat-card primary">
+        <div class="stat-label">Visit Date</div>
+        <div class="stat-value" style="font-size: 1.25rem;">{{ visit.created_at|date:"M d, Y" }}</div>
+        <div class="stat-sub">{{ visit.created_at|date:"H:i" }}</div>
+    </div>
+
+    <div class="stat-card {% if visit.visit_status == 'New' %}success{% else %}secondary{% endif %}">
+        <div class="stat-label">Visit Status</div>
+        <div class="stat-value" style="font-size: 1.25rem;">{{ visit.visit_status }}</div>
+        <div class="stat-sub">{% if visit.visit_status == 'New' %}First visit{% else %}Return visit{% endif %}</div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-label">Total Amount</div>
+        <div class="stat-value" style="font-size: 1.25rem;">KSh {{ visit.total_amount|floatformat:2 }}</div>
+        <div class="stat-sub">{{ visit.visit_products.count }} product(s)</div>
+    </div>
+
+    <div class="stat-card {% if visit.outstanding_balance > 0 %}danger{% else %}success{% endif %}">
+        <div class="stat-label">Balance</div>
+        <div class="stat-value" style="font-size: 1.25rem;">KSh {{ visit.outstanding_balance|floatformat:2 }}</div>
+        <div class="stat-sub">{% if visit.outstanding_balance > 0 %}Outstanding{% else %}Fully Paid{% endif %}</div>
+    </div>
+</div>
+
+<!-- Patient Snapshot -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">person</span>
+            Patient Information (at time of visit)
+        </h3>
+        <a href="{% url 'lol_register:patient_detail' visit.patient.pk %}" class="btn btn-sm btn-outline">View
+            Patient</a>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Code</small>
+                <p style="font-weight: 600; margin: 0.25rem 0 0; color: var(--lol-primary);">{{
+                    visit.patient.unique_code }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Full
+                    Name</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_full_name }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Gender</small>
+                <p style="margin: 0.25rem 0 0;">
+                    <span
+                        class="badge {% if visit.snapshot_gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">{{
+                        visit.snapshot_gender }}</span>
+                </p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Age</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_age_years }}y {{
+                    visit.snapshot_age_months }}m</p>
+            </div>
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Category</small>
+                <p style="margin: 0.25rem 0 0;">
+                    <span
+                        class="badge {% if visit.snapshot_child_or_adult == 'Child' %}badge-warning{% else %}badge-secondary{% endif %}">{{
+                        visit.snapshot_child_or_adult }}</span>
+                </p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Brought
+                    By</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_brought_by|default:"-" }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Contact</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_contact }}</p>
+            </div>
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Residence</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_residence }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clinical Information -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">medical_services</span>
+            Clinical Information
+        </h3>
+        <a href="{% url 'lol_register:visit_update_clinician' visit.pk %}" class="btn btn-sm btn-primary">
+            <span class="material-icons">edit</span>
+            Edit
+        </a>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; gap: 1rem;">
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Diagnosis</small>
+                <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.diagnosis|default:"Not recorded" }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Treatment
+                    Notes</small>
+                <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.treatment_notes|default:"Not recorded"
+                    }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Next
+                    Visit</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.next_visit|date:"F d, Y"|default:"Not
+                    scheduled" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Products/Services -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">inventory_2</span>
+            Products / Services
+        </h3>
+        <button type="button" class="btn btn-sm btn-success"
+            onclick="document.getElementById('add-product-modal').style.display='flex'">
+            <span class="material-icons">add</span>
+            Add Product
+        </button>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product/Service</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Subtotal</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vp in visit_products %}
+                    <tr>
+                        <td>{{ vp.product.name }}</td>
+                        <td>{{ vp.quantity }}</td>
+                        <td>KSh {{ vp.price_at_time|floatformat:2 }}</td>
+                        <td><strong>KSh {{ vp.subtotal|floatformat:2 }}</strong></td>
+                        <td>
+                            <span class="badge 
+                                {% if vp.status == 'To Make' %}badge-warning
+                                {% elif vp.status == 'Made/Fitted' %}badge-success
+                                {% elif vp.status == 'Repaired' %}badge-info
+                                {% else %}badge-danger{% endif %}">
+                                {{ vp.status }}
+                            </span>
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <a href="{% url 'lol_register:visit_product_update' vp.pk %}" class="action-link"
+                                title="Edit Status">
+                                <span class="material-icons">edit</span>
+                            </a>
+                            {% if vp.status == 'To Make' and not vp.workshop_order %}
+                            <a href="{% url 'lol_register:workshop_create_for_product' vp.pk %}" class="action-link"
+                                title="Create Workshop Order" style="color: var(--lol-warning);">
+                                <span class="material-icons">precision_manufacturing</span>
+                            </a>
+                            {% endif %}
+                            <form method="post" action="{% url 'lol_register:visit_product_delete' vp.pk %}"
+                                style="display: inline;" onsubmit="return confirm('Remove this product?');">
+                                {% csrf_token %}
+                                <button type="submit" class="action-link delete"
+                                    style="background: none; border: none; cursor: pointer;" title="Remove">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No products/services added yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if visit_products %}
+                <tfoot>
+                    <tr style="background: var(--lol-gray-100);">
+                        <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
+                        <td colspan="3"><strong style="color: var(--lol-primary);">KSh {{
+                                visit.total_amount|floatformat:2 }}</strong></td>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Payments -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-success);">payments</span>
+            Payments
+        </h3>
+        <a href="{% url 'lol_register:payment_create_for_visit' visit.pk %}" class="btn btn-sm btn-success">
+            <span class="material-icons">add</span>
+            Record Payment
+        </a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Expected</th>
+                        <th>Paid</th>
+                        <th>Balance</th>
+                        <th>M-Pesa ID</th>
+                        <th>Paid By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span
+                                class="badge {% if payment.method == 'LOL-MPESA' %}badge-success{% else %}badge-warning{% endif %}">
+                                {{ payment.method }}
+                            </span>
+                        </td>
+                        <td>KSh {{ payment.expected_pay|floatformat:2 }}</td>
+                        <td><strong style="color: var(--lol-success);">KSh {{
+                                payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
+                        <td>
+                            {% if payment.balance > 0 %}
+                            <span style="color: var(--lol-danger);">KSh {{ payment.balance|floatformat:2 }}</span>
+                            {% else %}
+                            <span style="color: var(--lol-success);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ payment.mpesa_transaction_id|default:"-" }}</td>
+                        <td>{{ payment.paid_by|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No payments recorded yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="background: var(--lol-gray-100);">
+                        <td colspan="3" style="text-align: right;"><strong>Summary:</strong></td>
+                        <td><strong style="color: var(--lol-success);">KSh {{ visit.total_paid|floatformat:2 }}</strong>
+                        </td>
+                        <td colspan="3">
+                            {% if visit.outstanding_balance > 0 %}
+                            <strong style="color: var(--lol-danger);">Balance: KSh {{
+                                visit.outstanding_balance|floatformat:2 }}</strong>
+                            {% else %}
+                            <strong style="color: var(--lol-success);">Fully Paid</strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div id="add-product-modal"
+    style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div
+        style="background: white; border-radius: 12px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <div
+            style="padding: 1.5rem; border-bottom: 1px solid var(--lol-gray-200); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: var(--lol-secondary);">Add Product/Service</h3>
+            <button type="button" onclick="document.getElementById('add-product-modal').style.display='none'"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--lol-gray-600);">&times;</button>
+        </div>
+        <form method="post" action="{% url 'lol_register:visit_product_add' visit.pk %}" style="padding: 1.5rem;">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Product/Service *</label>
+                <select name="product" class="form-select" required id="modal-product-select">
+                    <option value="">Select a product...</option>
+                    {% for product in products %}
+                    <option value="{{ product.pk }}" data-price="{{ product.price }}">{{ product.name }} - KSh {{
+                        product.price|floatformat:2 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Quantity *</label>
+                <input type="number" name="quantity" class="form-control" value="1" min="1" required
+                    id="modal-quantity">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="To Make">To Make</option>
+                    <option value="Made/Fitted">Made/Fitted</option>
+                    <option value="Repaired">Repaired</option>
+                </select>
+            </div>
+            <div class="form-group" style="background: var(--lol-gray-100); padding: 1rem; border-radius: 8px;">
+                <strong>Subtotal: KSh <span id="modal-subtotal">0.00</span></strong>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <span class="material-icons">add</span>
+                    Add Product
+                </button>
+                <button type="button" class="btn btn-outline"
+                    onclick="document.getElementById('add-product-modal').style.display='none'">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const productSelect = document.getElementById('modal-product-select');
+    const quantityInput = document.getElementById('modal-quantity');
+    const subtotalSpan = document.getElementById('modal-subtotal');
+
+    function updateSubtotal() {
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const price = parseFloat(selectedOption.dataset.price) || 0;
+        const quantity = parseInt(quantityInput.value) || 0;
+        const subtotal = price * quantity;
+        subtotalSpan.textContent = subtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    productSelect.addEventListener('change', updateSubtotal);
+    quantityInput.addEventListener('input', updateSubtotal);
+</script>
+{% endblock %}

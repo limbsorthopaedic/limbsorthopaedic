@@ -1,0 +1,870 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}{{ title|default:"Register Book" }}{% endblock %} | Limbs Orthopaedic</title>
+    
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --lol-primary: #27baf1;
+            --lol-secondary: #16134a;
+            --lol-black: #000000;
+            --lol-white: #ffffff;
+            --lol-success: #4caf50;
+            --lol-warning: #ff9800;
+            --lol-danger: #f44336;
+            --lol-info: #2196f3;
+            --lol-gray-100: #f8f9fa;
+            --lol-gray-200: #e9ecef;
+            --lol-gray-300: #dee2e6;
+            --lol-gray-600: #6c757d;
+            --lol-gray-800: #343a40;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--lol-gray-100);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--lol-secondary) 0%, #1a1745 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-brand {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-brand img {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-brand h4 {
+            color: var(--lol-white);
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+        }
+        
+        .sidebar-brand small {
+            color: var(--lol-primary);
+            font-size: 0.75rem;
+        }
+        
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        
+        .nav-item {
+            padding: 0 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--lol-white);
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .nav-link.active {
+            color: var(--lol-white);
+            background: linear-gradient(135deg, var(--lol-primary) 0%, #1e9fd1 100%);
+            box-shadow: 0 4px 15px rgba(39, 186, 241, 0.3);
+        }
+        
+        .nav-link .material-icons {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .nav-section-title {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1rem 1.5rem 0.5rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Top Nav */
+        .topnav {
+            background: var(--lol-white);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .topnav-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--lol-secondary);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--lol-gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--lol-primary);
+            text-decoration: none;
+        }
+        
+        .topnav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .search-form {
+            position: relative;
+        }
+        
+        .search-input {
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border: 1px solid var(--lol-gray-300);
+            border-radius: 20px;
+            width: 250px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--lol-primary);
+            box-shadow: 0 0 0 3px rgba(39, 186, 241, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--lol-gray-600);
+            font-size: 1.25rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--lol-gray-100);
+            border-radius: 20px;
+            color: var(--lol-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 1rem;
+            background: var(--lol-danger);
+            color: var(--lol-white);
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #d32f2f;
+            transform: translateY(-1px);
+        }
+        
+        /* Content Area */
+        .content {
+            padding: 1.5rem;
+            flex: 1;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--lol-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .page-title .material-icons {
+            color: var(--lol-primary);
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--lol-white);
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--lol-gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--lol-secondary);
+            margin: 0;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Stat Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--lol-white);
+            padding: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--lol-primary);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-card.primary { border-left-color: var(--lol-primary); }
+        .stat-card.success { border-left-color: var(--lol-success); }
+        .stat-card.warning { border-left-color: var(--lol-warning); }
+        .stat-card.danger { border-left-color: var(--lol-danger); }
+        .stat-card.info { border-left-color: var(--lol-info); }
+        .stat-card.secondary { border-left-color: var(--lol-secondary); }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--lol-gray-600);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--lol-secondary);
+        }
+        
+        .stat-sub {
+            font-size: 0.85rem;
+            color: var(--lol-gray-600);
+            margin-top: 0.25rem;
+        }
+        
+        /* Tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .table th,
+        .table td {
+            padding: 0.875rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--lol-gray-200);
+            white-space: nowrap;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, var(--lol-primary) 0%, #1e9fd1 100%);
+            color: var(--lol-white);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody tr:hover {
+            background: var(--lol-gray-100);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--lol-primary) 0%, #1e9fd1 100%);
+            color: var(--lol-white);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 186, 241, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--lol-secondary);
+            color: var(--lol-white);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--lol-success) 0%, #388e3c 100%);
+            color: var(--lol-white);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--lol-warning) 0%, #f57c00 100%);
+            color: var(--lol-white);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--lol-danger) 0%, #d32f2f 100%);
+            color: var(--lol-white);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--lol-primary);
+            color: var(--lol-primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--lol-primary);
+            color: var(--lol-white);
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn .material-icons {
+            font-size: 1.1rem;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--lol-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-control,
+        .form-select {
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--lol-gray-300);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--lol-primary);
+            box-shadow: 0 0 0 3px rgba(39, 186, 241, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 4px;
+        }
+        
+        .badge-primary { background: rgba(39, 186, 241, 0.1); color: var(--lol-primary); }
+        .badge-success { background: rgba(76, 175, 80, 0.1); color: var(--lol-success); }
+        .badge-warning { background: rgba(255, 152, 0, 0.1); color: var(--lol-warning); }
+        .badge-danger { background: rgba(244, 67, 54, 0.1); color: var(--lol-danger); }
+        .badge-secondary { background: rgba(22, 19, 74, 0.1); color: var(--lol-secondary); }
+        
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #1b5e20;
+            border-left: 4px solid var(--lol-success);
+        }
+        
+        .alert-danger {
+            background: rgba(244, 67, 54, 0.1);
+            color: #b71c1c;
+            border-left: 4px solid var(--lol-danger);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.1);
+            color: #e65100;
+            border-left: 4px solid var(--lol-warning);
+        }
+        
+        .alert-info {
+            background: rgba(33, 150, 243, 0.1);
+            color: #0d47a1;
+            border-left: 4px solid var(--lol-info);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            gap: 0.25rem;
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0 0;
+            justify-content: center;
+        }
+        
+        .pagination a,
+        .pagination span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 0.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            color: var(--lol-secondary);
+            background: var(--lol-white);
+            border: 1px solid var(--lol-gray-300);
+            transition: all 0.3s ease;
+        }
+        
+        .pagination a:hover {
+            background: var(--lol-primary);
+            color: var(--lol-white);
+            border-color: var(--lol-primary);
+        }
+        
+        .pagination .active span {
+            background: var(--lol-primary);
+            color: var(--lol-white);
+            border-color: var(--lol-primary);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--lol-white);
+            padding: 1rem 1.5rem;
+            text-align: center;
+            color: var(--lol-gray-600);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--lol-gray-200);
+        }
+        
+        .footer a {
+            color: var(--lol-primary);
+            text-decoration: none;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Action Links */
+        .action-link {
+            color: var(--lol-primary);
+            text-decoration: none;
+            margin-right: 0.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .action-link:hover {
+            color: var(--lol-secondary);
+        }
+        
+        .action-link.delete {
+            color: var(--lol-danger);
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .topnav {
+                padding: 0.75rem 1rem;
+            }
+            
+            .search-input {
+                width: 150px;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-info span {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                display: none;
+            }
+            
+            .topnav-right .user-info {
+                display: none;
+            }
+        }
+        
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar Overlay (Mobile) -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="{% static 'images/limbs_logo.jpg' %}" alt="Limbs Orthopaedic">
+            <h4>Register Book</h4>
+            <small>Limbs Orthopaedic Clinic</small>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{% url 'lol_register:dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <span class="material-icons">dashboard</span>
+                    Dashboard
+                </a>
+            </div>
+            
+            <div class="nav-section-title">Patient Management</div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:patient_list' %}" class="nav-link {% if 'patient' in request.resolver_match.url_name %}active{% endif %}">
+                    <span class="material-icons">people</span>
+                    Patients
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:visit_list' %}" class="nav-link {% if 'visit' in request.resolver_match.url_name and 'product' not in request.resolver_match.url_name %}active{% endif %}">
+                    <span class="material-icons">event_note</span>
+                    Visits
+                </a>
+            </div>
+            
+            <div class="nav-section-title">Operations</div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:payment_list' %}" class="nav-link {% if 'payment' in request.resolver_match.url_name %}active{% endif %}">
+                    <span class="material-icons">payments</span>
+                    Cash Book
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:workshop_list' %}" class="nav-link {% if 'workshop' in request.resolver_match.url_name %}active{% endif %}">
+                    <span class="material-icons">precision_manufacturing</span>
+                    Workshop
+                </a>
+            </div>
+            
+            <div class="nav-section-title">Reports</div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:export_visits' %}?range=month" class="nav-link">
+                    <span class="material-icons">download</span>
+                    Export Visits
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:export_payments' %}?range=month" class="nav-link">
+                    <span class="material-icons">receipt_long</span>
+                    Export Payments
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{% url 'lol_register:export_products' %}?range=month" class="nav-link">
+                    <span class="material-icons">inventory</span>
+                    Export Products
+                </a>
+            </div>
+            
+            <div class="nav-section-title">Admin</div>
+            
+            <div class="nav-item">
+                <a href="/adminlimbsorth/" class="nav-link" target="_blank">
+                    <span class="material-icons">admin_panel_settings</span>
+                    Django Admin
+                </a>
+            </div>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <header class="topnav">
+            <div class="topnav-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <span class="material-icons">menu</span>
+                </button>
+                <div class="breadcrumb">
+                    <a href="{% url 'lol_register:dashboard' %}">Register Book</a>
+                    <span>/</span>
+                    <span>{{ title|default:"Dashboard" }}</span>
+                </div>
+            </div>
+            
+            <div class="topnav-right">
+                <form class="search-form" action="{% url 'lol_register:search' %}" method="get">
+                    <span class="material-icons search-icon">search</span>
+                    <input type="text" name="q" class="search-input" placeholder="Search patients...">
+                </form>
+                
+                <div class="user-info">
+                    <span class="material-icons">person</span>
+                    <span>{{ user.get_full_name|default:user.username }}</span>
+                </div>
+                
+                <a href="/adminlimbsorth/logout/" class="logout-btn">
+                    <span class="material-icons">logout</span>
+                    Logout
+                </a>
+            </div>
+        </header>
+        
+        <!-- Content -->
+        <div class="content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <span class="material-icons">
+                            {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}
+                        </span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; {% now "Y" %} <a href="/">Limbs Orthopaedic Clinic</a>. Register Book System.</p>
+        </footer>
+    </main>
+    
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        
+        // Format numbers with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 992) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                    document.getElementById('overlay').classList.remove('active');
+                }
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

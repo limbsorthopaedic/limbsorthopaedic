@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'gallery',
     'careers',
     'limbs_cyber',
+    'lol_register',
 
     # Sitemap
     'django.contrib.sitemaps',

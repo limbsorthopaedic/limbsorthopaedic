@@ -1,0 +1,63 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Update Product Status{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">edit</span>
+        Update Product Status
+    </h1>
+    <a href="{% url 'lol_register:visit_detail' visit_product.visit.pk %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Visit
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Product Details</h3>
+    </div>
+    <div class="card-body">
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div>
+                <small style="color: var(--lol-gray-600);">Patient</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.visit.patient.full_name }}</p>
+                <small style="color: var(--lol-primary);">{{ visit_product.visit.patient.unique_code }}</small>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Product</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.product.name }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Quantity</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.quantity }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Subtotal</small>
+                <p style="margin: 0; font-weight: 500; color: var(--lol-primary);">KSh {{
+                    visit_product.subtotal|floatformat:2 }}</p>
+            </div>
+        </div>
+
+        <form method="post" action="">
+            {% csrf_token %}
+
+            <div class="form-group" style="max-width: 300px;">
+                <label class="form-label">Status *</label>
+                {{ form.status }}
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">save</span>
+                    Update Status
+                </button>
+                <a href="{% url 'lol_register:visit_detail' visit_product.visit.pk %}"
+                    class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

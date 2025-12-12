@@ -74,6 +74,7 @@ urlpatterns = [
     path('gallery/', include('gallery.urls')),
     path('careers/', include('careers.urls', namespace='careers')),
     path('cyber-pos/', include('limbs_cyber.urls')),
+    path('lol_register/', include('lol_register.urls')),
 
     # ...existing code...
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},

@@ -1,0 +1,175 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}New Visit - Step 1{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">add_circle</span>
+        New Visit - Step 1: Select Patient
+    </h1>
+    <a href="{% url 'lol_register:visit_list' %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Visits
+    </a>
+</div>
+
+<!-- Progress -->
+<div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+    <div
+        style="flex: 1; background: var(--lol-primary); color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+        <strong>Step 1:</strong> Select Patient
+    </div>
+    <div
+        style="flex: 1; background: var(--lol-gray-200); color: var(--lol-gray-600); padding: 1rem; border-radius: 8px; text-align: center;">
+        <strong>Step 2:</strong> Confirm & Create
+    </div>
+</div>
+
+<!-- Search Patient -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">search</span>
+            Search Existing Patient
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="form-group">
+            <input type="text" id="patient-search" class="form-control"
+                placeholder="Type patient name or code (LOL-XXXXX)..." style="font-size: 1.1rem; padding: 1rem;">
+        </div>
+
+        <div id="search-results" style="margin-top: 1rem;"></div>
+    </div>
+</div>
+
+<!-- Recent Patients -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">history</span>
+            Recent Patients
+        </h3>
+        <a href="{% url 'lol_register:patient_create' %}" class="btn btn-sm btn-success">
+            <span class="material-icons">person_add</span>
+            Register New Patient
+        </a>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                        <th>Contact</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td><strong style="color: var(--lol-primary);">{{ patient.unique_code }}</strong></td>
+                        <td>{{ patient.full_name }}</td>
+                        <td>
+                            <span
+                                class="badge {% if patient.gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">
+                                {{ patient.gender }}
+                            </span>
+                        </td>
+                        <td>{{ patient.age_years }}y {{ patient.age_months }}m</td>
+                        <td>{{ patient.contact }}</td>
+                        <td>
+                            <a href="{% url 'lol_register:visit_create_step2' patient.pk %}"
+                                class="btn btn-sm btn-primary">
+                                <span class="material-icons">arrow_forward</span>
+                                Select
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No patients registered yet.
+                            <br><br>
+                            <a href="{% url 'lol_register:patient_create' %}" class="btn btn-success">
+                                <span class="material-icons">person_add</span>
+                                Register First Patient
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const searchInput = document.getElementById('patient-search');
+    const resultsDiv = document.getElementById('search-results');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        const query = this.value.trim();
+
+        if (query.length < 2) {
+            resultsDiv.innerHTML = '';
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            fetch(`{% url 'lol_register:api_patient_search' %}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results.length === 0) {
+                        resultsDiv.innerHTML = `
+                            <div style="padding: 1rem; text-align: center; color: var(--lol-gray-600);">
+                                No patients found matching "${query}"
+                                <br><br>
+                                <a href="{% url 'lol_register:patient_create' %}" class="btn btn-success">
+                                    <span class="material-icons">person_add</span>
+                                    Register New Patient
+                                </a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '<div style="display: grid; gap: 0.5rem;">';
+                    data.results.forEach(patient => {
+                        html += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--lol-gray-100); border-radius: 8px;">
+                                <div>
+                                    <strong style="color: var(--lol-primary);">${patient.unique_code}</strong>
+                                    <span style="margin-left: 1rem;">${patient.full_name}</span>
+                                    <span class="badge badge-${patient.gender === 'Male' ? 'primary' : 'danger'}" style="margin-left: 0.5rem;">${patient.gender}</span>
+                                    <span style="margin-left: 0.5rem; color: var(--lol-gray-600);">${patient.age}</span>
+                                </div>
+                                <a href="/lol_register/visits/create/${patient.id}/" class="btn btn-sm btn-primary">
+                                    <span class="material-icons">arrow_forward</span>
+                                    Select
+                                </a>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    resultsDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                });
+        }, 300);
+    });
+
+    searchInput.focus();
+</script>
+{% endblock %}

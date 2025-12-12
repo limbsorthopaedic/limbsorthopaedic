@@ -1,0 +1,114 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Record Payment{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">payments</span>
+        Record Payment
+    </h1>
+    <a href="{% url 'lol_register:payment_list' %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Cash Book
+    </a>
+</div>
+
+{% if visit %}
+<!-- Visit Info (if recording for specific visit) -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Payment for Visit</h3>
+        <span class="badge badge-primary" style="font-size: 1rem;">{{ visit.patient.unique_code }}</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            <div>
+                <small style="color: var(--lol-gray-600);">Patient</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit.patient.full_name }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Visit Date</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit.created_at|date:"M d, Y" }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Total Amount</small>
+                <p style="margin: 0; font-weight: 500;">KSh {{ visit.total_amount|floatformat:2 }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Outstanding</small>
+                <p
+                    style="margin: 0; font-weight: 500; color: {% if visit.outstanding_balance > 0 %}var(--lol-danger){% else %}var(--lol-success){% endif %};">
+                    KSh {{ visit.outstanding_balance|floatformat:2 }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Payment Details</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="">
+            {% csrf_token %}
+
+            {% if not visit %}
+            <div class="form-group">
+                <label class="form-label">Select Visit *</label>
+                <select name="visit" class="form-select" required>
+                    <option value="">Select a visit...</option>
+                    {% for v in visits %}
+                    <option value="{{ v.pk }}">{{ v.patient.unique_code }} - {{ v.patient.full_name }} ({{
+                        v.created_at|date:"M d, Y" }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Payment Method *</label>
+                    {{ form.method }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Expected Payment *</label>
+                    {{ form.expected_pay }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Amount Paid</label>
+                    {{ form.amount_paid }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Transaction ID</label>
+                    {{ form.mpesa_transaction_id }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Paid By</label>
+                {{ form.paid_by }}
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <span class="material-icons">save</span>
+                    Record Payment
+                </button>
+                {% if visit %}
+                <a href="{% url 'lol_register:visit_detail' visit.pk %}" class="btn btn-outline">Cancel</a>
+                {% else %}
+                <a href="{% url 'lol_register:payment_list' %}" class="btn btn-outline">Cancel</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

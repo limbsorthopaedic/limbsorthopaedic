@@ -1,0 +1,96 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Create Workshop Order{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">add_circle</span>
+        Create Workshop Order
+    </h1>
+    <a href="{% url 'lol_register:workshop_list' %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Workshop
+    </a>
+</div>
+
+{% if visit_product %}
+<!-- Creating for specific visit product -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Product Details</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            <div>
+                <small style="color: var(--lol-gray-600);">Patient</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.visit.patient.full_name }}</p>
+                <small style="color: var(--lol-primary);">{{ visit_product.visit.patient.unique_code }}</small>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Product</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.product.name }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Quantity</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.quantity }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600);">Visit Date</small>
+                <p style="margin: 0; font-weight: 500;">{{ visit_product.visit.created_at|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Workshop Order Details</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="">
+            {% csrf_token %}
+
+            {% if not visit_product %}
+            <div class="form-group">
+                <label class="form-label">Select Product *</label>
+                {{ form.visit_product }}
+                <small style="color: var(--lol-gray-600);">Only products with "To Make" status without existing orders
+                    are shown.</small>
+            </div>
+            {% endif %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Status *</label>
+                    {{ form.status }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Expected Ready Date</label>
+                    {{ form.expected_ready_date }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Assigned To</label>
+                {{ form.assigned_to }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                {{ form.notes }}
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-success">
+                    <span class="material-icons">save</span>
+                    Create Order
+                </button>
+                <a href="{% url 'lol_register:workshop_list' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

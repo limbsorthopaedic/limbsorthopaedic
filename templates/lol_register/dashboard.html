@@ -1,0 +1,426 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">dashboard</span>
+        Register Book Dashboard
+    </h1>
+    <div>
+        <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-primary">
+            <span class="material-icons">add</span>
+            New Visit
+        </a>
+        <a href="{% url 'lol_register:patient_create' %}" class="btn btn-success">
+            <span class="material-icons">person_add</span>
+            New Patient
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-label">Visits Today</div>
+        <div class="stat-value">{{ visits_today }}</div>
+        <div class="stat-sub">Total visits recorded</div>
+    </div>
+
+    <div class="stat-card info">
+        <div class="stat-label">Visits This Week</div>
+        <div class="stat-value">{{ visits_week }}</div>
+        <div class="stat-sub">Weekly count</div>
+    </div>
+
+    <div class="stat-card secondary">
+        <div class="stat-label">Visits This Month</div>
+        <div class="stat-value">{{ visits_month }}</div>
+        <div class="stat-sub">Monthly count</div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-label">New Visits</div>
+        <div class="stat-value">{{ new_visits }}</div>
+        <div class="stat-sub">First-time patients this month</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-label">Old Visits</div>
+        <div class="stat-value">{{ old_visits }}</div>
+        <div class="stat-sub">Return patients this month</div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-label">Revenue Today</div>
+        <div class="stat-value">KSh <span id="revenue-today">{{ revenue_today|floatformat:2 }}</span></div>
+        <div class="stat-sub">Collected payments</div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-label">Outstanding Balance</div>
+        <div class="stat-value">KSh <span id="outstanding">{{ outstanding_balance|floatformat:2 }}</span></div>
+        <div class="stat-sub">Pending payments</div>
+    </div>
+
+    <div class="stat-card warning">
+        <div class="stat-label">Products To Make</div>
+        <div class="stat-value">{{ products_to_make }}</div>
+        <div class="stat-sub">Pending fabrication</div>
+    </div>
+
+    <div class="stat-card success">
+        <div class="stat-label">Products Completed</div>
+        <div class="stat-value">{{ products_completed }}</div>
+        <div class="stat-sub">Made/Fitted</div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Gender Breakdown -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">pie_chart</span>
+                Gender Breakdown
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Child/Adult Breakdown -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">donut_large</span>
+                Child/Adult Breakdown
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Method Breakdown -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">payments</span>
+                Payment Methods
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="paymentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- More Charts -->
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Top 5 Services -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">bar_chart</span>
+                Top 5 Services
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="servicesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 30-Day Revenue Trend -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">trending_up</span>
+                Last 30 Days Revenue
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem;">
+    <!-- Recent Visits -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">event_note</span>
+                Recent Visits
+            </h3>
+            <a href="{% url 'lol_register:visit_list' %}" class="btn btn-sm btn-outline">View All</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visit in recent_visits %}
+                        <tr>
+                            <td>{{ visit.created_at|date:"M d, H:i" }}</td>
+                            <td>
+                                <strong>{{ visit.patient.full_name }}</strong><br>
+                                <small style="color: var(--lol-gray-600);">{{ visit.patient.unique_code }}</small>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge {% if visit.visit_status == 'New' %}badge-success{% else %}badge-secondary{% endif %}">
+                                    {{ visit.visit_status }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'lol_register:visit_detail' visit.pk %}" class="action-link"
+                                    title="View">
+                                    <span class="material-icons">visibility</span>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--lol-gray-600);">No visits recorded
+                                yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <span class="material-icons"
+                    style="color: var(--lol-primary); vertical-align: middle; margin-right: 0.5rem;">payments</span>
+                Recent Payments
+            </h3>
+            <a href="{% url 'lol_register:payment_list' %}" class="btn btn-sm btn-outline">View All</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in recent_payments %}
+                        <tr>
+                            <td>{{ payment.payment_date|date:"M d, H:i" }}</td>
+                            <td>
+                                <strong>{{ payment.visit.patient.full_name }}</strong><br>
+                                <small style="color: var(--lol-gray-600);">{{ payment.visit.patient.unique_code
+                                    }}</small>
+                            </td>
+                            <td>
+                                <strong style="color: var(--lol-success);">KSh {{
+                                    payment.amount_paid|floatformat:2|default:"0.00" }}</strong>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge {% if payment.method == 'LOL-MPESA' %}badge-success{% else %}badge-warning{% endif %}">
+                                    {{ payment.method }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--lol-gray-600);">No payments recorded
+                                yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Chart Colors
+    const chartColors = {
+        primary: '#27baf1',
+        secondary: '#16134a',
+        success: '#4caf50',
+        warning: '#ff9800',
+        danger: '#f44336',
+        info: '#2196f3',
+        purple: '#9c27b0',
+        pink: '#e91e63'
+    };
+
+    // Gender Chart
+    const genderCtx = document.getElementById('genderChart').getContext('2d');
+    new Chart(genderCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ gender_labels| safe }},
+        datasets: [{
+            data: {{ gender_values| safe }},
+        backgroundColor: [chartColors.primary, chartColors.pink],
+        borderWidth: 0
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+    });
+
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ category_labels| safe }},
+        datasets: [{
+            data: {{ category_values| safe }},
+        backgroundColor: [chartColors.warning, chartColors.secondary],
+        borderWidth: 0
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+    });
+
+    // Payment Chart
+    const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+    new Chart(paymentCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ payment_labels| safe }},
+        datasets: [{
+            data: {{ payment_values| safe }},
+        backgroundColor: [chartColors.success, chartColors.warning],
+        borderWidth: 0
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+    });
+
+    // Top Services Chart
+    const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+    new Chart(servicesCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ service_labels| safe }},
+        datasets: [{
+            label: 'Count',
+            data: {{ service_values| safe }},
+        backgroundColor: chartColors.primary,
+        borderRadius: 5
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+    });
+
+    // Revenue Trend Chart
+    const dailyRevenue = {{ daily_revenue| safe }};
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: dailyRevenue.map(d => d.date),
+            datasets: [{
+                label: 'Revenue (KSh)',
+                data: dailyRevenue.map(d => d.revenue),
+                borderColor: chartColors.success,
+                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

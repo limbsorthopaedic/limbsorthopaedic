@@ -1,0 +1,141 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Workshop Order: {{ order.visit_product.product.name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">precision_manufacturing</span>
+        Workshop Order Details
+    </h1>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{% url 'lol_register:workshop_update' order.pk %}" class="btn btn-primary">
+            <span class="material-icons">edit</span>
+            Update Status
+        </a>
+        <a href="{% url 'lol_register:workshop_list' %}" class="btn btn-outline">
+            <span class="material-icons">arrow_back</span>
+            Back
+        </a>
+    </div>
+</div>
+
+<!-- Status Card -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+    <div
+        class="stat-card {% if order.status == 'To Make' %}warning{% elif order.status == 'In Progress' %}info{% elif order.status == 'Made' %}primary{% else %}success{% endif %}">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" style="font-size: 1.25rem;">{{ order.status }}</div>
+    </div>
+    <div class="stat-card secondary">
+        <div class="stat-label">Expected Date</div>
+        <div class="stat-value" style="font-size: 1.25rem;">{{ order.expected_ready_date|date:"M d"|default:"Not Set" }}
+        </div>
+    </div>
+    <div class="stat-card {% if order.completed_date %}success{% else %}warning{% endif %}">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" style="font-size: 1.25rem;">{{ order.completed_date|date:"M d"|default:"Pending" }}
+        </div>
+    </div>
+</div>
+
+<!-- Product Info -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Product Information</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Product</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0; font-size: 1.1rem;">{{ order.visit_product.product.name
+                    }}</p>
+            </div>
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Quantity</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ order.visit_product.quantity }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Unit
+                    Price</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">KSh {{ order.visit_product.price_at_time|floatformat:2
+                    }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Total</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0; color: var(--lol-primary);">KSh {{
+                    order.visit_product.subtotal|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient Info -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Patient Information</h3>
+        <a href="{% url 'lol_register:visit_detail' order.visit_product.visit.pk %}" class="btn btn-sm btn-outline">View
+            Visit</a>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Patient
+                    Code</small>
+                <p style="font-weight: 600; margin: 0.25rem 0 0; color: var(--lol-primary);">{{
+                    order.visit_product.visit.patient.unique_code }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Name</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ order.visit_product.visit.patient.full_name }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Contact</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ order.visit_product.visit.patient.contact }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Visit
+                    Date</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ order.visit_product.visit.created_at|date:"F d, Y"
+                    }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Order Details</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Assigned
+                    To</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{
+                    order.assigned_to.get_full_name|default:order.assigned_to.username|default:"Not Assigned" }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Created</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ order.created_at|date:"F d, Y H:i" }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Last
+                    Updated</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ order.updated_at|date:"F d, Y H:i" }}</p>
+            </div>
+        </div>
+
+        {% if order.notes %}
+        <div style="margin-top: 1.5rem;">
+            <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Notes</small>
+            <p
+                style="margin: 0.25rem 0 0; white-space: pre-wrap; background: var(--lol-gray-100); padding: 1rem; border-radius: 8px;">
+                {{ order.notes }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

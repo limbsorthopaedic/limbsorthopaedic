@@ -1,0 +1,89 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Update Workshop Order{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">edit</span>
+        Update Workshop Order
+    </h1>
+    <a href="{% url 'lol_register:workshop_detail' order.pk %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Order
+    </a>
+</div>
+
+<!-- Product Info -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Order For</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div>
+                <strong style="color: var(--lol-primary);">{{ order.visit_product.visit.patient.unique_code }}</strong>
+                <span style="margin-left: 0.5rem;">{{ order.visit_product.visit.patient.full_name }}</span>
+            </div>
+            <div>
+                <strong>Product:</strong> {{ order.visit_product.product.name }}
+            </div>
+            <div>
+                <strong>Qty:</strong> {{ order.visit_product.quantity }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Update Order Status</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" action="">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Status *</label>
+                    {{ form.status }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Expected Ready Date</label>
+                    {{ form.expected_ready_date }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Completed Date</label>
+                    {{ form.completed_date }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Assigned To</label>
+                {{ form.assigned_to }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                {{ form.notes }}
+            </div>
+
+            <div class="alert alert-info">
+                <span class="material-icons">info</span>
+                Updating status to <strong>Made</strong>, <strong>Fitted</strong>, or <strong>Repaired</strong> will
+                also update the visit product status.
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">save</span>
+                    Save Changes
+                </button>
+                <a href="{% url 'lol_register:workshop_detail' order.pk %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

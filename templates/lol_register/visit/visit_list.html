@@ -1,0 +1,161 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Visits{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">event_note</span>
+        Visits
+    </h1>
+    <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-primary">
+        <span class="material-icons">add</span>
+        New Visit
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card">
+    <div class="card-body">
+        <form method="get" action="">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                <div style="min-width: 200px;">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="q" class="form-control" placeholder="Patient name or code..."
+                        value="{{ search_query }}">
+                </div>
+                <div style="min-width: 150px;">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+                </div>
+                <div style="min-width: 120px;">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="New" {% if status_filter=='New' %}selected{% endif %}>New</option>
+                        <option value="Old" {% if status_filter=='Old' %}selected{% endif %}>Old</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">filter_list</span>
+                    Filter
+                </button>
+                {% if search_query or date_filter or status_filter %}
+                <a href="{% url 'lol_register:visit_list' %}" class="btn btn-outline">
+                    <span class="material-icons">clear</span>
+                    Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Visits Table -->
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Code</th>
+                        <th>Patient Name</th>
+                        <th>Gender</th>
+                        <th>Age</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                        <th>Balance</th>
+                        <th>Created By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.created_at|date:"M d, Y H:i" }}</td>
+                        <td><strong style="color: var(--lol-primary);">{{ visit.patient.unique_code }}</strong></td>
+                        <td>{{ visit.snapshot_full_name }}</td>
+                        <td>
+                            <span
+                                class="badge {% if visit.snapshot_gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">
+                                {{ visit.snapshot_gender }}
+                            </span>
+                        </td>
+                        <td>{{ visit.snapshot_age_years }}y {{ visit.snapshot_age_months }}m</td>
+                        <td>
+                            <span
+                                class="badge {% if visit.visit_status == 'New' %}badge-success{% else %}badge-secondary{% endif %}">
+                                {{ visit.visit_status }}
+                            </span>
+                        </td>
+                        <td><strong>KSh {{ visit.total_amount|floatformat:2 }}</strong></td>
+                        <td>
+                            {% if visit.outstanding_balance > 0 %}
+                            <span style="color: var(--lol-danger);">KSh {{ visit.outstanding_balance|floatformat:2
+                                }}</span>
+                            {% else %}
+                            <span style="color: var(--lol-success);">Paid</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ visit.created_by.get_full_name|default:visit.created_by.username|default:"-" }}</td>
+                        <td style="white-space: nowrap;">
+                            <a href="{% url 'lol_register:visit_detail' visit.pk %}" class="action-link" title="View">
+                                <span class="material-icons">visibility</span>
+                            </a>
+                            <a href="{% url 'lol_register:visit_update_clinician' visit.pk %}" class="action-link"
+                                title="Edit">
+                                <span class="material-icons">edit</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 3rem; color: var(--lol-gray-600);">
+                            <span class="material-icons"
+                                style="font-size: 3rem; display: block; margin-bottom: 1rem;">event_busy</span>
+                            No visits found.
+                            <br><br>
+                            <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-primary">Create First
+                                Visit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if visits.has_other_pages %}
+<nav class="pagination">
+    {% if visits.has_previous %}
+    <a
+        href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo;
+        First</a>
+    <a
+        href="?page={{ visits.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&lsaquo;
+        Prev</a>
+    {% endif %}
+
+    {% for num in visits.paginator.page_range %}
+    {% if visits.number == num %}
+    <span class="active"><span>{{ num }}</span></span>
+    {% elif num > visits.number|add:'-3' and num < visits.number|add:'3' %} <a
+        href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+        {{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if visits.has_next %}
+        <a
+            href="?page={{ visits.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next
+            &rsaquo;</a>
+        <a
+            href="?page={{ visits.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Last
+            &raquo;</a>
+        {% endif %}
+</nav>
+{% endif %}
+{% endblock %}

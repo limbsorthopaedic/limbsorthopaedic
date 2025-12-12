@@ -1,0 +1,171 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Workshop Orders{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">precision_manufacturing</span>
+        Workshop Orders
+    </h1>
+    <a href="{% url 'lol_register:workshop_create' %}" class="btn btn-primary">
+        <span class="material-icons">add</span>
+        New Order
+    </a>
+</div>
+
+<!-- Summary Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="stat-card warning">
+        <div class="stat-label">To Make</div>
+        <div class="stat-value">{{ to_make }}</div>
+    </div>
+    <div class="stat-card info">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value">{{ in_progress }}</div>
+    </div>
+    <div class="stat-card primary">
+        <div class="stat-label">Made</div>
+        <div class="stat-value">{{ made }}</div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-label">Fitted</div>
+        <div class="stat-value">{{ fitted }}</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card">
+    <div class="card-body">
+        <form method="get" action="">
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                <div style="min-width: 200px;">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="q" class="form-control" placeholder="Patient or product..."
+                        value="{{ search_query }}">
+                </div>
+                <div style="min-width: 150px;">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="To Make" {% if status_filter=='To Make' %}selected{% endif %}>To Make</option>
+                        <option value="In Progress" {% if status_filter=='In Progress' %}selected{% endif %}>In Progress
+                        </option>
+                        <option value="Made" {% if status_filter=='Made' %}selected{% endif %}>Made</option>
+                        <option value="Fitted" {% if status_filter=='Fitted' %}selected{% endif %}>Fitted</option>
+                        <option value="Repaired" {% if status_filter=='Repaired' %}selected{% endif %}>Repaired</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">filter_list</span>
+                    Filter
+                </button>
+                {% if search_query or status_filter %}
+                <a href="{% url 'lol_register:workshop_list' %}" class="btn btn-outline">
+                    <span class="material-icons">clear</span>
+                    Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th>Expected Date</th>
+                        <th>Completed</th>
+                        <th>Assigned To</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <strong style="color: var(--lol-primary);">{{ order.visit_product.visit.patient.unique_code
+                                }}</strong><br>
+                            <small>{{ order.visit_product.visit.patient.full_name }}</small>
+                        </td>
+                        <td>{{ order.visit_product.product.name }}</td>
+                        <td>{{ order.visit_product.quantity }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if order.status == 'To Make' %}badge-warning
+                                {% elif order.status == 'In Progress' %}badge-info
+                                {% elif order.status == 'Made' %}badge-primary
+                                {% elif order.status == 'Fitted' %}badge-success
+                                {% else %}badge-secondary{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>{{ order.expected_ready_date|date:"M d, Y"|default:"-" }}</td>
+                        <td>{{ order.completed_date|date:"M d, Y"|default:"-" }}</td>
+                        <td>{{ order.assigned_to.get_full_name|default:order.assigned_to.username|default:"-" }}</td>
+                        <td style="white-space: nowrap;">
+                            <a href="{% url 'lol_register:workshop_detail' order.pk %}" class="action-link"
+                                title="View">
+                                <span class="material-icons">visibility</span>
+                            </a>
+                            <a href="{% url 'lol_register:workshop_update' order.pk %}" class="action-link"
+                                title="Edit">
+                                <span class="material-icons">edit</span>
+                            </a>
+                            <a href="{% url 'lol_register:visit_detail' order.visit_product.visit.pk %}"
+                                class="action-link" title="View Visit" style="color: var(--lol-success);">
+                                <span class="material-icons">event_note</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--lol-gray-600);">
+                            <span class="material-icons"
+                                style="font-size: 3rem; display: block; margin-bottom: 1rem;">precision_manufacturing</span>
+                            No workshop orders found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if orders.has_other_pages %}
+<nav class="pagination">
+    {% if orders.has_previous %}
+    <a
+        href="?page=1{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&laquo;</a>
+    <a
+        href="?page={{ orders.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&lsaquo;</a>
+    {% endif %}
+
+    {% for num in orders.paginator.page_range %}
+    {% if orders.number == num %}
+    <span class="active"><span>{{ num }}</span></span>
+    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %} <a
+        href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+        {{ num }}</a>
+        {% endif %}
+        {% endfor %}
+
+        {% if orders.has_next %}
+        <a
+            href="?page={{ orders.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&rsaquo;</a>
+        <a
+            href="?page={{ orders.paginator.num_pages }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">&raquo;</a>
+        {% endif %}
+</nav>
+{% endif %}
+{% endblock %}

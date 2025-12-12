@@ -1,0 +1,173 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Patient: {{ patient.full_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">person</span>
+        {{ patient.full_name }}
+    </h1>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{% url 'lol_register:visit_create_step2' patient.pk %}" class="btn btn-success">
+            <span class="material-icons">add</span>
+            New Visit
+        </a>
+        <a href="{% url 'lol_register:patient_update' patient.pk %}" class="btn btn-primary">
+            <span class="material-icons">edit</span>
+            Edit
+        </a>
+        <a href="{% url 'lol_register:patient_list' %}" class="btn btn-outline">
+            <span class="material-icons">arrow_back</span>
+            Back
+        </a>
+    </div>
+</div>
+
+<!-- Patient Info Card -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Patient Information</h3>
+        <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ patient.unique_code
+            }}</span>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Full
+                    Name</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.full_name }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Gender</small>
+                <p style="margin: 0.25rem 0 0;">
+                    <span class="badge {% if patient.gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">
+                        {{ patient.gender }}
+                    </span>
+                </p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Age</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.age_years }} years {{ patient.age_months }}
+                    months</p>
+            </div>
+
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Category</small>
+                <p style="margin: 0.25rem 0 0;">
+                    <span
+                        class="badge {% if patient.child_or_adult == 'Child' %}badge-warning{% else %}badge-secondary{% endif %}">
+                        {{ patient.child_or_adult }}
+                    </span>
+                </p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Brought
+                    By</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.brought_by|default:"-" }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Primary
+                    Contact</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.contact }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Alternative
+                    Contact</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.alt_contact|default:"-" }}</p>
+            </div>
+
+            <div>
+                <small
+                    style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Residence</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.residence }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Info
+                    Source</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.info_source|default:"-" }}</p>
+            </div>
+
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Registered
+                    On</small>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.created_at|date:"F d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visit History -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">event_note</span>
+            Visit History
+        </h3>
+        <span class="badge badge-secondary">{{ patient.visits.count }} visits</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Diagnosis</th>
+                        <th>Total Amount</th>
+                        <th>Balance</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span
+                                class="badge {% if visit.visit_status == 'New' %}badge-success{% else %}badge-secondary{% endif %}">
+                                {{ visit.visit_status }}
+                            </span>
+                        </td>
+                        <td>{{ visit.diagnosis|truncatechars:30|default:"-" }}</td>
+                        <td><strong>KSh {{ visit.total_amount|floatformat:2 }}</strong></td>
+                        <td>
+                            {% if visit.outstanding_balance > 0 %}
+                            <span style="color: var(--lol-danger);">KSh {{ visit.outstanding_balance|floatformat:2
+                                }}</span>
+                            {% else %}
+                            <span style="color: var(--lol-success);">Paid</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'lol_register:visit_detail' visit.pk %}" class="action-link" title="View">
+                                <span class="material-icons">visibility</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No visits recorded yet.
+                            <br><br>
+                            <a href="{% url 'lol_register:visit_create_step2' patient.pk %}" class="btn btn-success">
+                                <span class="material-icons">add</span>
+                                Create First Visit
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

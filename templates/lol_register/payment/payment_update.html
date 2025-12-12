@@ -1,0 +1,71 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Edit Payment{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">edit</span>
+        Edit Payment
+    </h1>
+    <a href="{% url 'lol_register:payment_list' %}" class="btn btn-outline">
+        <span class="material-icons">arrow_back</span>
+        Back to Cash Book
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Payment Details</h3>
+        <span class="badge badge-primary">{{ payment.visit.patient.unique_code }}</span>
+    </div>
+    <div class="card-body">
+        <form method="post" action="">
+            {% csrf_token %}
+
+            <div class="alert alert-info">
+                <span class="material-icons">info</span>
+                Payment for <strong>{{ payment.visit.patient.full_name }}</strong> - Visit: {{
+                payment.visit.created_at|date:"M d, Y" }}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Payment Method *</label>
+                    {{ form.method }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Expected Payment *</label>
+                    {{ form.expected_pay }}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Amount Paid</label>
+                    {{ form.amount_paid }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">M-Pesa Transaction ID</label>
+                    {{ form.mpesa_transaction_id }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Paid By</label>
+                {{ form.paid_by }}
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">save</span>
+                    Save Changes
+                </button>
+                <a href="{% url 'lol_register:payment_list' %}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
