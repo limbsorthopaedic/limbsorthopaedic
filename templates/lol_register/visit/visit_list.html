@@ -32,8 +32,8 @@
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All</option>
-                        <option value="New" {% if status_filter=='New' %}selected{% endif %}>New</option>
-                        <option value="Old" {% if status_filter=='Old' %}selected{% endif %}>Old</option>
+                        <option value="New" {% if status_filter == 'New' %}selected{% endif %}>New</option>
+                        <option value="Old" {% if status_filter == 'Old' %}selected{% endif %}>Old</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">

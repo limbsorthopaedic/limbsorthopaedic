@@ -48,12 +48,12 @@
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All</option>
-                        <option value="To Make" {% if status_filter=='To Make' %}selected{% endif %}>To Make</option>
-                        <option value="In Progress" {% if status_filter=='In Progress' %}selected{% endif %}>In Progress
+                        <option value="To Make" {% if status_filter == 'To Make' %}selected{% endif %}>To Make</option>
+                        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress
                         </option>
-                        <option value="Made" {% if status_filter=='Made' %}selected{% endif %}>Made</option>
-                        <option value="Fitted" {% if status_filter=='Fitted' %}selected{% endif %}>Fitted</option>
-                        <option value="Repaired" {% if status_filter=='Repaired' %}selected{% endif %}>Repaired</option>
+                        <option value="Made" {% if status_filter == 'Made' %}selected{% endif %}>Made</option>
+                        <option value="Fitted" {% if status_filter == 'Fitted' %}selected{% endif %}>Fitted</option>
+                        <option value="Repaired" {% if status_filter == 'Repaired' %}selected{% endif %}>Repaired</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">

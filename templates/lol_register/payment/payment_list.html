@@ -48,9 +48,9 @@
                     <label class="form-label">Method</label>
                     <select name="method" class="form-select">
                         <option value="">All</option>
-                        <option value="LOL-MPESA" {% if method_filter=='LOL-MPESA' %}selected{% endif %}>LOL-MPESA
+                        <option value="LOL-MPESA" {% if method_filter == 'LOL-MPESA' %}selected{% endif %}>LOL-MPESA
                         </option>
-                        <option value="LOL-CASH" {% if method_filter=='LOL-CASH' %}selected{% endif %}>LOL-CASH</option>
+                        <option value="LOL-CASH" {% if method_filter == 'LOL-CASH' %}selected{% endif %}>LOL-CASH</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">
