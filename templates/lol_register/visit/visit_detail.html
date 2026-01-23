@@ -66,8 +66,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
             <div>
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Code</small>
-                <p style="font-weight: 600; margin: 0.25rem 0 0; color: var(--lol-primary);">{{
-                    visit.patient.unique_code }}</p>
+                <p style="font-weight: 600; margin: 0.25rem 0 0; color: var(--lol-primary);">{{ visit.patient.unique_code }}</p>
             </div>
             <div>
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Full
@@ -78,22 +77,19 @@
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Gender</small>
                 <p style="margin: 0.25rem 0 0;">
                     <span
-                        class="badge {% if visit.snapshot_gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">{{
-                        visit.snapshot_gender }}</span>
+                        class="badge {% if visit.snapshot_gender == 'Male' %}badge-primary{% else %}badge-danger{% endif %}">{{ visit.snapshot_gender }}</span>
                 </p>
             </div>
             <div>
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Age</small>
-                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_age_years }}y {{
-                    visit.snapshot_age_months }}m</p>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.snapshot_age_years }}y {{ visit.snapshot_age_months }}m</p>
             </div>
             <div>
                 <small
                     style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Category</small>
                 <p style="margin: 0.25rem 0 0;">
                     <span
-                        class="badge {% if visit.snapshot_child_or_adult == 'Child' %}badge-warning{% else %}badge-secondary{% endif %}">{{
-                        visit.snapshot_child_or_adult }}</span>
+                        class="badge {% if visit.snapshot_child_or_adult == 'Child' %}badge-warning{% else %}badge-secondary{% endif %}">{{ visit.snapshot_child_or_adult }}</span>
                 </p>
             </div>
             <div>
@@ -137,14 +133,12 @@
             <div>
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Treatment
                     Notes</small>
-                <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.treatment_notes|default:"Not recorded"
-                    }}</p>
+                <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.treatment_notes|default:"Not recorded" }}</p>
             </div>
             <div>
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Next
                     Visit</small>
-                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.next_visit|date:"F d, Y"|default:"Not
-                    scheduled" }}</p>
+                <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ visit.next_visit|date:"F d, Y"|default:"Not scheduled" }}</p>
             </div>
         </div>
     </div>
@@ -226,8 +220,7 @@
                 <tfoot>
                     <tr style="background: var(--lol-gray-100);">
                         <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
-                        <td colspan="3"><strong style="color: var(--lol-primary);">KSh {{
-                                visit.total_amount|floatformat:2 }}</strong></td>
+                        <td colspan="3"><strong style="color: var(--lol-primary);">KSh {{ visit.total_amount|floatformat:2 }}</strong></td>
                     </tr>
                 </tfoot>
                 {% endif %}
@@ -274,8 +267,7 @@
                             </span>
                         </td>
                         <td>KSh {{ payment.expected_pay|floatformat:2 }}</td>
-                        <td><strong style="color: var(--lol-success);">KSh {{
-                                payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
+                        <td><strong style="color: var(--lol-success);">KSh {{ payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
                         <td>
                             {% if payment.balance > 0 %}
                             <span style="color: var(--lol-danger);">KSh {{ payment.balance|floatformat:2 }}</span>
@@ -301,8 +293,7 @@
                         </td>
                         <td colspan="3">
                             {% if visit.outstanding_balance > 0 %}
-                            <strong style="color: var(--lol-danger);">Balance: KSh {{
-                                visit.outstanding_balance|floatformat:2 }}</strong>
+                            <strong style="color: var(--lol-danger);">Balance: KSh {{ visit.outstanding_balance|floatformat:2 }}</strong>
                             {% else %}
                             <strong style="color: var(--lol-success);">Fully Paid</strong>
                             {% endif %}
@@ -332,8 +323,7 @@
                 <select name="product" class="form-select" required id="modal-product-select">
                     <option value="">Select a product...</option>
                     {% for product in products %}
-                    <option value="{{ product.pk }}" data-price="{{ product.price }}">{{ product.name }} - KSh {{
-                        product.price|floatformat:2 }}</option>
+                    <option value="{{ product.pk }}" data-price="{{ product.price }}">{{ product.name }} - KSh {{ product.price|floatformat:2 }}</option>
                     {% endfor %}
                 </select>
             </div>

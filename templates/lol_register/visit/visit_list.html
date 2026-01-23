@@ -92,8 +92,7 @@
                         <td><strong>KSh {{ visit.total_amount|floatformat:2 }}</strong></td>
                         <td>
                             {% if visit.outstanding_balance > 0 %}
-                            <span style="color: var(--lol-danger);">KSh {{ visit.outstanding_balance|floatformat:2
-                                }}</span>
+                            <span style="color: var(--lol-danger);">KSh {{ visit.outstanding_balance|floatformat:2 }}</span>
                             {% else %}
                             <span style="color: var(--lol-success);">Paid</span>
                             {% endif %}
@@ -116,8 +115,7 @@
                                 style="font-size: 3rem; display: block; margin-bottom: 1rem;">event_busy</span>
                             No visits found.
                             <br><br>
-                            <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-primary">Create First
-                                Visit</a>
+                            <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-primary">Create First Visit</a>
                         </td>
                     </tr>
                     {% endfor %}

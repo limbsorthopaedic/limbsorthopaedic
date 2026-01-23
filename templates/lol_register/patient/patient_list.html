@@ -20,8 +20,7 @@
         <form method="get" action="">
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 250px;">
-                    <input type="text" name="q" class="form-control" placeholder="Search by name, code, or phone..."
-                        value="{{ search_query }}">
+                    <input type="text" name="q" class="form-control" placeholder="Search by name, code, or phone..." value="{{ search_query }}">
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <span class="material-icons">search</span>
@@ -78,16 +77,13 @@
                         <td>{{ patient.residence|truncatechars:20 }}</td>
                         <td>{{ patient.created_at|date:"M d, Y" }}</td>
                         <td style="white-space: nowrap;">
-                            <a href="{% url 'lol_register:patient_detail' patient.pk %}" class="action-link"
-                                title="View">
+                            <a href="{% url 'lol_register:patient_detail' patient.pk %}" class="action-link" title="View">
                                 <span class="material-icons">visibility</span>
                             </a>
-                            <a href="{% url 'lol_register:patient_update' patient.pk %}" class="action-link"
-                                title="Edit">
+                            <a href="{% url 'lol_register:patient_update' patient.pk %}" class="action-link" title="Edit">
                                 <span class="material-icons">edit</span>
                             </a>
-                            <a href="{% url 'lol_register:visit_create_step2' patient.pk %}" class="action-link"
-                                title="New Visit" style="color: var(--lol-success);">
+                            <a href="{% url 'lol_register:visit_create_step2' patient.pk %}" class="action-link" title="New Visit" style="color: var(--lol-success);">
                                 <span class="material-icons">add_circle</span>
                             </a>
                         </td>
@@ -99,8 +95,7 @@
                                 style="font-size: 3rem; display: block; margin-bottom: 1rem;">person_off</span>
                             No patients found.
                             <br><br>
-                            <a href="{% url 'lol_register:patient_create' %}" class="btn btn-primary">Register First
-                                Patient</a>
+                            <a href="{% url 'lol_register:patient_create' %}" class="btn btn-primary">Register First Patient</a>
                         </td>
                     </tr>
                     {% endfor %}

@@ -61,8 +61,7 @@
                 <select name="visit" class="form-select" required>
                     <option value="">Select a visit...</option>
                     {% for v in visits %}
-                    <option value="{{ v.pk }}">{{ v.patient.unique_code }} - {{ v.patient.full_name }} ({{
-                        v.created_at|date:"M d, Y" }})</option>
+                    <option value="{{ v.pk }}">{{ v.patient.unique_code }} - {{ v.patient.full_name }} ({{ v.created_at|date:"M d, Y" }})</option>
                     {% endfor %}
                 </select>
             </div>

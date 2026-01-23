@@ -41,16 +41,14 @@
             <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
                 <div style="min-width: 200px;">
                     <label class="form-label">Search</label>
-                    <input type="text" name="q" class="form-control" placeholder="Patient or product..."
-                        value="{{ search_query }}">
+                    <input type="text" name="q" class="form-control" placeholder="Patient or product..." value="{{ search_query }}">
                 </div>
                 <div style="min-width: 150px;">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All</option>
                         <option value="To Make" {% if status_filter == 'To Make' %}selected{% endif %}>To Make</option>
-                        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress
-                        </option>
+                        <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
                         <option value="Made" {% if status_filter == 'Made' %}selected{% endif %}>Made</option>
                         <option value="Fitted" {% if status_filter == 'Fitted' %}selected{% endif %}>Fitted</option>
                         <option value="Repaired" {% if status_filter == 'Repaired' %}selected{% endif %}>Repaired</option>
@@ -92,8 +90,7 @@
                     {% for order in orders %}
                     <tr>
                         <td>
-                            <strong style="color: var(--lol-primary);">{{ order.visit_product.visit.patient.unique_code
-                                }}</strong><br>
+                            <strong style="color: var(--lol-primary);">{{ order.visit_product.visit.patient.unique_code }}</strong><br>
                             <small>{{ order.visit_product.visit.patient.full_name }}</small>
                         </td>
                         <td>{{ order.visit_product.product.name }}</td>
@@ -112,16 +109,13 @@
                         <td>{{ order.completed_date|date:"M d, Y"|default:"-" }}</td>
                         <td>{{ order.assigned_to.get_full_name|default:order.assigned_to.username|default:"-" }}</td>
                         <td style="white-space: nowrap;">
-                            <a href="{% url 'lol_register:workshop_detail' order.pk %}" class="action-link"
-                                title="View">
+                            <a href="{% url 'lol_register:workshop_detail' order.pk %}" class="action-link" title="View">
                                 <span class="material-icons">visibility</span>
                             </a>
-                            <a href="{% url 'lol_register:workshop_update' order.pk %}" class="action-link"
-                                title="Edit">
+                            <a href="{% url 'lol_register:workshop_update' order.pk %}" class="action-link" title="Edit">
                                 <span class="material-icons">edit</span>
                             </a>
-                            <a href="{% url 'lol_register:visit_detail' order.visit_product.visit.pk %}"
-                                class="action-link" title="View Visit" style="color: var(--lol-success);">
+                            <a href="{% url 'lol_register:visit_detail' order.visit_product.visit.pk %}" class="action-link" title="View Visit" style="color: var(--lol-success);">
                                 <span class="material-icons">event_note</span>
                             </a>
                         </td>

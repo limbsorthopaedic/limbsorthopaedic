@@ -37,8 +37,7 @@
             <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
                 <div style="min-width: 200px;">
                     <label class="form-label">Search</label>
-                    <input type="text" name="q" class="form-control" placeholder="Patient or M-Pesa ID..."
-                        value="{{ search_query }}">
+                    <input type="text" name="q" class="form-control" placeholder="Patient or M-Pesa ID..." value="{{ search_query }}">
                 </div>
                 <div style="min-width: 150px;">
                     <label class="form-label">Date</label>
@@ -48,8 +47,7 @@
                     <label class="form-label">Method</label>
                     <select name="method" class="form-select">
                         <option value="">All</option>
-                        <option value="LOL-MPESA" {% if method_filter == 'LOL-MPESA' %}selected{% endif %}>LOL-MPESA
-                        </option>
+                        <option value="LOL-MPESA" {% if method_filter == 'LOL-MPESA' %}selected{% endif %}>LOL-MPESA</option>
                         <option value="LOL-CASH" {% if method_filter == 'LOL-CASH' %}selected{% endif %}>LOL-CASH</option>
                     </select>
                 </div>
@@ -101,8 +99,7 @@
                             </span>
                         </td>
                         <td>KSh {{ payment.expected_pay|floatformat:2 }}</td>
-                        <td><strong style="color: var(--lol-success);">KSh {{
-                                payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
+                        <td><strong style="color: var(--lol-success);">KSh {{ payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
                         <td>
                             {% if payment.balance > 0 %}
                             <span style="color: var(--lol-danger);">KSh {{ payment.balance|floatformat:2 }}</span>
@@ -113,12 +110,10 @@
                         <td>{{ payment.mpesa_transaction_id|default:"-" }}</td>
                         <td>{{ payment.paid_by|default:"-" }}</td>
                         <td style="white-space: nowrap;">
-                            <a href="{% url 'lol_register:visit_detail' payment.visit.pk %}" class="action-link"
-                                title="View Visit">
+                            <a href="{% url 'lol_register:visit_detail' payment.visit.pk %}" class="action-link" title="View Visit">
                                 <span class="material-icons">visibility</span>
                             </a>
-                            <a href="{% url 'lol_register:payment_update' payment.pk %}" class="action-link"
-                                title="Edit">
+                            <a href="{% url 'lol_register:payment_update' payment.pk %}" class="action-link" title="Edit">
                                 <span class="material-icons">edit</span>
                             </a>
                         </td>
