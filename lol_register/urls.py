@@ -16,6 +16,7 @@ urlpatterns = [
     
     # Visits
     path('visits/', views.visit_list, name='visit_list'),
+    path('visits/upcoming/', views.upcoming_visits, name='upcoming_visits'),
     path('visits/create/', views.visit_create_step1, name='visit_create_step1'),
     path('visits/create/<int:patient_id>/', views.visit_create_step2, name='visit_create_step2'),
     path('visits/<int:pk>/', views.visit_detail, name='visit_detail'),

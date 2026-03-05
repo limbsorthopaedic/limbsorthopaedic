@@ -45,6 +45,12 @@ def dashboard(request):
         visit_status='Old'
     ).count()
     
+    # Upcoming visits statistic
+    upcoming_visits_count = Visit.objects.filter(
+        next_visit__isnull=False,
+        next_visit__gte=today
+    ).count()
+    
     # Revenue statistics
     revenue_today = LOLPayment.objects.filter(
         payment_date__date=today
@@ -111,6 +117,7 @@ def dashboard(request):
         'visits_month': visits_month,
         'new_visits': new_visits,
         'old_visits': old_visits,
+        'upcoming_visits_count': upcoming_visits_count,
         'revenue_today': float(revenue_today),
         'outstanding_balance': float(outstanding_balance),
         'products_to_make': products_to_make,
@@ -279,6 +286,52 @@ def visit_list(request):
     }
     
     return render(request, 'lol_register/visit/visit_list.html', context)
+
+
+@staff_member_required
+def upcoming_visits(request):
+    """List all future scheduled visits"""
+    today = timezone.now().date()
+    
+    # Base query: visits where next_visit is set and is >= today
+    visits = Visit.objects.filter(
+        next_visit__isnull=False,
+        next_visit__gte=today
+    ).select_related('patient', 'created_by').order_by('next_visit')
+    
+    # Filter by date range
+    range_filter = request.GET.get('range', '')
+    if range_filter == 'today':
+        visits = visits.filter(next_visit=today)
+    elif range_filter == 'tomorrow':
+        visits = visits.filter(next_visit=today + timedelta(days=1))
+    elif range_filter == 'week':
+        visits = visits.filter(next_visit__lte=today + timedelta(days=7))
+    elif range_filter == 'month':
+        visits = visits.filter(next_visit__lte=today + timedelta(days=30))
+        
+    # Search
+    search_query = request.GET.get('q', '')
+    if search_query:
+        visits = visits.filter(
+            Q(patient__full_name__icontains=search_query) |
+            Q(patient__unique_code__icontains=search_query) |
+            Q(patient__contact__icontains=search_query)
+        )
+        
+    # Pagination
+    paginator = Paginator(visits, 25)
+    page = request.GET.get('page')
+    visits = paginator.get_page(page)
+    
+    context = {
+        'title': 'Upcoming Visits',
+        'visits': visits,
+        'search_query': search_query,
+        'range_filter': range_filter,
+    }
+    
+    return render(request, 'lol_register/visit/upcoming_visits.html', context)
 
 
 @staff_member_required

@@ -1,0 +1,159 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}Upcoming Visits{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">event_available</span>
+        Upcoming Visits
+    </h1>
+    <a href="{% url 'lol_register:visit_create_step1' %}" class="btn btn-primary">
+        <span class="material-icons">add</span>
+        New Visit
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Filter Upcoming Visits</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" class="form-row" style="align-items: flex-end;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Search Query</label>
+                <input type="text" name="q" class="form-control" placeholder="Search name, code, or phone..."
+                    value="{{ search_query }}">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Timeframe</label>
+                <select name="range" class="form-select">
+                    <option value="" {% if not range_filter %}selected{% endif %}>All Upcoming</option>
+                    <option value="today" {% if range_filter=='today' %}selected{% endif %}>Today</option>
+                    <option value="tomorrow" {% if range_filter=='tomorrow' %}selected{% endif %}>Tomorrow</option>
+                    <option value="week" {% if range_filter=='week' %}selected{% endif %}>Next 7 Days</option>
+                    <option value="month" {% if range_filter=='month' %}selected{% endif %}>Next 30 Days</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <button type="submit" class="btn btn-primary" style="height: 40px;">
+                    <span class="material-icons">search</span> Filter
+                </button>
+                <a href="{% url 'lol_register:upcoming_visits' %}" class="btn btn-outline"
+                    style="height: 40px; margin-left: 0.5rem;">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Scheduled Date</th>
+                    <th>Patient Code</th>
+                    <th>Patient Name</th>
+                    <th>Contact Info</th>
+                    <th>Last Diagnosis / Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for visit in visits %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 500; color: var(--lol-primary);">
+                            {{ visit.next_visit|date:"D, M d, Y" }}
+                        </div>
+                    </td>
+                    <td><span class="badge badge-secondary">{{ visit.patient.unique_code }}</span></td>
+                    <td>{{ visit.patient.full_name }}</td>
+                    <td>
+                        <div>
+                            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">phone</span>
+                            <a href="tel:{{ visit.patient.contact }}" style="text-decoration: none; color: inherit;">{{
+                                visit.patient.contact }}</a>
+                        </div>
+                        {% if visit.patient.alt_contact %}
+                        <div style="font-size: 0.85em; color: var(--lol-gray-600);">
+                            <span class="material-icons" style="font-size: 12px; vertical-align: middle;">phone</span>
+                            <a href="tel:{{ visit.patient.alt_contact }}"
+                                style="text-decoration: none; color: inherit;">{{ visit.patient.alt_contact }}</a>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if visit.diagnosis %}
+                        <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <strong>Dx:</strong> {{ visit.diagnosis }}
+                        </div>
+                        {% endif %}
+                        {% if visit.treatment_notes %}
+                        <div
+                            style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9em; color: var(--lol-gray-600);">
+                            <strong>Tx:</strong> {{ visit.treatment_notes }}
+                        </div>
+                        {% endif %}
+                        {% if not visit.diagnosis and not visit.treatment_notes %}
+                        <span style="color: var(--lol-gray-600); font-style: italic;">No notes recorded</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'lol_register:visit_detail' visit.pk %}" class="action-link"
+                            title="View Past Visit Details">
+                            <span class="material-icons">visibility</span>
+                        </a>
+                        <a href="{% url 'lol_register:patient_detail' visit.patient.pk %}" class="action-link"
+                            title="View Patient Profile" style="color: var(--lol-secondary);">
+                            <span class="material-icons">person</span>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem;">
+                        <span class="material-icons"
+                            style="font-size: 3rem; color: var(--lol-gray-300); display: block; margin-bottom: 1rem;">event_available</span>
+                        <p style="color: var(--lol-gray-600);">No upcoming visits found matching your criteria.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if visits.has_other_pages %}
+<ul class="pagination">
+    {% if visits.has_previous %}
+    <li><a
+            href="?page={{ visits.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if range_filter %}&range={{ range_filter }}{% endif %}">&laquo;</a>
+    </li>
+    {% else %}
+    <li class="disabled"><span>&laquo;</span></li>
+    {% endif %}
+
+    {% for i in visits.paginator.page_range %}
+    {% if visits.number == i %}
+    <li class="active"><span>{{ i }}</span></li>
+    {% else %}
+    <li><a
+            href="?page={{ i }}{% if search_query %}&q={{ search_query }}{% endif %}{% if range_filter %}&range={{ range_filter }}{% endif %}">{{
+            i }}</a></li>
+    {% endif %}
+    {% endfor %}
+
+    {% if visits.has_next %}
+    <li><a
+            href="?page={{ visits.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if range_filter %}&range={{ range_filter }}{% endif %}">&raquo;</a>
+    </li>
+    {% else %}
+    <li class="disabled"><span>&raquo;</span></li>
+    {% endif %}
+</ul>
+{% endif %}
+
+{% endblock %}

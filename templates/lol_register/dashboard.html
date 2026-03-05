@@ -52,6 +52,16 @@
         <div class="stat-sub">Return patients this month</div>
     </div>
 
+    <div class="stat-card" style="border-left-color: var(--lol-purple);">
+        <div class="stat-label">Upcoming Visits</div>
+        <div class="stat-value">
+            <a href="{% url 'lol_register:upcoming_visits' %}" style="text-decoration: none; color: inherit;">
+                {{ upcoming_visits_count|default:"0" }}
+            </a>
+        </div>
+        <div class="stat-sub">Scheduled for future dates</div>
+    </div>
+
     <div class="stat-card success">
         <div class="stat-label">Revenue Today</div>
         <div class="stat-value">KSh <span id="revenue-today">{{ revenue_today|floatformat:2 }}</span></div>
@@ -248,10 +258,12 @@
                             <td>{{ payment.payment_date|date:"M d, H:i" }}</td>
                             <td>
                                 <strong>{{ payment.visit.patient.full_name }}</strong><br>
-                                <small style="color: var(--lol-gray-600);">{{ payment.visit.patient.unique_code }}</small>
+                                <small style="color: var(--lol-gray-600);">{{ payment.visit.patient.unique_code
+                                    }}</small>
                             </td>
                             <td>
-                                <strong style="color: var(--lol-success);">KSh {{ payment.amount_paid|floatformat:2|default:"0.00" }}</strong>
+                                <strong style="color: var(--lol-success);">KSh {{
+                                    payment.amount_paid|floatformat:2|default:"0.00" }}</strong>
                             </td>
                             <td>
                                 <span
@@ -262,7 +274,8 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" style="text-align: center; color: var(--lol-gray-600);">No payments recorded yet.</td>
+                            <td colspan="4" style="text-align: center; color: var(--lol-gray-600);">No payments recorded
+                                yet.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
