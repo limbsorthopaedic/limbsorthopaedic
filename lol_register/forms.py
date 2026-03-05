@@ -9,7 +9,7 @@ class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
         fields = [
-            'full_name', 'gender', 'age_years', 'age_months', 
+            'full_name', 'gender', 'date_of_birth', 
             'child_or_adult', 'brought_by', 'contact', 'alt_contact',
             'residence', 'info_source'
         ]
@@ -21,16 +21,9 @@ class PatientForm(forms.ModelForm):
             'gender': forms.Select(attrs={
                 'class': 'form-select'
             }),
-            'age_years': forms.NumberInput(attrs={
+            'date_of_birth': forms.DateInput(attrs={
                 'class': 'form-control',
-                'min': 0,
-                'placeholder': 'Years'
-            }),
-            'age_months': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 0,
-                'max': 11,
-                'placeholder': 'Months'
+                'type': 'date'
             }),
             'child_or_adult': forms.Select(attrs={
                 'class': 'form-select'

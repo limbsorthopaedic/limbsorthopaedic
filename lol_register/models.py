@@ -37,8 +37,7 @@ class Patient(models.Model):
     
     full_name = models.CharField(max_length=255)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    age_years = models.PositiveIntegerField(default=0)
-    age_months = models.PositiveIntegerField(default=0)
+    date_of_birth = models.DateField(verbose_name="Date of Birth", blank=True, null=True)
     child_or_adult = models.CharField(max_length=10, choices=CATEGORY_CHOICES)
     brought_by = models.CharField(max_length=255, blank=True, null=True)
     contact = models.CharField(max_length=20)
@@ -61,6 +60,25 @@ class Patient(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.unique_code})"
+
+    @property
+    def age_years(self):
+        if self.date_of_birth:
+            today = timezone.now().date()
+            return today.year - self.date_of_birth.year - ((today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day))
+        return 0
+
+    @property
+    def age_months(self):
+        if self.date_of_birth:
+            today = timezone.now().date()
+            months = today.month - self.date_of_birth.month
+            if today.day < self.date_of_birth.day:
+                months -= 1
+            if months < 0:
+                months += 12
+            return months
+        return 0
 
     def save(self, *args, **kwargs):
         if not self.unique_code:

@@ -40,13 +40,11 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Age (Years) *</label>
-                    {{ form.age_years }}
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Age (Months)</label>
-                    {{ form.age_months }}
+                    <label class="form-label">Date of Birth</label>
+                    {{ form.date_of_birth }}
+                    {% if form.date_of_birth.errors %}
+                    <small style="color: var(--lol-danger);">{{ form.date_of_birth.errors.0 }}</small>
+                    {% endif %}
                 </div>
 
                 <div class="form-group">
