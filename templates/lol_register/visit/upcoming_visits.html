@@ -30,10 +30,10 @@
                 <label class="form-label">Timeframe</label>
                 <select name="range" class="form-select">
                     <option value="" {% if not range_filter %}selected{% endif %}>All Upcoming</option>
-                    <option value="today" {% if range_filter=='today' %}selected{% endif %}>Today</option>
-                    <option value="tomorrow" {% if range_filter=='tomorrow' %}selected{% endif %}>Tomorrow</option>
-                    <option value="week" {% if range_filter=='week' %}selected{% endif %}>Next 7 Days</option>
-                    <option value="month" {% if range_filter=='month' %}selected{% endif %}>Next 30 Days</option>
+                    <option value="today" {% if range_filter == 'today' %}selected{% endif %}>Today</option>
+                    <option value="tomorrow" {% if range_filter == 'tomorrow' %}selected{% endif %}>Tomorrow</option>
+                    <option value="week" {% if range_filter == 'week' %}selected{% endif %}>Next 7 Days</option>
+                    <option value="month" {% if range_filter == 'month' %}selected{% endif %}>Next 30 Days</option>
                 </select>
             </div>
 
