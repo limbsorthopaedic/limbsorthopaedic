@@ -385,17 +385,23 @@ def visit_create_step2(request, patient_id):
     patient = get_object_or_404(Patient, pk=patient_id)
     
     if request.method == 'POST':
-        # Create visit - snapshot is auto-populated in model save()
-        visit = Visit.objects.create(
-            patient=patient,
-            created_by=request.user
-        )
-        messages.success(request, f'Visit created for {patient.full_name}')
-        return redirect('lol_register:visit_detail', pk=visit.pk)
+        form = VisitStep2Form(request.POST)
+        if form.is_valid():
+            # Create visit - snapshot is auto-populated in model save()
+            visit = form.save(commit=False)
+            visit.patient = patient
+            visit.created_by = request.user
+            visit.save()
+            messages.success(request, f'Visit created for {patient.full_name}')
+            return redirect('lol_register:visit_detail', pk=visit.pk)
+    else:
+        # Pre-fill with current time
+        form = VisitStep2Form(initial={'created_at': timezone.now().strftime('%Y-%m-%dT%H:%M')})
     
     context = {
         'title': f'New Visit - Step 2: Confirm for {patient.full_name}',
         'patient': patient,
+        'form': form,
     }
     
     return render(request, 'lol_register/visit/visit_create_step2_reception.html', context)

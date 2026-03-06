@@ -86,7 +86,13 @@ class VisitStep2Form(forms.ModelForm):
     
     class Meta:
         model = Visit
-        fields = []  # Snapshot fields are auto-populated from patient
+        fields = ['created_at']  # Snapshot fields are auto-populated from patient
+        widgets = {
+            'created_at': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            })
+        }
         
     # Additional fields that reception might need to update
     brought_by_update = forms.CharField(

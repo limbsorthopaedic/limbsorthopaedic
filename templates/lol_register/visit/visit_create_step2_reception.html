@@ -35,12 +35,14 @@
                 style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">person</span>
             Selected Patient
         </h3>
-        <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ patient.unique_code }}</span>
+        <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">{{ patient.unique_code
+            }}</span>
     </div>
     <div class="card-body">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
             <div>
-                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Full Name</small>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Full
+                    Name</small>
                 <p style="font-weight: 500; margin: 0.25rem 0 0; font-size: 1.1rem;">{{ patient.full_name }}</p>
             </div>
 
@@ -82,12 +84,14 @@
             </div>
 
             <div>
-                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Previous Visits</small>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Previous
+                    Visits</small>
                 <p style="font-weight: 500; margin: 0.25rem 0 0;">{{ patient.visits.count }} visit(s)</p>
             </div>
 
             <div>
-                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Visit Status</small>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Visit
+                    Status</small>
                 <p style="margin: 0.25rem 0 0;">
                     {% if patient.visits.count > 0 %}
                     <span class="badge badge-secondary">Old (Return Patient)</span>
@@ -117,6 +121,21 @@
 
         <form method="post" action="">
             {% csrf_token %}
+
+            <div style="margin-bottom: 2rem; max-width: 400px;">
+                <label for="{{ form.created_at.id_for_label }}"
+                    style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--lol-gray-700);">Visit
+                    Date & Time</label>
+                {{ form.created_at }}
+                <small style="display: block; margin-top: 0.5rem; color: var(--lol-gray-600);">You can backdate this if
+                    you are recording a past visit. It defaults to now.</small>
+                {% if form.created_at.errors %}
+                <div style="color: var(--lol-danger); margin-top: 0.25rem; font-size: 0.85rem;">
+                    {{ form.created_at.errors }}
+                </div>
+                {% endif %}
+            </div>
+
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <button type="submit" class="btn btn-success" style="padding: 1rem 2rem; font-size: 1.1rem;">
                     <span class="material-icons">add_circle</span>
