@@ -126,7 +126,7 @@
                     style="display: block; font-weight: 500; margin-bottom: 0.5rem; color: var(--lol-gray-700);">Visit
                     Date & Time</label>
                 {{ form.created_at }}
-                <small style="display: block; margin-top: 0.5rem; color: var(--lol-gray-600);">You can backdate this if
+                <small style="display: block; margin-top: 0.5rem; color: red;">You can backdate this if
                     you are recording a past visit. It defaults to now.</small>
                 {% if form.created_at.errors %}
                 <div style="color: var(--lol-danger); margin-top: 0.25rem; font-size: 0.85rem;">
