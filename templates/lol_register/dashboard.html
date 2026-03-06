@@ -295,12 +295,10 @@
                             <td>{{ payment.payment_date|date:"M d, H:i" }}</td>
                             <td>
                                 <strong>{{ payment.visit.patient.full_name }}</strong><br>
-                                <small style="color: var(--lol-gray-600);">{{ payment.visit.patient.unique_code
-                                    }}</small>
+                                <small style="color: var(--lol-gray-600);">{{ payment.visit.patient.unique_code }}</small>
                             </td>
                             <td>
-                                <strong style="color: var(--lol-success);">KSh {{
-                                    payment.amount_paid|floatformat:2|default:"0.00" }}</strong>
+                                <strong style="color: var(--lol-success);">KSh {{ payment.amount_paid|floatformat:2|default:"0.00" }}</strong>
                             </td>
                             <td>
                                 <span
@@ -342,9 +340,9 @@
     new Chart(genderCtx, {
         type: 'doughnut',
         data: {
-            labels: {{ gender_labels| safe }},
+            labels: {{ gender_labels|safe }},
         datasets: [{
-            data: {{ gender_values| safe }},
+            data: {{ gender_values|safe }},
         backgroundColor: [chartColors.primary, chartColors.pink],
         borderWidth: 0
             }]
@@ -365,9 +363,9 @@
     new Chart(categoryCtx, {
         type: 'doughnut',
         data: {
-            labels: {{ category_labels| safe }},
+            labels: {{ category_labels|safe }},
         datasets: [{
-            data: {{ category_values| safe }},
+            data: {{ category_values|safe }},
         backgroundColor: [chartColors.warning, chartColors.secondary],
         borderWidth: 0
             }]
@@ -388,9 +386,9 @@
     new Chart(paymentCtx, {
         type: 'doughnut',
         data: {
-            labels: {{ payment_labels| safe }},
+            labels: {{ payment_labels|safe }},
         datasets: [{
-            data: {{ payment_values| safe }},
+            data: {{ payment_values|safe }},
         backgroundColor: [chartColors.success, chartColors.warning],
         borderWidth: 0
             }]
@@ -411,10 +409,10 @@
     new Chart(servicesCtx, {
         type: 'bar',
         data: {
-            labels: {{ service_labels| safe }},
+            labels: {{ service_labels|safe }},
         datasets: [{
             label: 'Count',
-            data: {{ service_values| safe }},
+            data: {{ service_values|safe }},
         backgroundColor: chartColors.primary,
         borderRadius: 5
             }]
@@ -439,7 +437,7 @@
     });
 
     // Revenue Trend Chart
-    const dailyRevenue = {{ daily_revenue| safe }};
+    const dailyRevenue = {{ daily_revenue|safe }};
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
     new Chart(revenueCtx, {
         type: 'line',
