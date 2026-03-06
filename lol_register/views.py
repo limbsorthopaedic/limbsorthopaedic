@@ -26,15 +26,35 @@ from .forms import (
 def dashboard(request):
     """Main dashboard with statistics and charts"""
     today = timezone.now().date()
+    yesterday = today - timedelta(days=1)
     
     # Calculate date ranges
     week_start = today - timedelta(days=today.weekday())
+    last_week_start = week_start - timedelta(days=7)
+    last_week_end = week_start - timedelta(days=1)
+    
     month_start = today.replace(day=1)
+    last_month_end = month_start - timedelta(days=1)
+    last_month_start = last_month_end.replace(day=1)
+    
+    year_start = today.replace(month=1, day=1)
+    last_year_end = year_start - timedelta(days=1)
+    last_year_start = last_year_end.replace(month=1, day=1)
     
     # Visit statistics
     visits_today = Visit.objects.filter(created_at__date=today).count()
+    visits_yesterday = Visit.objects.filter(created_at__date=yesterday).count()
+    
     visits_week = Visit.objects.filter(created_at__date__gte=week_start).count()
+    visits_last_week = Visit.objects.filter(created_at__date__gte=last_week_start, created_at__date__lte=last_week_end).count()
+    
     visits_month = Visit.objects.filter(created_at__date__gte=month_start).count()
+    visits_last_month = Visit.objects.filter(created_at__date__gte=last_month_start, created_at__date__lte=last_month_end).count()
+    
+    visits_this_year = Visit.objects.filter(created_at__date__gte=year_start).count()
+    visits_last_year = Visit.objects.filter(created_at__date__gte=last_year_start, created_at__date__lte=last_year_end).count()
+    
+    visits_all_time = Visit.objects.count()
     
     new_visits = Visit.objects.filter(
         created_at__date__gte=month_start,
@@ -56,9 +76,9 @@ def dashboard(request):
         payment_date__date=today
     ).aggregate(total=Sum('amount_paid'))['total'] or Decimal('0')
     
-    # Outstanding balance - sum of all visit balances
+    # Outstanding balance - sum of all positive visit balances
     all_visits = Visit.objects.all()
-    outstanding_balance = sum(v.outstanding_balance for v in all_visits)
+    outstanding_balance = sum(v.outstanding_balance for v in all_visits if v.outstanding_balance > 0)
     
     # Workshop statistics
     products_to_make = VisitProduct.objects.filter(status='To Make').count()
@@ -113,8 +133,14 @@ def dashboard(request):
     context = {
         'title': 'Register Book - Dashboard',
         'visits_today': visits_today,
+        'visits_yesterday': visits_yesterday,
         'visits_week': visits_week,
+        'visits_last_week': visits_last_week,
         'visits_month': visits_month,
+        'visits_last_month': visits_last_month,
+        'visits_this_year': visits_this_year,
+        'visits_last_year': visits_last_year,
+        'visits_all_time': visits_all_time,
         'new_visits': new_visits,
         'old_visits': old_visits,
         'upcoming_visits_count': upcoming_visits_count,
@@ -535,7 +561,14 @@ def payment_list(request):
     # Calculate totals
     total_expected = payments.aggregate(total=Sum('expected_pay'))['total'] or Decimal('0')
     total_paid = payments.aggregate(total=Sum('amount_paid'))['total'] or Decimal('0')
-    total_balance = payments.aggregate(total=Sum('balance'))['total'] or Decimal('0')
+    
+    unique_visit_ids = set()
+    total_balance = Decimal('0')
+    for payment in payments:
+        if payment.visit_id not in unique_visit_ids:
+            unique_visit_ids.add(payment.visit_id)
+            if payment.visit.outstanding_balance > 0:
+                total_balance += payment.visit.outstanding_balance
     
     # Pagination
     paginator = Paginator(payments, 25)

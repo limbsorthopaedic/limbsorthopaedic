@@ -20,38 +20,74 @@
     </div>
 </div>
 
-<!-- Statistics Cards -->
-<div class="stats-grid">
+<!-- Statistics Cards - Group 1: Recent Activity -->
+<h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--lol-secondary);">Recent Activity</h3>
+<div class="stats-grid" style="margin-bottom: 2rem;">
     <div class="stat-card primary">
         <div class="stat-label">Visits Today</div>
         <div class="stat-value">{{ visits_today }}</div>
         <div class="stat-sub">Total visits recorded</div>
     </div>
-
     <div class="stat-card info">
+        <div class="stat-label">Visits Yesterday</div>
+        <div class="stat-value">{{ visits_yesterday }}</div>
+        <div class="stat-sub">Previous day count</div>
+    </div>
+    <div class="stat-card secondary">
         <div class="stat-label">Visits This Week</div>
         <div class="stat-value">{{ visits_week }}</div>
         <div class="stat-sub">Weekly count</div>
     </div>
+    <div class="stat-card warning">
+        <div class="stat-label">Visits Last Week</div>
+        <div class="stat-value">{{ visits_last_week }}</div>
+        <div class="stat-sub">Previous week count</div>
+    </div>
+</div>
 
-    <div class="stat-card secondary">
+<!-- Statistics Cards - Group 2: Long Term Activity -->
+<h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--lol-secondary);">Long Term Activity</h3>
+<div class="stats-grid" style="margin-bottom: 2rem;">
+    <div class="stat-card primary">
         <div class="stat-label">Visits This Month</div>
         <div class="stat-value">{{ visits_month }}</div>
         <div class="stat-sub">Monthly count</div>
     </div>
+    <div class="stat-card info">
+        <div class="stat-label">Visits Last Month</div>
+        <div class="stat-value">{{ visits_last_month }}</div>
+        <div class="stat-sub">Previous month count</div>
+    </div>
+    <div class="stat-card secondary">
+        <div class="stat-label">Visits This Year</div>
+        <div class="stat-value">{{ visits_this_year }}</div>
+        <div class="stat-sub">Yearly count</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-label">Visits Last Year</div>
+        <div class="stat-value">{{ visits_last_year }}</div>
+        <div class="stat-sub">Previous year count</div>
+    </div>
+</div>
 
+<!-- Statistics Cards - Group 3: All Time & Status -->
+<h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--lol-secondary);">All Time & Status</h3>
+<div class="stats-grid" style="margin-bottom: 2rem;">
+    <div class="stat-card primary">
+        <div class="stat-label">All Time Visits</div>
+        <div class="stat-value">{{ visits_all_time }}</div>
+        <div class="stat-sub">Total platform visits</div>
+    </div>
     <div class="stat-card success">
         <div class="stat-label">New Visits</div>
         <div class="stat-value">{{ new_visits }}</div>
         <div class="stat-sub">First-time patients this month</div>
     </div>
-
     <div class="stat-card warning">
         <div class="stat-label">Old Visits</div>
         <div class="stat-value">{{ old_visits }}</div>
         <div class="stat-sub">Return patients this month</div>
     </div>
-
     <div class="stat-card" style="border-left-color: var(--lol-purple);">
         <div class="stat-label">Upcoming Visits</div>
         <div class="stat-value">
@@ -61,25 +97,26 @@
         </div>
         <div class="stat-sub">Scheduled for future dates</div>
     </div>
+</div>
 
+<!-- Statistics Cards - Group 4: Finance & Workshop -->
+<h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--lol-secondary);">Finance & Workshop</h3>
+<div class="stats-grid" style="margin-bottom: 2rem;">
     <div class="stat-card success">
         <div class="stat-label">Revenue Today</div>
         <div class="stat-value">KSh <span id="revenue-today">{{ revenue_today|floatformat:2 }}</span></div>
         <div class="stat-sub">Collected payments</div>
     </div>
-
     <div class="stat-card danger">
         <div class="stat-label">Outstanding Balance</div>
         <div class="stat-value">KSh <span id="outstanding">{{ outstanding_balance|floatformat:2 }}</span></div>
         <div class="stat-sub">Pending payments</div>
     </div>
-
     <div class="stat-card warning">
         <div class="stat-label">Products To Make</div>
         <div class="stat-value">{{ products_to_make }}</div>
         <div class="stat-sub">Pending fabrication</div>
     </div>
-
     <div class="stat-card success">
         <div class="stat-label">Products Completed</div>
         <div class="stat-value">{{ products_completed }}</div>
