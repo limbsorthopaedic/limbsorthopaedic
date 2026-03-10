@@ -328,6 +328,7 @@ class LOLPaymentCreateForm(forms.ModelForm):
 class ExportFilterForm(forms.Form):
     """Form for filtering exports"""
     RANGE_CHOICES = (
+        ('all', 'All Time'),
         ('today', 'Today'),
         ('week', 'This Week'),
         ('month', 'This Month'),
@@ -353,5 +354,18 @@ class ExportFilterForm(forms.Form):
         widget=forms.DateInput(attrs={
             'class': 'form-control',
             'type': 'date'
+        })
+    )
+    service_status = forms.ChoiceField(
+        choices=[
+            ('all', 'All Services'),
+            ('Consultation', 'Consultation'),
+            ('Review', 'Review'),
+            ('Therapy', 'Therapy'),
+            ('Plaster Cast', 'Plaster Cast'),
+        ],
+        required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select'
         })
     )

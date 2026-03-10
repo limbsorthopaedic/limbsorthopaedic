@@ -1,0 +1,85 @@
+{% extends "lol_register/layout_base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">
+        <span class="material-icons">{% if icon %}{{ icon }}{% else %}download{% endif %}</span>
+        {{ title }}
+    </h1>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Filter Options</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" action="{% url export_url %}">
+            <input type="hidden" name="action" value="download">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Date Range</label>
+                    {{ form.date_range }}
+                </div>
+                
+                <div class="form-group" id="custom-start-date" style="display: none;">
+                    <label class="form-label">Start Date</label>
+                    {{ form.start_date }}
+                </div>
+                
+                <div class="form-group" id="custom-end-date" style="display: none;">
+                    <label class="form-label">End Date</label>
+                    {{ form.end_date }}
+                </div>
+            </div>
+
+            {% if form.service_status %}
+            <div class="form-row" style="margin-top: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Service Status</label>
+                    {{ form.service_status }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons">download</span>
+                    Download Excel
+                </button>
+                <a href="javascript:history.back()" class="btn btn-outline">
+                    <span class="material-icons">close</span>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const rangeSelect = document.querySelector('select[name="date_range"]');
+        const startDateDiv = document.getElementById('custom-start-date');
+        const endDateDiv = document.getElementById('custom-end-date');
+        
+        function toggleCustomDates() {
+            if (rangeSelect && rangeSelect.value === 'custom') {
+                startDateDiv.style.display = 'block';
+                endDateDiv.style.display = 'block';
+            } else {
+                if (startDateDiv) startDateDiv.style.display = 'none';
+                if (endDateDiv) endDateDiv.style.display = 'none';
+            }
+        }
+        
+        if (rangeSelect) {
+            rangeSelect.addEventListener('change', toggleCustomDates);
+            toggleCustomDates(); // Initial check
+        }
+    });
+</script>
+{% endblock %}

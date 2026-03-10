@@ -853,39 +853,55 @@ def workshop_update(request, pk):
 @staff_member_required
 def export_visits(request):
     """Export visits to Excel"""
+    if request.GET.get('action') != 'download':
+        form = ExportFilterForm(initial={'date_range': 'all'})
+        context = {
+            'title': 'Export Visits',
+            'form': form,
+            'export_url': 'lol_register:export_visits',
+            'icon': 'download'
+        }
+        return render(request, 'lol_register/export/export_form.html', context)
+        
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
     
     # Get date range
-    date_range = request.GET.get('range', 'month')
+    date_range = request.GET.get('date_range', 'all')
     today = timezone.now().date()
     
-    if date_range == 'today':
-        start_date = today
-        end_date = today
-    elif date_range == 'week':
-        start_date = today - timedelta(days=today.weekday())
-        end_date = today
-    elif date_range == 'month':
-        start_date = today.replace(day=1)
-        end_date = today
-    elif date_range == 'year':
-        start_date = today.replace(month=1, day=1)
-        end_date = today
-    else:
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        if start_date and end_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        else:
+    visits = Visit.objects.select_related('patient', 'created_by')
+    
+    if date_range != 'all':
+        if date_range == 'today':
+            start_date = today
+            end_date = today
+        elif date_range == 'week':
+            start_date = today - timedelta(days=today.weekday())
+            end_date = today
+        elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
-    
-    visits = Visit.objects.filter(
-        created_at__date__gte=start_date,
-        created_at__date__lte=end_date
-    ).select_related('patient', 'created_by')
+        elif date_range == 'year':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        else: # custom
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            if start_date and end_date:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            else:
+                start_date = today.replace(day=1)
+                end_date = today
+                
+        visits = visits.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        )
+        file_suffix = f"{start_date}_{end_date}"
+    else:
+        file_suffix = "all"
     
     # Create workbook
     wb = Workbook()
@@ -945,39 +961,55 @@ def export_visits(request):
 @staff_member_required
 def export_payments(request):
     """Export payments to Excel"""
+    if request.GET.get('action') != 'download':
+        form = ExportFilterForm(initial={'date_range': 'all'})
+        context = {
+            'title': 'Export Payments',
+            'form': form,
+            'export_url': 'lol_register:export_payments',
+            'icon': 'receipt_long'
+        }
+        return render(request, 'lol_register/export/export_form.html', context)
+        
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill
     
     # Get date range
-    date_range = request.GET.get('range', 'month')
+    date_range = request.GET.get('date_range', 'all')
     today = timezone.now().date()
     
-    if date_range == 'today':
-        start_date = today
-        end_date = today
-    elif date_range == 'week':
-        start_date = today - timedelta(days=today.weekday())
-        end_date = today
-    elif date_range == 'month':
-        start_date = today.replace(day=1)
-        end_date = today
-    elif date_range == 'year':
-        start_date = today.replace(month=1, day=1)
-        end_date = today
-    else:
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        if start_date and end_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        else:
+    payments = LOLPayment.objects.select_related('visit', 'visit__patient')
+    
+    if date_range != 'all':
+        if date_range == 'today':
+            start_date = today
+            end_date = today
+        elif date_range == 'week':
+            start_date = today - timedelta(days=today.weekday())
+            end_date = today
+        elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
-    
-    payments = LOLPayment.objects.filter(
-        payment_date__date__gte=start_date,
-        payment_date__date__lte=end_date
-    ).select_related('visit', 'visit__patient')
+        elif date_range == 'year':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        else: # custom
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            if start_date and end_date:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            else:
+                start_date = today.replace(day=1)
+                end_date = today
+                
+        payments = payments.filter(
+            payment_date__date__gte=start_date,
+            payment_date__date__lte=end_date
+        )
+        file_suffix = f"{start_date}_{end_date}"
+    else:
+        file_suffix = "all"
     
     # Create workbook
     wb = Workbook()
@@ -1042,39 +1074,55 @@ def export_payments(request):
 @staff_member_required
 def export_products(request):
     """Export products/manufacturing to Excel"""
+    if request.GET.get('action') != 'download':
+        form = ExportFilterForm(initial={'date_range': 'all'})
+        context = {
+            'title': 'Export Products',
+            'form': form,
+            'export_url': 'lol_register:export_products',
+            'icon': 'inventory'
+        }
+        return render(request, 'lol_register/export/export_form.html', context)
+        
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill
     
     # Get date range
-    date_range = request.GET.get('range', 'month')
+    date_range = request.GET.get('date_range', 'all')
     today = timezone.now().date()
     
-    if date_range == 'today':
-        start_date = today
-        end_date = today
-    elif date_range == 'week':
-        start_date = today - timedelta(days=today.weekday())
-        end_date = today
-    elif date_range == 'month':
-        start_date = today.replace(day=1)
-        end_date = today
-    elif date_range == 'year':
-        start_date = today.replace(month=1, day=1)
-        end_date = today
-    else:
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        if start_date and end_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        else:
+    visit_products = VisitProduct.objects.select_related('visit', 'visit__patient', 'product')
+    
+    if date_range != 'all':
+        if date_range == 'today':
+            start_date = today
+            end_date = today
+        elif date_range == 'week':
+            start_date = today - timedelta(days=today.weekday())
+            end_date = today
+        elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
-    
-    visit_products = VisitProduct.objects.filter(
-        created_at__date__gte=start_date,
-        created_at__date__lte=end_date
-    ).select_related('visit', 'visit__patient', 'product')
+        elif date_range == 'year':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        else: # custom
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            if start_date and end_date:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            else:
+                start_date = today.replace(day=1)
+                end_date = today
+                
+        visit_products = visit_products.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        )
+        file_suffix = f"{start_date}_{end_date}"
+    else:
+        file_suffix = "all"
     
     # Create workbook
     wb = Workbook()
@@ -1123,6 +1171,173 @@ def export_products(request):
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = f'attachment; filename="products_{start_date}_{end_date}.xlsx"'
+    wb.save(response)
+    
+    return response
+
+
+@staff_member_required
+def export_services(request):
+    """Export services to Excel"""
+    if request.GET.get('action') != 'download':
+        form = ExportFilterForm(initial={'date_range': 'all', 'service_status': 'all'})
+        context = {
+            'title': 'Export Services',
+            'form': form,
+            'export_url': 'lol_register:export_services',
+            'icon': 'medical_services'
+        }
+        return render(request, 'lol_register/export/export_form.html', context)
+        
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, PatternFill
+    
+    # Get filters
+    date_range = request.GET.get('date_range', 'all')
+    service_status = request.GET.get('service_status', 'all')
+    today = timezone.now().date()
+    
+    valid_statuses = ['Consultation', 'Review', 'Therapy', 'Plaster Cast']
+    visit_products = VisitProduct.objects.filter(status__in=valid_statuses).select_related('visit', 'visit__patient', 'product')
+    
+    if service_status != 'all' and service_status in valid_statuses:
+        visit_products = visit_products.filter(status=service_status)
+    
+    if date_range != 'all':
+        if date_range == 'today':
+            start_date = today
+            end_date = today
+        elif date_range == 'week':
+            start_date = today - timedelta(days=today.weekday())
+            end_date = today
+        elif date_range == 'month':
+            start_date = today.replace(day=1)
+            end_date = today
+        elif date_range == 'year':
+            start_date = today.replace(month=1, day=1)
+            end_date = today
+        else: # custom
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            if start_date and end_date:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            else:
+                start_date = today.replace(day=1)
+                end_date = today
+                
+        visit_products = visit_products.filter(
+            created_at__date__gte=start_date,
+            created_at__date__lte=end_date
+        )
+        file_suffix = f"{start_date}_{end_date}"
+    else:
+        file_suffix = "all"
+        
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Services"
+    
+    # Header styles
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="27baf1", end_color="27baf1", fill_type="solid")
+    
+    # Headers
+    headers = ['Date', 'Patient Code', 'Patient Name', 'Service', 'Quantity', 
+               'Unit Price', 'Subtotal', 'Status']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    
+    # Data
+    for row, vp in enumerate(visit_products, 2):
+        ws.cell(row=row, column=1, value=vp.created_at.strftime('%Y-%m-%d'))
+        ws.cell(row=row, column=2, value=vp.visit.patient.unique_code)
+        ws.cell(row=row, column=3, value=vp.visit.patient.full_name)
+        ws.cell(row=row, column=4, value=vp.product.name)
+        ws.cell(row=row, column=5, value=vp.quantity)
+        ws.cell(row=row, column=6, value=float(vp.price_at_time))
+        ws.cell(row=row, column=7, value=float(vp.subtotal))
+        ws.cell(row=row, column=8, value=vp.status)
+    
+    # Adjust column widths
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column].width = adjusted_width
+    
+    # Response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="services_{file_suffix}.xlsx"'
+    wb.save(response)
+    
+    return response
+
+
+@staff_member_required
+def export_patients(request):
+    """Export patients to Excel"""
+    # Simply download all patients without a filter form
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, PatternFill
+    
+    patients = Patient.objects.all()
+    
+    # Create workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Patients"
+    
+    # Header styles
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill(start_color="27baf1", end_color="27baf1", fill_type="solid")
+    
+    # Headers
+    headers = ['Full Name', 'Primary Contact', 'Alt. Contact', 'Gender', 'Residence']
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    
+    # Data
+    for row, patient in enumerate(patients, 2):
+        ws.cell(row=row, column=1, value=patient.full_name)
+        ws.cell(row=row, column=2, value=patient.contact or '')
+        ws.cell(row=row, column=3, value=patient.alt_contact or '')
+        ws.cell(row=row, column=4, value=patient.gender)
+        ws.cell(row=row, column=5, value=patient.residence or '')
+    
+    # Adjust column widths
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column].width = adjusted_width
+    
+    # Response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="patients_all.xlsx"'
     wb.save(response)
     
     return response

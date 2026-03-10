@@ -46,6 +46,8 @@ urlpatterns = [
     path('export/visits/', views.export_visits, name='export_visits'),
     path('export/payments/', views.export_payments, name='export_payments'),
     path('export/products/', views.export_products, name='export_products'),
+    path('export/services/', views.export_services, name='export_services'),
+    path('export/patients/', views.export_patients, name='export_patients'),
     
     # Search
     path('search/', views.search, name='search'),

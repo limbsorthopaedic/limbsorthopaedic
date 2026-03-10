@@ -56,6 +56,8 @@
                 top: 0;
                 z-index: 1000;
                 transition: transform 0.3s ease;
+                overflow-y: auto;
+                overflow-x: hidden;
             }
 
             .sidebar-brand {
@@ -806,23 +808,37 @@
                 <div class="nav-section-title">Reports</div>
 
                 <div class="nav-item">
-                    <a href="{% url 'lol_register:export_visits' %}?range=month" class="nav-link">
+                    <a href="{% url 'lol_register:export_visits' %}" class="nav-link">
                         <span class="material-icons">download</span>
                         Export Visits
                     </a>
                 </div>
 
                 <div class="nav-item">
-                    <a href="{% url 'lol_register:export_payments' %}?range=month" class="nav-link">
+                    <a href="{% url 'lol_register:export_payments' %}" class="nav-link">
                         <span class="material-icons">receipt_long</span>
                         Export Payments
                     </a>
                 </div>
 
                 <div class="nav-item">
-                    <a href="{% url 'lol_register:export_products' %}?range=month" class="nav-link">
+                    <a href="{% url 'lol_register:export_products' %}" class="nav-link">
                         <span class="material-icons">inventory</span>
                         Export Products
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{% url 'lol_register:export_services' %}" class="nav-link">
+                        <span class="material-icons">medical_services</span>
+                        Export Services
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{% url 'lol_register:export_patients' %}" class="nav-link">
+                        <span class="material-icons">group</span>
+                        Export Patient
                     </a>
                 </div>
 
