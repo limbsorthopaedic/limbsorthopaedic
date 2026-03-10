@@ -496,6 +496,8 @@ def visit_product_add(request, visit_id):
             visit_product = form.save(commit=False)
             visit_product.visit = visit
             visit_product.price_at_time = visit_product.product.price
+            if not visit_product.created_at:
+                visit_product.created_at = timezone.now()
             visit_product.save()
             messages.success(request, f'Added {visit_product.product.name} to visit.')
             return redirect('lol_register:visit_detail', pk=visit.pk)
@@ -619,7 +621,10 @@ def payment_create(request):
     if request.method == 'POST':
         form = LOLPaymentForm(request.POST)
         if form.is_valid():
-            payment = form.save()
+            payment = form.save(commit=False)
+            if not payment.payment_date:
+                payment.payment_date = timezone.now()
+            payment.save()
             messages.success(request, 'Payment recorded successfully!')
             return redirect('lol_register:payment_list')
     else:
@@ -644,6 +649,8 @@ def payment_create_for_visit(request, visit_id):
         if form.is_valid():
             payment = form.save(commit=False)
             payment.visit = visit
+            if not payment.payment_date:
+                payment.payment_date = timezone.now()
             payment.save()
             messages.success(request, 'Payment recorded successfully!')
             return redirect('lol_register:visit_detail', pk=visit.pk)
@@ -754,7 +761,10 @@ def workshop_create(request):
     if request.method == 'POST':
         form = WorkshopOrderCreateForm(request.POST)
         if form.is_valid():
-            order = form.save()
+            order = form.save(commit=False)
+            if not order.created_at:
+                order.created_at = timezone.now()
+            order.save()
             messages.success(request, 'Workshop order created successfully!')
             return redirect('lol_register:workshop_detail', pk=order.pk)
     else:
@@ -783,6 +793,8 @@ def workshop_create_for_product(request, visit_product_id):
         if form.is_valid():
             order = form.save(commit=False)
             order.visit_product = visit_product
+            if not order.created_at:
+                order.created_at = timezone.now()
             order.save()
             messages.success(request, 'Workshop order created successfully!')
             return redirect('lol_register:workshop_detail', pk=order.pk)

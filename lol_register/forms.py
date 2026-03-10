@@ -133,7 +133,7 @@ class VisitProductForm(forms.ModelForm):
     
     class Meta:
         model = VisitProduct
-        fields = ['product', 'quantity', 'status']
+        fields = ['product', 'quantity', 'status', 'created_at']
         widgets = {
             'product': forms.Select(attrs={
                 'class': 'form-select product-select'
@@ -146,11 +146,17 @@ class VisitProductForm(forms.ModelForm):
             'status': forms.Select(attrs={
                 'class': 'form-select'
             }),
+            'created_at': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['product'].queryset = LOLProductService.objects.filter(active=True)
+        if 'created_at' in self.fields:
+            self.fields['created_at'].required = False
 
 
 class VisitProductUpdateForm(forms.ModelForm):
@@ -171,7 +177,7 @@ class WorkshopOrderForm(forms.ModelForm):
     
     class Meta:
         model = WorkshopOrder
-        fields = ['status', 'expected_ready_date', 'completed_date', 'assigned_to', 'notes']
+        fields = ['status', 'expected_ready_date', 'completed_date', 'assigned_to', 'notes', 'created_at']
         widgets = {
             'status': forms.Select(attrs={
                 'class': 'form-select'
@@ -192,6 +198,10 @@ class WorkshopOrderForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Add notes about this order'
             }),
+            'created_at': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -211,7 +221,7 @@ class WorkshopOrderCreateForm(forms.ModelForm):
     
     class Meta:
         model = WorkshopOrder
-        fields = ['visit_product', 'status', 'expected_ready_date', 'assigned_to', 'notes']
+        fields = ['visit_product', 'status', 'expected_ready_date', 'assigned_to', 'notes', 'created_at']
         widgets = {
             'status': forms.Select(attrs={
                 'class': 'form-select'
@@ -228,12 +238,18 @@ class WorkshopOrderCreateForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Add notes about this order'
             }),
+            'created_at': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['assigned_to'].queryset = User.objects.filter(is_staff=True)
         self.fields['assigned_to'].required = False
+        if 'created_at' in self.fields:
+            self.fields['created_at'].required = False
         # Filter visit products that don't have workshop orders yet
         self.fields['visit_product'].queryset = VisitProduct.objects.filter(
             status='To Make'
@@ -275,13 +291,13 @@ class LOLPaymentForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'M-Pesa transaction ID (if applicable)'
             }),
-            'payment_date': forms.DateTimeInput(attrs={
-                'class': 'form-control',
-                'type': 'datetime-local'
-            }),
             'paid_by': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Name of person making payment'
+            }),
+            'payment_date': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
             }),
         }
 
@@ -289,6 +305,8 @@ class LOLPaymentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['visit_product'].required = False
         self.fields['amount_paid'].required = False
+        if 'payment_date' in self.fields:
+            self.fields['payment_date'].required = False
 
 
 class LOLPaymentCreateForm(forms.ModelForm):
@@ -298,7 +316,7 @@ class LOLPaymentCreateForm(forms.ModelForm):
         model = LOLPayment
         fields = [
             'method', 'expected_pay', 'amount_paid', 
-            'mpesa_transaction_id', 'paid_by'
+            'mpesa_transaction_id', 'paid_by', 'payment_date'
         ]
         widgets = {
             'method': forms.Select(attrs={
@@ -321,6 +339,10 @@ class LOLPaymentCreateForm(forms.ModelForm):
             'paid_by': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Name of person making payment'
+            }),
+            'payment_date': forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={
+                'class': 'form-control',
+                'type': 'datetime-local'
             }),
         }
 
