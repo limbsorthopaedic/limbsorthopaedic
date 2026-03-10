@@ -161,4 +161,103 @@
         </div>
     </div>
 </div>
+
+<!-- Products / Services History -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">shopping_cart</span>
+            Products / Services
+        </h3>
+        <span class="badge badge-secondary">{{ visit_products.count }} items</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Product / Service</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vp in visit_products %}
+                    <tr>
+                        <td>{{ vp.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <strong>{{ vp.product.name }}</strong><br>
+                            <small style="color: var(--lol-gray-600);">Visit: {{ vp.visit.created_at|date:"M d, Y" }}</small>
+                        </td>
+                        <td>{{ vp.quantity }}</td>
+                        <td>
+                            <span class="badge {% if vp.status == 'Cancelled' %}badge-danger{% elif vp.status == 'Made/Fitted' or vp.status == 'Repaired' %}badge-success{% else %}badge-warning{% endif %}">
+                                {{ vp.status }}
+                            </span>
+                        </td>
+                        <td>KSh {{ vp.subtotal|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No products or services recorded.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Payment History -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <span class="material-icons"
+                style="vertical-align: middle; margin-right: 0.5rem; color: var(--lol-primary);">payments</span>
+            Payment History
+        </h3>
+        <span class="badge badge-secondary">{{ payments.count }} payments</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Transaction ID</th>
+                        <th>Amount Paid</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <span class="badge {% if payment.method == 'LOL-MPESA' %}badge-success{% else %}badge-warning{% endif %}">
+                                {{ payment.method }}
+                            </span>
+                        </td>
+                        <td>{{ payment.mpesa_transaction_id|default:"-" }}</td>
+                        <td><strong style="color: var(--lol-success);">KSh {{ payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
+                        <td>KSh {{ payment.balance|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--lol-gray-600);">
+                            No payments recorded.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}

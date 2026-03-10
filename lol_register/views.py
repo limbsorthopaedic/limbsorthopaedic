@@ -86,6 +86,13 @@ def dashboard(request):
         status__in=['Made/Fitted', 'Repaired']
     ).count()
     
+    # Instant Services statistics
+    consultations = VisitProduct.objects.filter(status='Consultation').count()
+    reviews = VisitProduct.objects.filter(status='Review').count()
+    therapies = VisitProduct.objects.filter(status='Therapy').count()
+    plaster_casts = VisitProduct.objects.filter(status='Plaster Cast').count()
+    fellow_orthotechs = VisitProduct.objects.filter(status='Fellow OrthoTech').count()
+    
     # Chart data - Gender breakdown
     gender_data = Patient.objects.values('gender').annotate(count=Count('id'))
     gender_labels = [g['gender'] for g in gender_data]
@@ -148,6 +155,11 @@ def dashboard(request):
         'outstanding_balance': float(outstanding_balance),
         'products_to_make': products_to_make,
         'products_completed': products_completed,
+        'consultations': consultations,
+        'reviews': reviews,
+        'therapies': therapies,
+        'plaster_casts': plaster_casts,
+        'fellow_orthotechs': fellow_orthotechs,
         'gender_labels': json.dumps(gender_labels),
         'gender_values': json.dumps(gender_values),
         'category_labels': json.dumps(category_labels),
@@ -222,10 +234,16 @@ def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
     visits = patient.visits.all()[:10]
     
+    # Fetch Products/Services and Payments for the patient
+    visit_products = VisitProduct.objects.filter(visit__patient=patient).select_related('visit', 'product').order_by('-created_at')
+    payments = LOLPayment.objects.filter(visit__patient=patient).select_related('visit').order_by('-payment_date')
+    
     context = {
         'title': f'Patient: {patient.full_name}',
         'patient': patient,
         'visits': visits,
+        'visit_products': visit_products,
+        'payments': payments,
     }
     
     return render(request, 'lol_register/patient/patient_detail.html', context)

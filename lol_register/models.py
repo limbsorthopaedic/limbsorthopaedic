@@ -179,6 +179,11 @@ class VisitProduct(models.Model):
         ('Made/Fitted', 'Made/Fitted'),
         ('Repaired', 'Repaired'),
         ('Cancelled', 'Cancelled'),
+        ('Consultation', 'Consultation'),
+        ('Review', 'Review'),
+        ('Therapy', 'Therapy'),
+        ('Plaster Cast', 'Plaster Cast'),
+        ('Fellow OrthoTech', 'Fellow OrthoTech'),
     )
     
     visit = models.ForeignKey(Visit, on_delete=models.CASCADE, related_name='visit_products')
