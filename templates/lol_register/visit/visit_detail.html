@@ -183,6 +183,11 @@
                                 {% if vp.status == 'To Make' %}badge-warning
                                 {% elif vp.status == 'Made/Fitted' %}badge-success
                                 {% elif vp.status == 'Repaired' %}badge-info
+                                {% elif vp.status == 'Consultation' %}badge-success
+                                {% elif vp.status == 'Review' %}badge-success
+                                {% elif vp.status == 'Therapy' %}badge-success
+                                {% elif vp.status == 'Plaster Cast' %}badge-success
+                                {% elif vp.status == 'Fellow OrthoTech' %}badge-success
                                 {% else %}badge-danger{% endif %}">
                                 {{ vp.status }}
                             </span>
@@ -342,6 +347,12 @@
                     <option value="To Make">To Make</option>
                     <option value="Made/Fitted">Made/Fitted</option>
                     <option value="Repaired">Repaired</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Consultation">Consultation</option>
+                    <option value="Review">Review</option>
+                    <option value="Therapy">Therapy</option>
+                    <option value="Plaster Cast">Plaster Cast</option>
+                    <option value="Fellow OrthoTech">Fellow OrthoTech</option>
                 </select>
             </div>
             <div class="form-group" style="background: var(--lol-gray-100); padding: 1rem; border-radius: 8px;">
