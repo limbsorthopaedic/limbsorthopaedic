@@ -190,6 +190,8 @@ class VisitProduct(models.Model):
     product = models.ForeignKey(LOLProductService, on_delete=models.PROTECT)
     price_at_time = models.DecimalField(max_digits=12, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
+    discount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), blank=True, null=True, verbose_name="Discount on Product/Service")
+    tip = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'), blank=True, null=True, verbose_name="Tip on Product/Service")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='To Make')
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -209,7 +211,9 @@ class VisitProduct(models.Model):
 
     @property
     def subtotal(self):
-        return self.price_at_time * self.quantity
+        discount_val = self.discount or Decimal('0.00')
+        tip_val = self.tip or Decimal('0.00')
+        return (self.price_at_time * self.quantity) - discount_val + tip_val
 
 
 class WorkshopOrder(models.Model):

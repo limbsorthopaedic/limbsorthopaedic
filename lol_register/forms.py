@@ -133,7 +133,7 @@ class VisitProductForm(forms.ModelForm):
     
     class Meta:
         model = VisitProduct
-        fields = ['product', 'quantity', 'status', 'created_at']
+        fields = ['product', 'quantity', 'discount', 'tip', 'status', 'created_at']
         widgets = {
             'product': forms.Select(attrs={
                 'class': 'form-select product-select'
@@ -142,6 +142,18 @@ class VisitProductForm(forms.ModelForm):
                 'class': 'form-control',
                 'min': 1,
                 'value': 1
+            }),
+            'discount': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': 0,
+                'placeholder': '0.00'
+            }),
+            'tip': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': '0.01',
+                'min': 0,
+                'placeholder': '0.00'
             }),
             'status': forms.Select(attrs={
                 'class': 'form-select'

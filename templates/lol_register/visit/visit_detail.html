@@ -342,6 +342,16 @@
                     id="modal-quantity">
             </div>
             <div class="form-group">
+                <label class="form-label">Discount on Product/Service</label>
+                <input type="number" name="discount" class="form-control" value="0" min="0" step="0.01"
+                    id="modal-discount">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tip on Product/Service</label>
+                <input type="number" name="tip" class="form-control" value="0" min="0" step="0.01"
+                    id="modal-tip">
+            </div>
+            <div class="form-group">
                 <label class="form-label">Status</label>
                 <select name="status" class="form-select">
                     <option value="To Make">To Make</option>
@@ -375,17 +385,23 @@
 <script>
     const productSelect = document.getElementById('modal-product-select');
     const quantityInput = document.getElementById('modal-quantity');
+    const discountInput = document.getElementById('modal-discount');
+    const tipInput = document.getElementById('modal-tip');
     const subtotalSpan = document.getElementById('modal-subtotal');
 
     function updateSubtotal() {
         const selectedOption = productSelect.options[productSelect.selectedIndex];
         const price = parseFloat(selectedOption.dataset.price) || 0;
         const quantity = parseInt(quantityInput.value) || 0;
-        const subtotal = price * quantity;
+        const discount = parseFloat(discountInput.value) || 0;
+        const tip = parseFloat(tipInput.value) || 0;
+        const subtotal = (price * quantity) - discount + tip;
         subtotalSpan.textContent = subtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 
     productSelect.addEventListener('change', updateSubtotal);
     quantityInput.addEventListener('input', updateSubtotal);
+    if (discountInput) discountInput.addEventListener('input', updateSubtotal);
+    if (tipInput) tipInput.addEventListener('input', updateSubtotal);
 </script>
 {% endblock %}
