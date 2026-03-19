@@ -112,6 +112,16 @@
         <div class="stat-value">KSh <span id="outstanding">{{ outstanding_balance|floatformat:2 }}</span></div>
         <div class="stat-sub">Pending payments</div>
     </div>
+    <div class="stat-card info">
+        <div class="stat-label">Total Discounts Given</div>
+        <div class="stat-value">KSh <span>{{ total_discounts|floatformat:2 }}</span></div>
+        <div class="stat-sub">All time discounts</div>
+    </div>
+    <div class="stat-card primary">
+        <div class="stat-label">Total Tips Received</div>
+        <div class="stat-value">KSh <span>{{ total_tips|floatformat:2 }}</span></div>
+        <div class="stat-sub">All time tips</div>
+    </div>
     <div class="stat-card warning">
         <div class="stat-label">Products To Make</div>
         <div class="stat-value">{{ products_to_make }}</div>

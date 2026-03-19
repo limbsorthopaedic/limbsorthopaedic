@@ -80,6 +80,10 @@ def dashboard(request):
     all_visits = Visit.objects.all()
     outstanding_balance = sum(v.outstanding_balance for v in all_visits if v.outstanding_balance > 0)
     
+    # Discount and Tip statistics
+    total_discounts = VisitProduct.objects.aggregate(total=Sum('discount'))['total'] or Decimal('0')
+    total_tips = VisitProduct.objects.aggregate(total=Sum('tip'))['total'] or Decimal('0')
+    
     # Workshop statistics
     products_to_make = VisitProduct.objects.filter(status='To Make').count()
     products_completed = VisitProduct.objects.filter(
@@ -153,6 +157,8 @@ def dashboard(request):
         'upcoming_visits_count': upcoming_visits_count,
         'revenue_today': float(revenue_today),
         'outstanding_balance': float(outstanding_balance),
+        'total_discounts': float(total_discounts),
+        'total_tips': float(total_tips),
         'products_to_make': products_to_make,
         'products_completed': products_completed,
         'consultations': consultations,
