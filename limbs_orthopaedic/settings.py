@@ -276,14 +276,14 @@ LOGOUT_REDIRECT_URL = '/'
 HOST_URL = os.environ.get('HOST_URL')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'collinsokoth71@gmail.com'
+EMAIL_HOST = 'mail.limbsorthopaedic.org'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'collinsokoth71@gmail.com'
+EMAIL_HOST_USER = 'noreply.limbsorthopaedic.org'
 EMAIL_HOST_PASSWORD = os.environ.get('CPANEL_EMAIL_PASSWORD')
 
-DEFAULT_FROM_EMAIL = 'Collins Okoth - OrthoTech <collinsokoth71@gmail.com>'
-SERVER_EMAIL = 'collinsokoth71@gmail.com'
+DEFAULT_FROM_EMAIL = 'LIMBS Orthopaedic <noreply@limbsorthopaedic.org>'
+SERVER_EMAIL = 'noreply.limbsorthopaedic.org'
 
 # Logging configuration
 LOGGING = {
