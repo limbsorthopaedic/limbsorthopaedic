@@ -117,8 +117,19 @@ class Visit(models.Model):
     snapshot_info_source = models.CharField(max_length=255, blank=True, null=True)
     
     # Clinical data
+    patient_medical_history = models.TextField(blank=True, null=True)
     diagnosis = models.TextField(blank=True, null=True)
     treatment_notes = models.TextField(blank=True, null=True)
+    
+    DOCTOR_STATUS_CHOICES = (
+        ('Attended To', 'Attended To'),
+        ('Committed', 'Committed'),
+        ('Pending', 'Pending'),
+        ('Others', 'Others'),
+    )
+    doctors_information = models.CharField(max_length=50, choices=DOCTOR_STATUS_CHOICES, blank=True, null=True)
+    doctors_information_others = models.CharField(max_length=255, blank=True, null=True, verbose_name="Specify Others")
+    
     next_visit = models.DateField(blank=True, null=True)
     
     created_at = models.DateTimeField(default=timezone.now)
@@ -147,8 +158,13 @@ class Visit(models.Model):
             self.snapshot_info_source = self.patient.info_source
             
             # Determine visit status based on previous visits
-            if self.patient.visits.exists():
+            previous_visits = self.patient.visits.all()
+            if previous_visits.exists():
                 self.visit_status = 'Old'
+                # Pre-populate medical history from the last visit
+                last_visit = previous_visits.order_by('-created_at').first()
+                if last_visit and not self.patient_medical_history:
+                    self.patient_medical_history = last_visit.patient_medical_history
             else:
                 self.visit_status = 'New'
         

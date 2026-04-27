@@ -53,6 +53,11 @@
             {% csrf_token %}
 
             <div class="form-group">
+                <label class="form-label">Patient Medical History</label>
+                {{ form.patient_medical_history }}
+            </div>
+
+            <div class="form-group">
                 <label class="form-label">Diagnosis</label>
                 {{ form.diagnosis }}
             </div>
@@ -60,6 +65,12 @@
             <div class="form-group">
                 <label class="form-label">Treatment Notes</label>
                 {{ form.treatment_notes }}
+            </div>
+
+            <div class="form-group" style="max-width: 300px;">
+                <label class="form-label">Doctor's Information</label>
+                {{ form.doctors_information }}
+                {{ form.doctors_information_others }}
             </div>
 
             <div class="form-group" style="max-width: 300px;">
@@ -77,4 +88,31 @@
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const docInfoSelect = document.getElementById('id_doctors_information');
+        const docInfoOthers = document.getElementById('id_doctors_information_others');
+
+        function toggleOthersField() {
+            if (docInfoSelect && docInfoOthers) {
+                if (docInfoSelect.value === 'Others') {
+                    docInfoOthers.style.display = 'block';
+                    docInfoOthers.required = true;
+                } else {
+                    docInfoOthers.style.display = 'none';
+                    docInfoOthers.required = false;
+                }
+            }
+        }
+
+        if (docInfoSelect) {
+            docInfoSelect.addEventListener('change', toggleOthersField);
+            // Run on load
+            toggleOthersField();
+        }
+    });
+</script>
 {% endblock %}

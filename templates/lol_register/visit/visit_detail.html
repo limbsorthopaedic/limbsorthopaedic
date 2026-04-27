@@ -126,6 +126,10 @@
     <div class="card-body">
         <div style="display: grid; gap: 1rem;">
             <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Patient Medical History</small>
+                <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.patient_medical_history|default:"Not recorded" }}</p>
+            </div>
+            <div>
                 <small
                     style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Diagnosis</small>
                 <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.diagnosis|default:"Not recorded" }}</p>
@@ -134,6 +138,19 @@
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Treatment
                     Notes</small>
                 <p style="margin: 0.25rem 0 0; white-space: pre-wrap;">{{ visit.treatment_notes|default:"Not recorded" }}</p>
+            </div>
+            <div>
+                <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Doctor's Information</small>
+                <p style="margin: 0.25rem 0 0;">
+                    {% if visit.doctors_information %}
+                        {{ visit.doctors_information }}
+                        {% if visit.doctors_information == 'Others' and visit.doctors_information_others %}
+                            - {{ visit.doctors_information_others }}
+                        {% endif %}
+                    {% else %}
+                        Not recorded
+                    {% endif %}
+                </p>
             </div>
             <div>
                 <small style="color: var(--lol-gray-600); text-transform: uppercase; font-size: 0.7rem;">Next

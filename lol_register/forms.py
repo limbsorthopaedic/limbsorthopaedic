@@ -109,8 +109,16 @@ class VisitClinicianForm(forms.ModelForm):
     
     class Meta:
         model = Visit
-        fields = ['diagnosis', 'treatment_notes', 'next_visit']
+        fields = [
+            'patient_medical_history', 'diagnosis', 'treatment_notes', 
+            'doctors_information', 'doctors_information_others', 'next_visit'
+        ]
         widgets = {
+            'patient_medical_history': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Enter patient medical history'
+            }),
             'diagnosis': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
@@ -120,6 +128,16 @@ class VisitClinicianForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 4,
                 'placeholder': 'Enter treatment notes'
+            }),
+            'doctors_information': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'id_doctors_information'
+            }),
+            'doctors_information_others': forms.TextInput(attrs={
+                'class': 'form-control mt-2',
+                'placeholder': 'Please specify...',
+                'id': 'id_doctors_information_others',
+                'style': 'display: none;'
             }),
             'next_visit': forms.DateInput(attrs={
                 'class': 'form-control',
