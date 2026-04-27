@@ -894,15 +894,27 @@ def export_visits(request):
         if date_range == 'today':
             start_date = today
             end_date = today
+        elif date_range == 'yesterday':
+            start_date = today - timedelta(days=1)
+            end_date = today - timedelta(days=1)
         elif date_range == 'week':
             start_date = today - timedelta(days=today.weekday())
             end_date = today
+        elif date_range == 'last_week':
+            start_date = today - timedelta(days=today.weekday() + 7)
+            end_date = today - timedelta(days=today.weekday() + 1)
         elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
+        elif date_range == 'last_month':
+            end_date = today.replace(day=1) - timedelta(days=1)
+            start_date = end_date.replace(day=1)
         elif date_range == 'year':
             start_date = today.replace(month=1, day=1)
             end_date = today
+        elif date_range == 'last_year':
+            end_date = today.replace(month=1, day=1) - timedelta(days=1)
+            start_date = end_date.replace(month=1, day=1)
         else: # custom
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')
@@ -932,7 +944,7 @@ def export_visits(request):
     
     # Headers
     headers = ['Date', 'Patient Code', 'Patient Name', 'Gender', 'Age', 'Category', 
-               'Status', 'Diagnosis', 'Treatment', 'Next Visit', 'Created By']
+               'Status', 'Patient Medical History', 'Diagnosis', 'Treatment', 'Doctors Information', 'Next Visit', 'Created By']
     for col, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col, value=header)
         cell.font = header_font
@@ -948,10 +960,17 @@ def export_visits(request):
         ws.cell(row=row, column=5, value=f"{visit.snapshot_age_years}y {visit.snapshot_age_months}m")
         ws.cell(row=row, column=6, value=visit.snapshot_child_or_adult)
         ws.cell(row=row, column=7, value=visit.visit_status)
-        ws.cell(row=row, column=8, value=visit.diagnosis or '')
-        ws.cell(row=row, column=9, value=visit.treatment_notes or '')
-        ws.cell(row=row, column=10, value=visit.next_visit.strftime('%Y-%m-%d') if visit.next_visit else '')
-        ws.cell(row=row, column=11, value=visit.created_by.get_full_name() if visit.created_by else '')
+        ws.cell(row=row, column=8, value=visit.patient_medical_history or '')
+        ws.cell(row=row, column=9, value=visit.diagnosis or '')
+        ws.cell(row=row, column=10, value=visit.treatment_notes or '')
+        
+        doc_info = visit.doctors_information or ''
+        if doc_info == 'Others' and visit.doctors_information_others:
+            doc_info = f"Others - {visit.doctors_information_others}"
+        ws.cell(row=row, column=11, value=doc_info)
+        
+        ws.cell(row=row, column=12, value=visit.next_visit.strftime('%Y-%m-%d') if visit.next_visit else '')
+        ws.cell(row=row, column=13, value=visit.created_by.get_full_name() if visit.created_by else '')
     
     # Adjust column widths
     for col in ws.columns:
@@ -970,7 +989,7 @@ def export_visits(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = f'attachment; filename="visits_{start_date}_{end_date}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="visits_{file_suffix}.xlsx"'
     wb.save(response)
     
     return response
@@ -1002,15 +1021,27 @@ def export_payments(request):
         if date_range == 'today':
             start_date = today
             end_date = today
+        elif date_range == 'yesterday':
+            start_date = today - timedelta(days=1)
+            end_date = today - timedelta(days=1)
         elif date_range == 'week':
             start_date = today - timedelta(days=today.weekday())
             end_date = today
+        elif date_range == 'last_week':
+            start_date = today - timedelta(days=today.weekday() + 7)
+            end_date = today - timedelta(days=today.weekday() + 1)
         elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
+        elif date_range == 'last_month':
+            end_date = today.replace(day=1) - timedelta(days=1)
+            start_date = end_date.replace(day=1)
         elif date_range == 'year':
             start_date = today.replace(month=1, day=1)
             end_date = today
+        elif date_range == 'last_year':
+            end_date = today.replace(month=1, day=1) - timedelta(days=1)
+            start_date = end_date.replace(month=1, day=1)
         else: # custom
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')
@@ -1083,7 +1114,7 @@ def export_payments(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = f'attachment; filename="payments_{start_date}_{end_date}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="payments_{file_suffix}.xlsx"'
     wb.save(response)
     
     return response
@@ -1115,15 +1146,27 @@ def export_products(request):
         if date_range == 'today':
             start_date = today
             end_date = today
+        elif date_range == 'yesterday':
+            start_date = today - timedelta(days=1)
+            end_date = today - timedelta(days=1)
         elif date_range == 'week':
             start_date = today - timedelta(days=today.weekday())
             end_date = today
+        elif date_range == 'last_week':
+            start_date = today - timedelta(days=today.weekday() + 7)
+            end_date = today - timedelta(days=today.weekday() + 1)
         elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
+        elif date_range == 'last_month':
+            end_date = today.replace(day=1) - timedelta(days=1)
+            start_date = end_date.replace(day=1)
         elif date_range == 'year':
             start_date = today.replace(month=1, day=1)
             end_date = today
+        elif date_range == 'last_year':
+            end_date = today.replace(month=1, day=1) - timedelta(days=1)
+            start_date = end_date.replace(month=1, day=1)
         else: # custom
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')
@@ -1188,7 +1231,7 @@ def export_products(request):
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = f'attachment; filename="products_{start_date}_{end_date}.xlsx"'
+    response['Content-Disposition'] = f'attachment; filename="products_{file_suffix}.xlsx"'
     wb.save(response)
     
     return response
@@ -1225,15 +1268,27 @@ def export_services(request):
         if date_range == 'today':
             start_date = today
             end_date = today
+        elif date_range == 'yesterday':
+            start_date = today - timedelta(days=1)
+            end_date = today - timedelta(days=1)
         elif date_range == 'week':
             start_date = today - timedelta(days=today.weekday())
             end_date = today
+        elif date_range == 'last_week':
+            start_date = today - timedelta(days=today.weekday() + 7)
+            end_date = today - timedelta(days=today.weekday() + 1)
         elif date_range == 'month':
             start_date = today.replace(day=1)
             end_date = today
+        elif date_range == 'last_month':
+            end_date = today.replace(day=1) - timedelta(days=1)
+            start_date = end_date.replace(day=1)
         elif date_range == 'year':
             start_date = today.replace(month=1, day=1)
             end_date = today
+        elif date_range == 'last_year':
+            end_date = today.replace(month=1, day=1) - timedelta(days=1)
+            start_date = end_date.replace(month=1, day=1)
         else: # custom
             start_date = request.GET.get('start_date')
             end_date = request.GET.get('end_date')

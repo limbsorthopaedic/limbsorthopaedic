@@ -381,9 +381,13 @@ class ExportFilterForm(forms.Form):
     """Form for filtering exports"""
     RANGE_CHOICES = (
         ('all', 'All Time'),
+        ('yesterday', 'Yesterday'),
         ('today', 'Today'),
+        ('last_week', 'Last Week'),
         ('week', 'This Week'),
+        ('last_month', 'Last Month'),
         ('month', 'This Month'),
+        ('last_year', 'Last Year'),
         ('year', 'This Year'),
         ('custom', 'Custom Range'),
     )
