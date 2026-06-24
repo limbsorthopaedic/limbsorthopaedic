@@ -692,21 +692,23 @@ def admin_invoice_download(request, invoice_id):
     doc.add_paragraph()  # Spacing
     
     # Services table with enhanced styling
-    services_table = doc.add_table(rows=1, cols=4)
+    services_table = doc.add_table(rows=1, cols=5)
     services_table.style = 'Light Grid Accent 1'
     
     # Set column widths
-    services_table.columns[0].width = Inches(3.5)
-    services_table.columns[1].width = Inches(1.0)
-    services_table.columns[2].width = Inches(1.5)
-    services_table.columns[3].width = Inches(1.5)
+    services_table.columns[0].width = Inches(3.0)
+    services_table.columns[1].width = Inches(0.8)
+    services_table.columns[2].width = Inches(1.2)
+    services_table.columns[3].width = Inches(1.0)
+    services_table.columns[4].width = Inches(1.5)
     
     # Header row with blue background
     header_cells = services_table.rows[0].cells
     header_cells[0].text = 'Description'
     header_cells[1].text = 'Quantity'
     header_cells[2].text = 'Unit Price'
-    header_cells[3].text = 'Total'
+    header_cells[3].text = 'VAT (KSh)'
+    header_cells[4].text = 'Total'
     
     for i, cell in enumerate(header_cells):
         cell.paragraphs[0].runs[0].font.bold = True
@@ -741,14 +743,22 @@ def admin_invoice_download(request, invoice_id):
         row_cells[2].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
         row_cells[2].paragraphs[0].runs[0].font.size = Pt(10)
         
-        row_cells[3].text = f"KSh {item.total_price:,.2f}"
+        vat_val = getattr(item, 'vat_amount', 0)
+        if vat_val is None:
+            vat_val = 0
+            
+        row_cells[3].text = f"KSh {vat_val:,.2f}"
         row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
         row_cells[3].paragraphs[0].runs[0].font.size = Pt(10)
+        
+        row_cells[4].text = f"KSh {item.total_price:,.2f}"
+        row_cells[4].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        row_cells[4].paragraphs[0].runs[0].font.size = Pt(10)
     
     doc.add_paragraph()  # Spacing
     
     # Totals section with enhanced styling
-    totals_table = doc.add_table(rows=3, cols=2)
+    totals_table = doc.add_table(rows=2, cols=2)
     totals_table.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     totals_table.columns[0].width = Inches(1.5)
     totals_table.columns[1].width = Inches(2.0)
@@ -762,28 +772,19 @@ def admin_invoice_download(request, invoice_id):
     totals_table.rows[0].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
     totals_table.rows[0].cells[1].paragraphs[0].runs[0].font.size = Pt(11)
     
-    # VAT
-    totals_table.rows[1].cells[0].text = 'VAT (16%):'
-    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.bold = True
-    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.size = Pt(11)
-    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(44, 62, 80)
-    totals_table.rows[1].cells[1].text = f"KSh {invoice.tax_amount:,.2f}"
-    totals_table.rows[1].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    totals_table.rows[1].cells[1].paragraphs[0].runs[0].font.size = Pt(11)
-    
     # Total with green background
-    totals_table.rows[2].cells[0].text = 'TOTAL:'
-    totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.bold = True
-    totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.size = Pt(14)
-    totals_table.rows[2].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
-    totals_table.rows[2].cells[1].text = f"KSh {invoice.total_amount:,.2f}"
-    totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.bold = True
-    totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.size = Pt(14)
-    totals_table.rows[2].cells[1].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
-    totals_table.rows[2].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    totals_table.rows[1].cells[0].text = 'TOTAL:'
+    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.size = Pt(14)
+    totals_table.rows[1].cells[0].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+    totals_table.rows[1].cells[1].text = f"KSh {invoice.total_amount:,.2f}"
+    totals_table.rows[1].cells[1].paragraphs[0].runs[0].font.bold = True
+    totals_table.rows[1].cells[1].paragraphs[0].runs[0].font.size = Pt(14)
+    totals_table.rows[1].cells[1].paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+    totals_table.rows[1].cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
     
     # Green background for total row
-    for cell in totals_table.rows[2].cells:
+    for cell in totals_table.rows[1].cells:
         shading_elm = OxmlElement('w:shd')
         shading_elm.set(qn('w:fill'), '27AE60')
         cell._element.get_or_add_tcPr().append(shading_elm)
