@@ -182,6 +182,7 @@
                         <th>Qty</th>
                         <th>Status</th>
                         <th>Subtotal</th>
+                        <th style="text-align: center;">Select</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -199,6 +200,12 @@
                             </span>
                         </td>
                         <td>KSh {{ vp.subtotal|floatformat:2 }}</td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="invoice-item-checkbox" 
+                                data-name="{{ vp.product.name }}" 
+                                data-qty="{{ vp.quantity }}" 
+                                data-price="{{ vp.price_at_time }}">
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -209,6 +216,12 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div style="padding: 1rem; text-align: right; border-top: 1px solid var(--lol-gray-200);">
+            <button class="btn btn-primary" id="generateInvoiceBtn">
+                <span class="material-icons" style="font-size: 1.2rem; margin-right: 0.5rem; vertical-align: middle;">receipt</span>
+                Generate Invoice
+            </button>
         </div>
     </div>
 </div>
@@ -260,4 +273,63 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('generateInvoiceBtn');
+    if (btn) {
+        btn.addEventListener('click', function() {
+            const selectedItems = [];
+            document.querySelectorAll('.invoice-item-checkbox:checked').forEach(function(checkbox) {
+                selectedItems.push({
+                    name: checkbox.getAttribute('data-name'),
+                    quantity: parseInt(checkbox.getAttribute('data-qty')),
+                    unitPrice: parseFloat(checkbox.getAttribute('data-price')),
+                    vatPercentage: 0
+                });
+            });
+
+            if (selectedItems.length === 0) {
+                alert('Please select at least one product or service to generate an invoice.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            formData.append('patient_name', "{{ patient.full_name|escapejs }}");
+            formData.append('patient_address', "{{ patient.residence|escapejs }}");
+            formData.append('patient_phone', "{{ patient.contact|escapejs }}");
+            formData.append('services_data', JSON.stringify(selectedItems));
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="material-icons" style="font-size: 1.2rem; margin-right: 0.5rem; vertical-align: middle;">hourglass_empty</span> Generating...';
+            btn.disabled = true;
+
+            fetch("{% url 'admin_save_invoice' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.open("{% url 'admin_invoice_list' %}", '_blank');
+                    document.querySelectorAll('.invoice-item-checkbox').forEach(cb => cb.checked = false);
+                } else {
+                    alert('Error generating invoice: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while generating the invoice.');
+            })
+            .finally(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        });
+    }
+});
+</script>
 {% endblock %}
