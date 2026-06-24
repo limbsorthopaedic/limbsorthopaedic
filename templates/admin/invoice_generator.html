@@ -445,7 +445,7 @@
                             <label for="service1">Service/Item Description</label>
                             <input type="text" id="service1" placeholder="Enter service or item description">
                         </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                             <div class="form-group">
                                 <label for="quantity1">Quantity</label>
                                 <input type="number" id="quantity1" min="1" value="1">
@@ -453,6 +453,10 @@
                             <div class="form-group">
                                 <label for="price1">Unit Price (KSh)</label>
                                 <input type="number" id="price1" min="0" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="vat1">VAT (%)</label>
+                                <input type="number" id="vat1" min="0" step="0.01" value="0">
                             </div>
                         </div>
                     </div>
@@ -499,8 +503,9 @@
                 <thead>
                     <tr>
                         <th>Description</th>
-                        <th>Quantity</th>
-                        <th style="text-align: right;">Unit Price</th>
+                        <th style="width: 10%; text-align: center;">Quantity</th>
+                        <th style="width: 20%; text-align: right;">Unit Price</th>
+                        <th style="width: 15%; text-align: right;">VAT (KSh)</th>
                         <th style="text-align: right;">Total</th>
                     </tr>
                 </thead>
@@ -514,10 +519,6 @@
                     <tr>
                         <td>Subtotal:</td>
                         <td id="subtotal" style="text-align: right;"></td>
-                    </tr>
-                    <tr>
-                        <td>VAT (16%):</td>
-                        <td id="vatAmount" style="text-align: right;"></td>
                     </tr>
                     <tr class="total-row">
                         <td>TOTAL:</td>
@@ -596,7 +597,7 @@ function addServiceEntry() {
             <label for="service${serviceCount}">Service/Item Description</label>
             <input type="text" id="service${serviceCount}" placeholder="Enter service or item description">
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 50px; gap: 15px; align-items: end;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 50px; gap: 15px; align-items: end;">
             <div class="form-group">
                 <label for="quantity${serviceCount}">Quantity</label>
                 <input type="number" id="quantity${serviceCount}" min="1" value="1">
@@ -604,6 +605,10 @@ function addServiceEntry() {
             <div class="form-group">
                 <label for="price${serviceCount}">Unit Price (KSh)</label>
                 <input type="number" id="price${serviceCount}" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label for="vat${serviceCount}">VAT (%)</label>
+                <input type="number" id="vat${serviceCount}" min="0" step="0.01" value="0">
             </div>
             <button class="btn" onclick="removeService(this)" style="background: #e74c3c; padding: 10px; height: 40px;">
                 <span class="material-icons" style="font-size: 1rem;">close</span>
@@ -627,17 +632,23 @@ function getServiceEntries() {
         const serviceInput = entry.querySelector(`input[id^="service"]`);
         const quantityInput = entry.querySelector(`input[id^="quantity"]`);
         const priceInput = entry.querySelector(`input[id^="price"]`);
+        const vatInput = entry.querySelector(`input[id^="vat"]`);
 
         const serviceName = serviceInput.value.trim();
         const quantity = parseInt(quantityInput.value) || 1;
         const unitPrice = parseFloat(priceInput.value) || 0;
+        const vatPercentage = parseFloat(vatInput ? vatInput.value : 0) || 0;
 
         if (serviceName && unitPrice > 0) {
+            const itemSubtotal = quantity * unitPrice;
+            const itemVat = itemSubtotal * (vatPercentage / 100);
             services.push({
                 name: serviceName,
                 quantity: quantity,
                 unitPrice: unitPrice,
-                totalPrice: quantity * unitPrice
+                vatPercentage: vatPercentage,
+                vatAmount: itemVat,
+                totalPrice: itemSubtotal + itemVat
             });
         }
     });
@@ -759,8 +770,8 @@ document.getElementById('generateInvoice').addEventListener('click', function() 
 function createInvoiceData(patientName, patientAddress, patientPhone, services) {
     const now = new Date();
 
-    const subtotal = services.reduce((sum, service) => sum + service.totalPrice, 0);
-    const tax = subtotal * 0.16; // 16% VAT
+    const subtotal = services.reduce((sum, service) => sum + (service.quantity * service.unitPrice), 0);
+    const tax = services.reduce((sum, service) => sum + service.vatAmount, 0);
     const total = subtotal + tax;
 
     return {
@@ -801,6 +812,7 @@ function displayInvoice(invoiceData) {
             <td>${service.name}</td>
             <td style="text-align: center;">${service.quantity}</td>
             <td style="text-align: right;">KSh ${service.unitPrice.toLocaleString()}</td>
+            <td style="text-align: right;">KSh ${service.vatAmount.toLocaleString()}</td>
             <td style="text-align: right;">KSh ${service.totalPrice.toLocaleString()}</td>
         `;
         if (index % 2 === 1) {
@@ -809,7 +821,6 @@ function displayInvoice(invoiceData) {
     });
 
     document.getElementById('subtotal').textContent = `KSh ${invoiceData.subtotal.toLocaleString()}`;
-    document.getElementById('vatAmount').textContent = `KSh ${invoiceData.tax.toLocaleString()}`;
     document.getElementById('totalAmount').textContent = `KSh ${invoiceData.total.toLocaleString()}`;
 
     preview.style.display = 'block';
@@ -854,7 +865,7 @@ function resetForm() {
                 <label for="service1">Service/Item Description</label>
                 <input type="text" id="service1" placeholder="Enter service or item description">
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                 <div class="form-group">
                     <label for="quantity1">Quantity</label>
                     <input type="number" id="quantity1" min="1" value="1">
@@ -862,6 +873,10 @@ function resetForm() {
                 <div class="form-group">
                     <label for="price1">Unit Price (KSh)</label>
                     <input type="number" id="price1" min="0" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="vat1">VAT (%)</label>
+                    <input type="number" id="vat1" min="0" step="0.01" value="0">
                 </div>
             </div>
         </div>

@@ -412,24 +412,31 @@ def admin_invoice_edit(request, invoice_id):
             invoice.items.all().delete()
             
             subtotal = 0
+            tax_amount = 0
             services_data = json.loads(request.POST.get('services_data', '[]'))
             
             for service in services_data:
                 if service.get('name') and service.get('unitPrice', 0) > 0:
                     quantity = int(service.get('quantity', 1))
                     unit_price = float(service.get('unitPrice', 0))
+                    vat_pct = float(service.get('vatPercentage', 0))
+                    
+                    item_subtotal = quantity * unit_price
+                    item_vat = item_subtotal * (vat_pct / 100.0)
                     
                     InvoiceItem.objects.create(
                         invoice=invoice,
                         description=service['name'],
                         quantity=quantity,
                         unit_price=unit_price,
-                        total_price=quantity * unit_price
+                        vat_percentage=vat_pct,
+                        vat_amount=item_vat,
+                        total_price=item_subtotal + item_vat
                     )
-                    subtotal += quantity * unit_price
+                    subtotal += item_subtotal
+                    tax_amount += item_vat
             
             # Update totals
-            tax_amount = subtotal * 0.16  # 16% VAT
             invoice.subtotal = subtotal
             invoice.tax_amount = tax_amount
             invoice.total_amount = subtotal + tax_amount
@@ -448,6 +455,7 @@ def admin_invoice_edit(request, invoice_id):
             'name': item.description,
             'quantity': item.quantity,
             'unitPrice': float(item.unit_price),
+            'vatPercentage': float(item.vat_percentage) if hasattr(item, 'vat_percentage') else 0,
             'totalPrice': float(item.total_price)
         })
     
@@ -491,13 +499,19 @@ def admin_save_invoice(request):
         
         # Calculate totals
         subtotal = 0
+        tax_amount = 0
         for service in services_data:
             if service.get('name') and service.get('unitPrice', 0) > 0:
                 quantity = int(service.get('quantity', 1))
                 unit_price = float(service.get('unitPrice', 0))
-                subtotal += quantity * unit_price
+                vat_pct = float(service.get('vatPercentage', 0))
+                
+                item_subtotal = quantity * unit_price
+                item_vat = item_subtotal * (vat_pct / 100.0)
+                
+                subtotal += item_subtotal
+                tax_amount += item_vat
         
-        tax_amount = subtotal * 0.16  # 16% VAT
         total_amount = subtotal + tax_amount
         
         # Create invoice
@@ -518,13 +532,19 @@ def admin_save_invoice(request):
             if service.get('name') and service.get('unitPrice', 0) > 0:
                 quantity = int(service.get('quantity', 1))
                 unit_price = float(service.get('unitPrice', 0))
+                vat_pct = float(service.get('vatPercentage', 0))
+                
+                item_subtotal = quantity * unit_price
+                item_vat = item_subtotal * (vat_pct / 100.0)
                 
                 InvoiceItem.objects.create(
                     invoice=invoice,
                     description=service['name'],
                     quantity=quantity,
                     unit_price=unit_price,
-                    total_price=quantity * unit_price
+                    vat_percentage=vat_pct,
+                    vat_amount=item_vat,
+                    total_price=item_subtotal + item_vat
                 )
         
         return JsonResponse({

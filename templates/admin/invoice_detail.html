@@ -521,8 +521,9 @@
             <thead>
                 <tr>
                     <th>Description</th>
-                    <th>Quantity</th>
-                    <th style="text-align: right;">Unit Price</th>
+                    <th style="width: 10%; text-align: center;">Quantity</th>
+                    <th style="width: 20%; text-align: right;">Unit Price</th>
+                    <th style="width: 15%; text-align: right;">VAT (KSh)</th>
                     <th style="text-align: right;">Total</th>
                 </tr>
             </thead>
@@ -532,6 +533,7 @@
                     <td>{{ item.description }}</td>
                     <td style="text-align: center;">{{ item.quantity }}</td>
                     <td style="text-align: right;">KSh {{ item.unit_price|floatformat:2 }}</td>
+                    <td style="text-align: right;">KSh {{ item.vat_amount|default:0|floatformat:2 }}</td>
                     <td style="text-align: right;">KSh {{ item.total_price|floatformat:2 }}</td>
                 </tr>
                 {% endfor %}
@@ -543,10 +545,6 @@
                 <tr>
                     <td>Subtotal:</td>
                     <td style="text-align: right;">KSh {{ invoice.subtotal|floatformat:2 }}</td>
-                </tr>
-                <tr>
-                    <td>VAT (16%):</td>
-                    <td style="text-align: right;">KSh {{ invoice.tax_amount|floatformat:2 }}</td>
                 </tr>
                 <tr class="total-row">
                     <td>TOTAL:</td>
