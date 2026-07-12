@@ -11,7 +11,10 @@ from django.contrib.admin import AdminSite
 from .admin_views import (
     admin_dashboard, admin_logout_view, admin_invoice_generator,
     admin_invoice_list, admin_invoice_detail, admin_invoice_edit,
-    admin_save_invoice, admin_invoice_delete, admin_invoice_download
+    admin_save_invoice, admin_invoice_delete, admin_invoice_download,
+    admin_receipt_generator, admin_receipt_list, admin_receipt_detail,
+    admin_receipt_edit, admin_save_receipt, admin_receipt_delete,
+    admin_receipt_download
 )
 from core import views as core_views
 
@@ -53,6 +56,13 @@ urlpatterns = [
     path('adminlimbsorth/invoices/<int:invoice_id>/delete/', admin_invoice_delete, name='admin_invoice_delete'),
     path('adminlimbsorth/invoices/<int:invoice_id>/download/', admin_invoice_download, name='admin_invoice_download'),
     path('adminlimbsorth/save-invoice/', admin_save_invoice, name='admin_save_invoice'),
+    path('adminlimbsorth/receipt-generator/', admin_receipt_generator, name='admin_receipt_generator'),
+    path('adminlimbsorth/receipts/', admin_receipt_list, name='admin_receipt_list'),
+    path('adminlimbsorth/receipts/<int:receipt_id>/', admin_receipt_detail, name='admin_receipt_detail'),
+    path('adminlimbsorth/receipts/<int:receipt_id>/edit/', admin_receipt_edit, name='admin_receipt_edit'),
+    path('adminlimbsorth/receipts/<int:receipt_id>/delete/', admin_receipt_delete, name='admin_receipt_delete'),
+    path('adminlimbsorth/receipts/<int:receipt_id>/download/', admin_receipt_download, name='admin_receipt_download'),
+    path('adminlimbsorth/save-receipt/', admin_save_receipt, name='admin_save_receipt'),
     path('adminlimbsorth/logout/', admin_logout_view, name='admin_logout'),
     path('adminlimbsorth/', admin.site.urls),  # Primary admin URL
     path('set-theme/', core_views.set_theme_preference, name='set_theme'),

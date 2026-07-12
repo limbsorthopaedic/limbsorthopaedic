@@ -29,7 +29,7 @@ from gallery.models import Gallery
 from staff_chat.models import StaffChatMessage
 from testimonials.models import Testimonial
 from careers.models import Career, CareerApplication
-from limbs_orthopaedic.models import Invoice, InvoiceItem
+from limbs_orthopaedic.models import Invoice, InvoiceItem, Receipt, ReceiptItem
 from django.utils import timezone
 from datetime import datetime
 
@@ -917,3 +917,386 @@ def admin_logout_view(request):
     """Custom admin logout view that redirects to homepage"""
     logout(request)
     return redirect('/')
+
+
+# ==========================================
+# Receipt Management Views
+# ==========================================
+
+@staff_member_required
+def admin_receipt_generator(request):
+    """View to generate a new receipt manually or from patient page"""
+    patient_name = request.GET.get('patient_name', '')
+    patient_phone = request.GET.get('patient_phone', '')
+    services_data = request.GET.get('services_data', '[]')
+    
+    context = {
+        'patient_name': patient_name,
+        'patient_phone': patient_phone,
+        'services_data': services_data,
+        'admin_page': True,
+    }
+    return render(request, 'admin/receipt_generator.html', context)
+
+
+@staff_member_required
+def admin_receipt_list(request):
+    """View to list all generated receipts"""
+    receipts = Receipt.objects.all().order_by('-created_at')
+    
+    # Optional search filtering
+    search_query = request.GET.get('q', '')
+    if search_query:
+        receipts = receipts.filter(
+            Q(receipt_number__icontains=search_query) |
+            Q(patient_name__icontains=search_query) |
+            Q(patient_phone__icontains=search_query)
+        )
+        
+    context = {
+        'receipts': receipts,
+        'search_query': search_query,
+        'admin_page': True,
+    }
+    return render(request, 'admin/receipt_list.html', context)
+
+
+@staff_member_required
+def admin_receipt_detail(request, receipt_id):
+    """View details of a generated receipt"""
+    receipt = get_object_or_404(Receipt, id=receipt_id)
+    
+    context = {
+        'receipt': receipt,
+        'admin_page': True,
+    }
+    return render(request, 'admin/receipt_detail.html', context)
+
+
+@staff_member_required
+def admin_receipt_edit(request, receipt_id):
+    """View to edit an existing receipt"""
+    receipt = get_object_or_404(Receipt, id=receipt_id)
+    
+    # Prepare items data for JavaScript
+    items_data = []
+    for item in receipt.items.all():
+        items_data.append({
+            'description': item.description,
+            'mode_of_payment': item.mode_of_payment,
+            'amount': float(item.amount),
+        })
+        
+    context = {
+        'receipt': receipt,
+        'items_data_json': json.dumps(items_data),
+        'admin_page': True,
+    }
+    return render(request, 'admin/receipt_edit.html', context)
+
+
+@staff_member_required
+@require_POST
+def admin_save_receipt(request):
+    """AJAX endpoint to save a generated or edited receipt"""
+    try:
+        data = request.POST
+        
+        patient_name = data.get('patient_name')
+        patient_phone = data.get('patient_phone')
+        amount_in_words = data.get('amount_in_words', '')
+        services_data_str = data.get('services_data', '[]')
+        receipt_id = data.get('receipt_id')
+        
+        services_data = json.loads(services_data_str)
+        
+        # Calculate total amount
+        total_amount = sum(float(item.get('amount', 0)) for item in services_data)
+        
+        if receipt_id:
+            # Update existing receipt
+            receipt = get_object_or_404(Receipt, id=receipt_id)
+            receipt.patient_name = patient_name
+            receipt.patient_phone = patient_phone
+            receipt.amount_in_words = amount_in_words
+            receipt.total_amount = total_amount
+            receipt.save()
+            
+            # Delete old items and create new ones
+            receipt.items.all().delete()
+            
+        else:
+            # Create new receipt
+            # Generate unique receipt number and tracking code
+            now = timezone.now()
+            year_month = now.strftime('%Y%m')
+            
+            # Simple receipt number generation based on count
+            count = Receipt.objects.filter(created_at__year=now.year, created_at__month=now.month).count() + 1
+            receipt_number = f"REC-{year_month}-{count:04d}"
+            
+            import uuid
+            tracking_code = uuid.uuid4().hex[:10].upper()
+            
+            receipt = Receipt.objects.create(
+                receipt_number=receipt_number,
+                tracking_code=tracking_code,
+                patient_name=patient_name,
+                patient_phone=patient_phone,
+                amount_in_words=amount_in_words,
+                total_amount=total_amount,
+                created_by=request.user
+            )
+            
+        # Create new items
+        for item_data in services_data:
+            ReceiptItem.objects.create(
+                receipt=receipt,
+                description=item_data.get('description', ''),
+                mode_of_payment=item_data.get('mode_of_payment', ''),
+                amount=item_data.get('amount', 0)
+            )
+            
+        return JsonResponse({
+            'success': True, 
+            'receipt_id': receipt.id,
+            'message': 'Receipt saved successfully.'
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@staff_member_required
+@require_POST
+def admin_receipt_delete(request, receipt_id):
+    """Delete a receipt"""
+    receipt = get_object_or_404(Receipt, id=receipt_id)
+    receipt.delete()
+    messages.success(request, f"Receipt {receipt.receipt_number} has been deleted.")
+    return redirect('admin_receipt_list')
+
+
+@staff_member_required
+def admin_receipt_download(request, receipt_id):
+    """Download receipt as Word document with NodeJS-equivalent styling"""
+    from docx.enum.section import WD_ORIENT
+    import os
+    from django.conf import settings
+    
+    receipt = get_object_or_404(Receipt, id=receipt_id)
+    
+    doc = Document()
+    
+    # Setup Landscape Orientation (8.5x11 inches swapped)
+    section = doc.sections[0]
+    section.orientation = WD_ORIENT.LANDSCAPE
+    section.page_width = Inches(11)
+    section.page_height = Inches(8.5)
+    
+    # 0.5 inch margins
+    section.top_margin = Inches(0.5)
+    section.bottom_margin = Inches(0.5)
+    section.left_margin = Inches(0.5)
+    section.right_margin = Inches(0.5)
+    
+    NAVY = RGBColor(27, 42, 94) # 1B2A5E
+    TEAL = RGBColor(58, 182, 214) # 3AB6D6
+    GREY = RGBColor(102, 102, 102) # 666666
+    
+    # Attempt to add letterhead
+    try:
+        letterhead_path = os.path.join(settings.BASE_DIR, 'static', 'assets', 'img', 'letterhead.png')
+        if os.path.exists(letterhead_path):
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            r = p.add_run()
+            r.add_picture(letterhead_path, width=Inches(6.2), height=Inches(1.14)) # Approx 620x114 px
+    except Exception as e:
+        pass
+        
+    # Rule under letterhead (Teal line)
+    p = doc.add_paragraph()
+    pBdr = OxmlElement('w:pBdr')
+    bottom = OxmlElement('w:bottom')
+    bottom.set(qn('w:val'), 'single')
+    bottom.set(qn('w:sz'), '16')
+    bottom.set(qn('w:color'), '3AB6D6')
+    pBdr.append(bottom)
+    p.paragraph_format.element.get_or_add_pPr().append(pBdr)
+    
+    # Spacing
+    doc.add_paragraph()
+    
+    # Title
+    p_title = doc.add_paragraph("PAYMENT RECEIPT")
+    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p_title.runs[0]
+    run.font.bold = True
+    run.font.size = Pt(24)
+    run.font.color.rgb = NAVY
+    run.font.name = 'Calibri'
+    
+    doc.add_paragraph()
+    
+    def add_field_cell(cell, label, value):
+        cell.vertical_alignment = WD_ALIGN_PARAGRAPH.BOTTOM
+        p_label = cell.paragraphs[0]
+        p_label.paragraph_format.space_after = Pt(2)
+        r_label = p_label.add_run(label)
+        r_label.font.bold = True
+        r_label.font.size = Pt(11)
+        r_label.font.color.rgb = NAVY
+        r_label.font.name = 'Calibri'
+        
+        p_val = cell.add_paragraph(value if value else " ")
+        p_val.paragraph_format.space_after = Pt(0)
+        p_val.runs[0].font.size = Pt(12)
+        
+        # Bottom border for the value
+        pBdr = OxmlElement('w:pBdr')
+        bottom = OxmlElement('w:bottom')
+        bottom.set(qn('w:val'), 'single')
+        bottom.set(qn('w:sz'), '6')
+        bottom.set(qn('w:color'), '999999')
+        pBdr.append(bottom)
+        p_val.paragraph_format.element.get_or_add_pPr().append(pBdr)
+        
+        # Remove cell borders
+        tcPr = cell._element.get_or_add_tcPr()
+        tcBorders = OxmlElement('w:tcBorders')
+        for border_name in ['top', 'left', 'bottom', 'right']:
+            b = OxmlElement(f'w:{border_name}')
+            b.set(qn('w:val'), 'nil')
+            tcBorders.append(b)
+        tcPr.append(tcBorders)
+
+    # Received From row
+    table1 = doc.add_table(rows=1, cols=3)
+    table1.autofit = False
+    table1.columns[0].width = Inches(5.0)
+    table1.columns[1].width = Inches(2.5)
+    table1.columns[2].width = Inches(2.5)
+    
+    add_field_cell(table1.cell(0,0), "RECEIVED FROM", "")
+    add_field_cell(table1.cell(0,1), "RECEIPT NO.", receipt.receipt_number)
+    add_field_cell(table1.cell(0,2), "DATE", receipt.created_at.strftime('%d/%m/%Y'))
+    
+    doc.add_paragraph()
+    
+    # Patient info row
+    table2 = doc.add_table(rows=1, cols=3)
+    table2.autofit = False
+    table2.columns[0].width = Inches(3.4)
+    table2.columns[1].width = Inches(3.3)
+    table2.columns[2].width = Inches(3.3)
+    
+    add_field_cell(table2.cell(0,0), "PATIENT / CLIENT NAME", receipt.patient_name)
+    add_field_cell(table2.cell(0,1), "PHONE NUMBER", receipt.patient_phone)
+    add_field_cell(table2.cell(0,2), "FILE / ACCOUNT NO.", "")
+    
+    doc.add_paragraph()
+    doc.add_paragraph()
+    
+    # Items Table
+    items_table = doc.add_table(rows=1, cols=4)
+    items_table.autofit = False
+    items_table.columns[0].width = Inches(0.8)
+    items_table.columns[1].width = Inches(5.2)
+    items_table.columns[2].width = Inches(2.0)
+    items_table.columns[3].width = Inches(2.0)
+    
+    hdr_cells = items_table.rows[0].cells
+    headers = ["#", "DESCRIPTION / PARTICULARS", "MODE OF PAYMENT", "AMOUNT (KES)"]
+    for i, text in enumerate(headers):
+        hdr_cells[i].text = text
+        p = hdr_cells[i].paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = p.runs[0]
+        r.font.bold = True
+        r.font.size = Pt(11)
+        r.font.color.rgb = RGBColor(255, 255, 255)
+        # Navy background
+        shading_elm = OxmlElement('w:shd')
+        shading_elm.set(qn('w:fill'), '1B2A5E')
+        hdr_cells[i]._element.get_or_add_tcPr().append(shading_elm)
+    
+    items = receipt.items.all()
+    # Ensure at least 4 rows
+    num_rows = max(4, len(items))
+    for i in range(num_rows):
+        row_cells = items_table.add_row().cells
+        if i < len(items):
+            item = items[i]
+            row_cells[0].text = str(i+1)
+            row_cells[1].text = item.description
+            row_cells[2].text = item.mode_of_payment
+            row_cells[3].text = f"{item.amount:,.2f}"
+        else:
+            row_cells[0].text = str(i+1)
+            
+        for idx, cell in enumerate(row_cells):
+            if idx == 0:
+                cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    # Total Row
+    tot_row = items_table.add_row().cells
+    tot_row[1].merge(tot_row[2]) # merge description and mode
+    tot_row[1].text = "TOTAL"
+    tot_row[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    tot_row[1].paragraphs[0].runs[0].font.bold = True
+    tot_row[1].paragraphs[0].runs[0].font.size = Pt(12)
+    tot_row[1].paragraphs[0].runs[0].font.color.rgb = NAVY
+    
+    tot_row[3].text = f"{receipt.total_amount:,.2f}"
+    tot_row[3].paragraphs[0].runs[0].font.bold = True
+    
+    # Light background for total row
+    shading_elm = OxmlElement('w:shd')
+    shading_elm.set(qn('w:fill'), 'EAF6FA')
+    tot_row[1]._element.get_or_add_tcPr().append(shading_elm)
+    shading_elm2 = OxmlElement('w:shd')
+    shading_elm2.set(qn('w:fill'), 'EAF6FA')
+    tot_row[3]._element.get_or_add_tcPr().append(shading_elm2)
+    
+    doc.add_paragraph()
+    doc.add_paragraph()
+    
+    # Amount in words
+    table_amt = doc.add_table(rows=1, cols=1)
+    table_amt.autofit = False
+    table_amt.columns[0].width = Inches(10.0)
+    add_field_cell(table_amt.cell(0,0), "AMOUNT IN WORDS", receipt.amount_in_words)
+    
+    doc.add_paragraph()
+    doc.add_paragraph()
+    
+    # Signatures
+    table_sig = doc.add_table(rows=1, cols=3)
+    table_sig.autofit = False
+    table_sig.columns[0].width = Inches(3.4)
+    table_sig.columns[1].width = Inches(3.2)
+    table_sig.columns[2].width = Inches(3.4)
+    add_field_cell(table_sig.cell(0,0), "RECEIVED BY (Name & Signature)", "")
+    add_field_cell(table_sig.cell(0,1), "OFFICIAL STAMP", "")
+    add_field_cell(table_sig.cell(0,2), "CLIENT SIGNATURE", "")
+    
+    doc.add_paragraph()
+    
+    # Footer message
+    p_foot = doc.add_paragraph("Thank you for choosing Limbs Orthopaedic Ltd — Independence starts with limbs.")
+    p_foot.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r_foot = p_foot.runs[0]
+    r_foot.font.italic = True
+    r_foot.font.size = Pt(11)
+    r_foot.font.color.rgb = GREY
+    
+    # Prepare response
+    filename = f"Receipt_{receipt.receipt_number}.docx"
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+    
+    doc.save(response)
+    return response

@@ -1,0 +1,228 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Edit Receipt {{ receipt.receipt_number }} | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.invoice-container { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #2C3E50; background: #f5f5f5; min-height: calc(100vh - 120px); padding: 20px; }
+.invoice-wrapper { max-width: 1200px; margin: 0 auto; }
+.header { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #3AB6D6, #7aeaff); }
+.header h1 { color: #1B2A5E; font-size: 2.5rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+.main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
+.card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.card h2 { color: #1B2A5E; margin-bottom: 20px; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #2C3E50; }
+.form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; }
+.form-group input:focus, .form-group textarea:focus { outline: none; border-color: #3AB6D6; box-shadow: 0 0 0 3px rgba(58, 182, 214, 0.1); }
+.service-entry { margin-bottom: 20px; padding: 20px; border: 2px solid #e0e0e0; border-radius: 10px; background: #f8f9fa; }
+.btn { background: linear-gradient(135deg, #1B2A5E, #3AB6D6); color: white; padding: 15px 30px; border: none; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(27, 42, 94, 0.3); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(27, 42, 94, 0.4); }
+.btn-full { width: 100%; margin-top: 20px; }
+.btn-secondary { background: #6c757d; }
+.invoice-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+.btn-outline { background: transparent; border: 2px solid #1B2A5E; color: #1B2A5E; box-shadow: none; }
+.btn-outline:hover { background: #1B2A5E; color: white; }
+@media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-wrapper">
+        <div class="invoice-actions">
+            <a href="{% url 'admin_receipt_detail' receipt.id %}" class="btn btn-outline" style="padding: 10px 20px;">
+                <span class="material-icons" style="font-size: 1.2rem; vertical-align: middle; margin-right: 5px;">arrow_back</span>
+                Back to Details
+            </a>
+        </div>
+        
+        <div class="header">
+            <h1>
+                <span class="material-icons" style="font-size: 3rem;">edit_document</span>
+                Edit Receipt
+            </h1>
+            <p>Receipt #: <strong>{{ receipt.receipt_number }}</strong></p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>
+                    <span class="material-icons">person</span>
+                    Patient Information
+                </h2>
+                <form id="receiptForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="receiptId" value="{{ receipt.id }}">
+                    <div class="form-group">
+                        <label for="patientName">Patient Name</label>
+                        <input type="text" id="patientName" value="{{ receipt.patient_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhone">Phone Number</label>
+                        <input type="tel" id="patientPhone" value="{{ receipt.patient_phone }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amountInWords">Amount in Words</label>
+                        <textarea id="amountInWords" rows="3">{{ receipt.amount_in_words }}</textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="material-icons">payments</span>
+                    Receipt Items
+                </h2>
+                <div id="servicesContainer">
+                    <!-- Items will be populated by JS -->
+                </div>
+                <button class="btn" id="addService" style="background: #3AB6D6; margin: 10px 5px;">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">add_circle</span>
+                    Add Item
+                </button>
+                <button class="btn btn-full" id="saveReceipt">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">save</span>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let serviceCount = 0;
+const initialItems = {{ items_data_json|safe }};
+
+function initializeApp() {
+    const container = document.getElementById('servicesContainer');
+    if (initialItems && initialItems.length > 0) {
+        initialItems.forEach(item => {
+            serviceCount++;
+            addServiceHtml(serviceCount, item.description, item.mode_of_payment, item.amount);
+        });
+    } else {
+        serviceCount++;
+        addServiceHtml(serviceCount);
+    }
+}
+
+function addServiceHtml(id, desc = '', mode = '', amount = '') {
+    const servicesContainer = document.getElementById('servicesContainer');
+    const newServiceEntry = document.createElement('div');
+    newServiceEntry.className = 'service-entry';
+    newServiceEntry.innerHTML = `
+        <div class="form-group">
+            <label for="service${id}">Description / Particulars</label>
+            <input type="text" id="service${id}" placeholder="Payment for consultation" value="${desc}">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 50px; gap: 15px; align-items: end;">
+            <div class="form-group">
+                <label for="mode${id}">Mode of Payment</label>
+                <input type="text" id="mode${id}" placeholder="e.g. M-PESA, Cash" value="${mode}">
+            </div>
+            <div class="form-group">
+                <label for="amount${id}">Amount (KSh)</label>
+                <input type="number" id="amount${id}" min="0" step="0.01" value="${amount}">
+            </div>
+            <button class="btn" onclick="removeService(this)" style="background: #e74c3c; padding: 10px; height: 40px; margin-bottom: 20px;">
+                <span class="material-icons" style="font-size: 1rem;">close</span>
+            </button>
+        </div>
+    `;
+    servicesContainer.appendChild(newServiceEntry);
+}
+
+document.getElementById('addService').addEventListener('click', function() {
+    serviceCount++;
+    addServiceHtml(serviceCount);
+});
+
+function removeService(button) {
+    button.closest('.service-entry').remove();
+}
+
+function getServiceEntries() {
+    const services = [];
+    const serviceEntries = document.querySelectorAll('.service-entry');
+
+    serviceEntries.forEach((entry) => {
+        const descInput = entry.querySelector(`input[id^="service"]`);
+        const modeInput = entry.querySelector(`input[id^="mode"]`);
+        const amountInput = entry.querySelector(`input[id^="amount"]`);
+
+        const desc = descInput.value.trim();
+        const mode = modeInput.value.trim();
+        const amount = parseFloat(amountInput.value) || 0;
+
+        if (desc && amount > 0) {
+            services.push({
+                description: desc,
+                mode_of_payment: mode,
+                amount: amount
+            });
+        }
+    });
+
+    return services;
+}
+
+document.getElementById('saveReceipt').addEventListener('click', function() {
+    const patientName = document.getElementById('patientName').value.trim();
+    const patientPhone = document.getElementById('patientPhone').value.trim();
+    const amountInWords = document.getElementById('amountInWords').value.trim();
+    const receiptId = document.getElementById('receiptId').value;
+
+    if (!patientName) {
+        alert('Please fill in patient name.');
+        return;
+    }
+
+    const services = getServiceEntries();
+    if (services.length === 0) {
+        alert('Please add at least one valid receipt item.');
+        return;
+    }
+
+    this.innerHTML = 'Saving...';
+    this.disabled = true;
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    formData.append('receipt_id', receiptId);
+    formData.append('patient_name', patientName);
+    formData.append('patient_phone', patientPhone);
+    formData.append('amount_in_words', amountInWords);
+    formData.append('services_data', JSON.stringify(services));
+
+    fetch('{% url "admin_save_receipt" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = `/adminlimbsorth/receipts/${data.receipt_id}/`;
+        } else {
+            alert('Error saving receipt: ' + data.error);
+            this.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">save</span>Save Changes';
+            this.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving receipt.');
+        this.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">save</span>Save Changes';
+        this.disabled = false;
+    });
+});
+
+document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+{% endblock %}

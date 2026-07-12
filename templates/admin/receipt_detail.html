@@ -1,0 +1,304 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{{ receipt.receipt_number }} | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+.invoice-container {
+    font-family: 'Roboto', sans-serif;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100vh - 120px);
+}
+
+.invoice-actions {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1B2A5E, #3AB6D6);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #27AE60, #2ECC71);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.invoice-preview {
+    background: white;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #3AB6D6;
+}
+
+.clinic-info h2 {
+    color: #1B2A5E;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.clinic-info p {
+    color: #666;
+    margin: 2px 0;
+}
+
+.invoice-details {
+    text-align: right;
+}
+
+.invoice-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.patient-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.services-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.services-table th,
+.services-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.services-table th {
+    background: #1B2A5E;
+    color: white;
+    font-weight: bold;
+}
+
+.services-table tr:hover {
+    background: #f8f9fa;
+}
+
+.totals {
+    text-align: right;
+    margin-top: 30px;
+}
+
+.totals table {
+    margin-left: auto;
+    border-collapse: collapse;
+}
+
+.totals td {
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.totals .total-row {
+    background: #EAF6FA;
+    color: #1B2A5E;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+@media print {
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        font-family: 'Roboto', Arial, sans-serif !important;
+        font-size: 12pt !important;
+        line-height: 1.4 !important;
+        color: #2C3E50 !important;
+    }
+    
+    #header, #branding, #user-tools, .breadcrumbs, #nav-sidebar, .invoice-actions {
+        display: none !important;
+    }
+    
+    .invoice-container {
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+    
+    .invoice-preview {
+        box-shadow: none !important;
+        padding: 30px !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        background: white !important;
+    }
+    
+    .invoice-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        margin-bottom: 40px !important;
+        padding-bottom: 20px !important;
+        border-bottom: 3px solid #3AB6D6 !important;
+    }
+    
+    .clinic-info h2 {
+        color: #1B2A5E !important;
+        font-size: 24pt !important;
+        margin-bottom: 10px !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-actions no-print">
+        <a href="{% url 'admin_receipt_list' %}" class="btn btn-secondary">
+            <span class="material-icons">arrow_back</span>
+            Back to List
+        </a>
+        <a href="{% url 'admin_receipt_edit' receipt.id %}" class="btn btn-warning">
+            <span class="material-icons">edit</span>
+            Edit Receipt
+        </a>
+        <a href="{% url 'admin_receipt_download' receipt.id %}" class="btn btn-success">
+            <span class="material-icons">download</span>
+            Download Word Doc
+        </a>
+        <button onclick="window.print()" class="btn btn-primary">
+            <span class="material-icons">print</span>
+            Print View
+        </button>
+        <form method="POST" action="{% url 'admin_receipt_delete' receipt.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
+            {% csrf_token %}
+            <button type="submit" class="btn" style="background: #e74c3c; color: white;">
+                <span class="material-icons">delete</span>
+                Delete
+            </button>
+        </form>
+    </div>
+
+    <div class="invoice-preview" id="printableArea">
+        <div class="invoice-header">
+            <div class="clinic-info">
+                <h2>LIMBS ORTHOPAEDIC LIMITED</h2>
+                <p>ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                <p>Phone: +254 705 347 657</p>
+                <p>Email: info@limbsorthopaedic.org</p>
+                <p>Website: <span style="color: #3AB6D6;">https://limbsorthopaedic.org</span></p>
+            </div>
+            <div class="invoice-details">
+                <div style="font-size: 2rem; font-weight: bold; color: #1B2A5E;">RECEIPT</div>
+                <div class="invoice-number">Receipt #: {{ receipt.receipt_number }}</div>
+                <div>Date: {{ receipt.created_at|date:"M d, Y" }}</div>
+                <div style="font-family: monospace; color: #666; margin-top: 5px;">Tracking: {{ receipt.tracking_code }}</div>
+            </div>
+        </div>
+
+        <div class="patient-info">
+            <h3 style="color: #1B2A5E; margin-bottom: 15px;">RECEIVED FROM:</h3>
+            <div><strong>{{ receipt.patient_name }}</strong></div>
+            <div>Phone: {{ receipt.patient_phone }}</div>
+        </div>
+
+        <table class="services-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Description / Particulars</th>
+                    <th>Mode of Payment</th>
+                    <th style="text-align: right;">Amount (KSh)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in receipt.items.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.mode_of_payment }}</td>
+                    <td style="text-align: right;">KSh {{ item.amount|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center;">No items found in this receipt.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="total-row">
+                    <td colspan="3" style="text-align: right;">TOTAL:</td>
+                    <td style="text-align: right;">KSh {{ receipt.total_amount|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div style="margin-top: 20px;">
+            <strong>Amount in Words: </strong>
+            <span>{{ receipt.amount_in_words }}</span>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+            <p style="font-style: italic; color: #666;">Thank you for choosing Limbs Orthopaedic Ltd — Independence starts with limbs.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

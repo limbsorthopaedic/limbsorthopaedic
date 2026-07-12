@@ -1,0 +1,513 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Receipt Generator | {{ site_title|default:"LIMBS Orthopaedic Admin" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.invoice-container {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #2C3E50;
+    background: linear-gradient(135deg, #1B2A5E 0%, #3AB6D6 100%);
+    min-height: calc(100vh - 120px);
+    padding: 20px;
+}
+
+.invoice-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #3AB6D6, #7aeaff);
+}
+
+.header h1 {
+    color: #1B2A5E;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+}
+
+.card h2 {
+    color: #1B2A5E;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: #3AB6D6;
+    box-shadow: 0 0 0 3px rgba(58, 182, 214, 0.1);
+}
+
+.service-entry {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: #f8f9fa;
+}
+
+.btn {
+    background: linear-gradient(135deg, #1B2A5E, #3AB6D6);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(27, 42, 94, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(27, 42, 94, 0.4);
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.success-message {
+    background: #27AE60;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 30px;
+    display: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.receipt-preview {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-top: 30px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #3AB6D6;
+}
+
+.clinic-info h2 {
+    color: #1B2A5E;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.receipt-details {
+    text-align: right;
+}
+
+.receipt-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+.patient-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.services-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.services-table th, .services-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.services-table th {
+    background: #1B2A5E;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="invoice-container">
+    <div class="invoice-wrapper">
+        <div class="header">
+            <h1>
+                <span class="material-icons" style="font-size: 3rem;">receipt</span>
+                LIMBS Orthopaedic Limited
+            </h1>
+            <p>Professional Receipt Generation System</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>
+                    <span class="material-icons">person</span>
+                    Patient Information
+                </h2>
+                <form id="receiptForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="patientName">Patient Name</label>
+                        <input type="text" id="patientName" value="{{ patient_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhone">Phone Number</label>
+                        <input type="tel" id="patientPhone" value="{{ patient_phone }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amountInWords">Amount in Words</label>
+                        <textarea id="amountInWords" rows="3" placeholder="e.g. Ten Thousand Kenya Shillings Only"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="material-icons">payments</span>
+                    Receipt Items
+                </h2>
+                <div id="servicesContainer">
+                    <div class="service-entry">
+                        <div class="form-group">
+                            <label for="service1">Description / Particulars</label>
+                            <input type="text" id="service1" placeholder="Payment for consultation">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="mode1">Mode of Payment</label>
+                                <input type="text" id="mode1" placeholder="e.g. M-PESA, Cash">
+                            </div>
+                            <div class="form-group">
+                                <label for="amount1">Amount (KSh)</label>
+                                <input type="number" id="amount1" min="0" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" id="addService" style="background: #3AB6D6; margin: 10px 5px;">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">add_circle</span>
+                    Add Item
+                </button>
+                <button class="btn btn-full" id="generateReceipt">
+                    <span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>
+                    Generate Receipt
+                </button>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            Receipt generated successfully!
+        </div>
+
+        <div class="receipt-preview" id="receiptPreview">
+            <div class="receipt-header">
+                <div class="clinic-info">
+                    <h2>LIMBS ORTHOPAEDIC LIMITED</h2>
+                    <p>ICIPE Road, Kasarani, Nairobi, Kenya</p>
+                    <p>Phone: +254 705 347 657</p>
+                </div>
+                <div class="receipt-details">
+                    <div style="font-size: 2rem; font-weight: bold; color: #1B2A5E;">RECEIPT</div>
+                    <div class="receipt-number" id="receiptNumber"></div>
+                    <div id="receiptDate"></div>
+                </div>
+            </div>
+
+            <div class="patient-info">
+                <h3 style="color: #1B2A5E; margin-bottom: 15px;">RECEIVED FROM:</h3>
+                <div id="patientDetails"></div>
+            </div>
+
+            <table class="services-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Description / Particulars</th>
+                        <th>Mode of Payment</th>
+                        <th style="text-align: right;">Amount (KSh)</th>
+                    </tr>
+                </thead>
+                <tbody id="servicesTableBody">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align: right; font-weight: bold; color: #1B2A5E; font-size: 1.2rem;">TOTAL:</td>
+                        <td id="totalAmount" style="text-align: right; font-weight: bold; font-size: 1.2rem;"></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div style="margin-top: 20px;">
+                <strong>Amount in Words: </strong>
+                <span id="previewAmountWords"></span>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+                <p style="font-style: italic; color: #666;">Thank you for choosing Limbs Orthopaedic Ltd — Independence starts with limbs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let serviceCount = 1;
+let initialServices = {{ services_data|safe }};
+
+function initializeApp() {
+    if (initialServices && initialServices.length > 0) {
+        document.getElementById('servicesContainer').innerHTML = '';
+        serviceCount = 0;
+        initialServices.forEach(item => {
+            serviceCount++;
+            addServiceHtml(serviceCount, item.description, item.mode_of_payment, item.amount);
+        });
+    }
+}
+
+function addServiceHtml(id, desc = '', mode = '', amount = '') {
+    const servicesContainer = document.getElementById('servicesContainer');
+    const newServiceEntry = document.createElement('div');
+    newServiceEntry.className = 'service-entry';
+    newServiceEntry.innerHTML = `
+        <div class="form-group">
+            <label for="service${id}">Description / Particulars</label>
+            <input type="text" id="service${id}" placeholder="Payment for consultation" value="${desc}">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 50px; gap: 15px; align-items: end;">
+            <div class="form-group">
+                <label for="mode${id}">Mode of Payment</label>
+                <input type="text" id="mode${id}" placeholder="e.g. M-PESA, Cash" value="${mode}">
+            </div>
+            <div class="form-group">
+                <label for="amount${id}">Amount (KSh)</label>
+                <input type="number" id="amount${id}" min="0" step="0.01" value="${amount}">
+            </div>
+            <button class="btn" onclick="removeService(this)" style="background: #e74c3c; padding: 10px; height: 40px; margin-bottom: 20px;">
+                <span class="material-icons" style="font-size: 1rem;">close</span>
+            </button>
+        </div>
+    `;
+    servicesContainer.appendChild(newServiceEntry);
+}
+
+document.getElementById('addService').addEventListener('click', function() {
+    serviceCount++;
+    addServiceHtml(serviceCount);
+});
+
+function removeService(button) {
+    button.closest('.service-entry').remove();
+}
+
+function getServiceEntries() {
+    const services = [];
+    const serviceEntries = document.querySelectorAll('.service-entry');
+
+    serviceEntries.forEach((entry) => {
+        const descInput = entry.querySelector(`input[id^="service"]`);
+        const modeInput = entry.querySelector(`input[id^="mode"]`);
+        const amountInput = entry.querySelector(`input[id^="amount"]`);
+
+        const desc = descInput.value.trim();
+        const mode = modeInput.value.trim();
+        const amount = parseFloat(amountInput.value) || 0;
+
+        if (desc && amount > 0) {
+            services.push({
+                description: desc,
+                mode_of_payment: mode,
+                amount: amount
+            });
+        }
+    });
+
+    return services;
+}
+
+document.getElementById('generateReceipt').addEventListener('click', function() {
+    const patientName = document.getElementById('patientName').value.trim();
+    const patientPhone = document.getElementById('patientPhone').value.trim();
+    const amountInWords = document.getElementById('amountInWords').value.trim();
+
+    if (!patientName) {
+        alert('Please fill in patient name.');
+        return;
+    }
+
+    const services = getServiceEntries();
+    if (services.length === 0) {
+        alert('Please add at least one valid receipt item.');
+        return;
+    }
+
+    this.innerHTML = 'Generating...';
+    this.disabled = true;
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    formData.append('patient_name', patientName);
+    formData.append('patient_phone', patientPhone);
+    formData.append('amount_in_words', amountInWords);
+    formData.append('services_data', JSON.stringify(services));
+
+    fetch('{% url "admin_save_receipt" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('receiptNumber').textContent = 'Receipt #: Generated';
+            document.getElementById('receiptDate').textContent = 'Date: Today';
+            document.getElementById('patientDetails').innerHTML = `
+                <div><strong>${patientName}</strong></div>
+                <div>Phone: ${patientPhone}</div>
+            `;
+            document.getElementById('previewAmountWords').textContent = amountInWords;
+            
+            const tbody = document.getElementById('servicesTableBody');
+            tbody.innerHTML = '';
+            let total = 0;
+            services.forEach((s, idx) => {
+                total += s.amount;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${s.description}</td>
+                        <td>${s.mode_of_payment}</td>
+                        <td style="text-align: right;">KSh ${s.amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('totalAmount').textContent = `KSh ${total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            document.getElementById('receiptPreview').style.display = 'block';
+            
+            const msg = document.getElementById('successMessage');
+            msg.innerHTML = `Receipt generated successfully! <a href="/adminlimbsorth/receipts/${data.receipt_id}/" style="color: white; text-decoration: underline; margin-left: 10px;">View Receipt</a>`;
+            msg.style.display = 'block';
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        } else {
+            alert('Error saving receipt: ' + data.error);
+        }
+        this.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Receipt';
+        this.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving receipt.');
+        this.innerHTML = '<span class="material-icons" style="font-size: 1rem; margin-right: 5px;">receipt</span>Generate Receipt';
+        this.disabled = false;
+    });
+});
+
+document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+{% endblock %}

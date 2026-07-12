@@ -246,6 +246,7 @@
                         <th>Transaction ID</th>
                         <th>Amount Paid</th>
                         <th>Balance</th>
+                        <th style="text-align: center;">Select</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,6 +261,12 @@
                         <td>{{ payment.mpesa_transaction_id|default:"-" }}</td>
                         <td><strong style="color: var(--lol-success);">KSh {{ payment.amount_paid|floatformat:2|default:"0.00" }}</strong></td>
                         <td>KSh {{ payment.balance|floatformat:2 }}</td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" class="receipt-item-checkbox" 
+                                data-desc="Payment for orthopaedic services" 
+                                data-mode="{{ payment.method }}" 
+                                data-amount="{{ payment.amount_paid|default:'0' }}">
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -270,6 +277,12 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div style="padding: 1rem; text-align: right; border-top: 1px solid var(--lol-gray-200);">
+            <button class="btn btn-primary" id="generateReceiptBtn">
+                <span class="material-icons" style="font-size: 1.2rem; margin-right: 0.5rem; vertical-align: middle;">receipt</span>
+                Generate Receipt
+            </button>
         </div>
     </div>
 </div>
@@ -327,6 +340,61 @@ document.addEventListener('DOMContentLoaded', function() {
             .finally(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+            });
+        });
+    }
+
+    const receiptBtn = document.getElementById('generateReceiptBtn');
+    if (receiptBtn) {
+        receiptBtn.addEventListener('click', function() {
+            const selectedItems = [];
+            document.querySelectorAll('.receipt-item-checkbox:checked').forEach(function(checkbox) {
+                selectedItems.push({
+                    description: checkbox.getAttribute('data-desc'),
+                    mode_of_payment: checkbox.getAttribute('data-mode'),
+                    amount: parseFloat(checkbox.getAttribute('data-amount'))
+                });
+            });
+
+            if (selectedItems.length === 0) {
+                alert('Please select at least one payment to generate a receipt.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            formData.append('patient_name', "{{ patient.full_name|escapejs }}");
+            formData.append('patient_phone', "{{ patient.contact|escapejs }}");
+            formData.append('amount_in_words', ""); // Can be updated in the receipt editor
+            formData.append('services_data', JSON.stringify(selectedItems));
+
+            const originalText = receiptBtn.innerHTML;
+            receiptBtn.innerHTML = '<span class="material-icons" style="font-size: 1.2rem; margin-right: 0.5rem; vertical-align: middle;">hourglass_empty</span> Generating...';
+            receiptBtn.disabled = true;
+
+            fetch("{% url 'admin_save_receipt' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.open("{% url 'admin_receipt_list' %}", '_blank');
+                    document.querySelectorAll('.receipt-item-checkbox').forEach(cb => cb.checked = false);
+                } else {
+                    alert('Error generating receipt: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while generating the receipt.');
+            })
+            .finally(() => {
+                receiptBtn.innerHTML = originalText;
+                receiptBtn.disabled = false;
             });
         });
     }

@@ -66,3 +66,46 @@ class InvoiceItem(models.Model):
     def save(self, *args, **kwargs):
         self.total_price = self.quantity * self.unit_price
         super().save(*args, **kwargs)
+
+
+class Receipt(models.Model):
+    """Model to store receipt data"""
+    receipt_number = models.CharField(max_length=50, unique=True)
+    tracking_code = models.CharField(max_length=50, unique=True)
+    
+    # Patient Information
+    patient_name = models.CharField(max_length=200)
+    patient_phone = models.CharField(max_length=20)
+    
+    # Receipt Details
+    amount_in_words = models.CharField(max_length=500, blank=True, null=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    # Timestamps
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        app_label = 'limbs_orthopaedic'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Receipt {self.receipt_number} - {self.patient_name}"
+    
+    def get_absolute_url(self):
+        return reverse('admin_receipt_detail', kwargs={'receipt_id': self.id})
+
+
+class ReceiptItem(models.Model):
+    """Model to store receipt line items"""
+    receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE, related_name='items')
+    description = models.CharField(max_length=500)
+    mode_of_payment = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    class Meta:
+        app_label = 'limbs_orthopaedic'
+    
+    def __str__(self):
+        return f"{self.description} - {self.mode_of_payment} - KSh {self.amount}"
