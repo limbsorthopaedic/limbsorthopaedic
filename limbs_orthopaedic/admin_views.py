@@ -1081,222 +1081,305 @@ def admin_receipt_delete(request, receipt_id):
 
 @staff_member_required
 def admin_receipt_download(request, receipt_id):
-    """Download receipt as Word document with NodeJS-equivalent styling"""
-    from docx.enum.section import WD_ORIENT
+    """Download receipt as a professionally styled Word document matching the LIMBS receipt template"""
+    from docx.enum.table import WD_ALIGN_VERTICAL
     import os
     from django.conf import settings
-    
+
     receipt = get_object_or_404(Receipt, id=receipt_id)
-    
+
     doc = Document()
-    
-    # Setup Landscape Orientation (8.5x11 inches swapped)
+
+    # ── Portrait A4 page ────────────────────────────────────────────────
     section = doc.sections[0]
-    section.orientation = WD_ORIENT.LANDSCAPE
-    section.page_width = Inches(11)
-    section.page_height = Inches(8.5)
-    
-    # 0.5 inch margins
-    section.top_margin = Inches(0.5)
-    section.bottom_margin = Inches(0.5)
-    section.left_margin = Inches(0.5)
-    section.right_margin = Inches(0.5)
-    
-    NAVY = RGBColor(27, 42, 94) # 1B2A5E
-    TEAL = RGBColor(58, 182, 214) # 3AB6D6
-    GREY = RGBColor(102, 102, 102) # 666666
-    
-    # Attempt to add letterhead
-    try:
-        letterhead_path = os.path.join(settings.BASE_DIR, 'static', 'assets', 'img', 'letterhead.png')
-        if os.path.exists(letterhead_path):
-            p = doc.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            r = p.add_run()
-            r.add_picture(letterhead_path, width=Inches(6.2), height=Inches(1.14)) # Approx 620x114 px
-    except Exception as e:
-        pass
-        
-    # Rule under letterhead (Teal line)
-    p = doc.add_paragraph()
-    pBdr = OxmlElement('w:pBdr')
-    bottom = OxmlElement('w:bottom')
-    bottom.set(qn('w:val'), 'single')
-    bottom.set(qn('w:sz'), '16')
-    bottom.set(qn('w:color'), '3AB6D6')
-    pBdr.append(bottom)
-    p.paragraph_format.element.get_or_add_pPr().append(pBdr)
-    
-    # Spacing
-    doc.add_paragraph()
-    
-    # Title
-    p_title = doc.add_paragraph("PAYMENT RECEIPT")
-    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p_title.runs[0]
-    run.font.bold = True
-    run.font.size = Pt(24)
-    run.font.color.rgb = NAVY
-    run.font.name = 'Calibri'
-    
-    doc.add_paragraph()
-    
-    def add_field_cell(cell, label, value):
-        cell.vertical_alignment = WD_ALIGN_PARAGRAPH.BOTTOM
-        p_label = cell.paragraphs[0]
-        p_label.paragraph_format.space_after = Pt(2)
-        r_label = p_label.add_run(label)
-        r_label.font.bold = True
-        r_label.font.size = Pt(11)
-        r_label.font.color.rgb = NAVY
-        r_label.font.name = 'Calibri'
-        
-        p_val = cell.add_paragraph(value if value else " ")
-        p_val.paragraph_format.space_after = Pt(0)
-        p_val.runs[0].font.size = Pt(12)
-        
-        # Bottom border for the value
-        pBdr = OxmlElement('w:pBdr')
-        bottom = OxmlElement('w:bottom')
-        bottom.set(qn('w:val'), 'single')
-        bottom.set(qn('w:sz'), '6')
-        bottom.set(qn('w:color'), '999999')
-        pBdr.append(bottom)
-        p_val.paragraph_format.element.get_or_add_pPr().append(pBdr)
-        
-        # Remove cell borders
+    section.page_width    = Inches(8.27)
+    section.page_height   = Inches(11.69)
+    section.top_margin    = Inches(0.55)
+    section.bottom_margin = Inches(0.55)
+    section.left_margin   = Inches(0.6)
+    section.right_margin  = Inches(0.6)
+
+    USABLE_W = Inches(7.07)
+
+    NAVY     = RGBColor(27, 42, 94)
+    GREY     = RGBColor(102, 102, 102)
+    WHITE    = RGBColor(255, 255, 255)
+    LIGHT_BG = 'DCF0F8'
+
+    # ── helpers ──────────────────────────────────────────────────────────
+    def clear_cell_borders(cell):
         tcPr = cell._element.get_or_add_tcPr()
         tcBorders = OxmlElement('w:tcBorders')
-        for border_name in ['top', 'left', 'bottom', 'right']:
-            b = OxmlElement(f'w:{border_name}')
+        for side in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
+            b = OxmlElement(f'w:{side}')
             b.set(qn('w:val'), 'nil')
             tcBorders.append(b)
         tcPr.append(tcBorders)
 
-    # Received From row
-    table1 = doc.add_table(rows=1, cols=3)
-    table1.autofit = False
-    table1.columns[0].width = Inches(5.0)
-    table1.columns[1].width = Inches(2.5)
-    table1.columns[2].width = Inches(2.5)
-    
-    add_field_cell(table1.cell(0,0), "RECEIVED FROM", "")
-    add_field_cell(table1.cell(0,1), "RECEIPT NO.", receipt.receipt_number)
-    add_field_cell(table1.cell(0,2), "DATE", receipt.created_at.strftime('%d/%m/%Y'))
-    
-    doc.add_paragraph()
-    
-    # Patient info row
-    table2 = doc.add_table(rows=1, cols=3)
-    table2.autofit = False
-    table2.columns[0].width = Inches(3.4)
-    table2.columns[1].width = Inches(3.3)
-    table2.columns[2].width = Inches(3.3)
-    
-    add_field_cell(table2.cell(0,0), "PATIENT / CLIENT NAME", receipt.patient_name)
-    add_field_cell(table2.cell(0,1), "PHONE NUMBER", receipt.patient_phone)
-    add_field_cell(table2.cell(0,2), "FILE / ACCOUNT NO.", "")
-    
-    doc.add_paragraph()
-    doc.add_paragraph()
-    
-    # Items Table
-    items_table = doc.add_table(rows=1, cols=4)
-    items_table.autofit = False
-    items_table.columns[0].width = Inches(0.8)
-    items_table.columns[1].width = Inches(5.2)
-    items_table.columns[2].width = Inches(2.0)
-    items_table.columns[3].width = Inches(2.0)
-    
-    hdr_cells = items_table.rows[0].cells
-    headers = ["#", "DESCRIPTION / PARTICULARS", "MODE OF PAYMENT", "AMOUNT (KES)"]
-    for i, text in enumerate(headers):
-        hdr_cells[i].text = text
-        p = hdr_cells[i].paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = p.runs[0]
+    def shade_cell(cell, hex_color):
+        shd = OxmlElement('w:shd')
+        shd.set(qn('w:val'), 'clear')
+        shd.set(qn('w:color'), 'auto')
+        shd.set(qn('w:fill'), hex_color)
+        cell._element.get_or_add_tcPr().append(shd)
+
+    def add_para_underline(para, color='BBBBBB', sz='6'):
+        pBdr = OxmlElement('w:pBdr')
+        bot = OxmlElement('w:bottom')
+        bot.set(qn('w:val'), 'single')
+        bot.set(qn('w:sz'), sz)
+        bot.set(qn('w:space'), '1')
+        bot.set(qn('w:color'), color)
+        pBdr.append(bot)
+        para._p.get_or_add_pPr().append(pBdr)
+
+    def add_teal_rule(doc_obj):
+        hr = doc_obj.add_paragraph()
+        hr.paragraph_format.space_before = Pt(4)
+        hr.paragraph_format.space_after  = Pt(4)
+        pBdr = OxmlElement('w:pBdr')
+        bot = OxmlElement('w:bottom')
+        bot.set(qn('w:val'), 'single')
+        bot.set(qn('w:sz'), '12')
+        bot.set(qn('w:space'), '1')
+        bot.set(qn('w:color'), '3AB6D6')
+        pBdr.append(bot)
+        hr._p.get_or_add_pPr().append(pBdr)
+
+    def add_field_cell(cell, label, value=''):
+        cell.vertical_alignment = WD_ALIGN_VERTICAL.BOTTOM
+        p_label = cell.paragraphs[0]
+        p_label.paragraph_format.space_after  = Pt(2)
+        p_label.paragraph_format.space_before = Pt(0)
+        rl = p_label.add_run(label)
+        rl.font.bold      = True
+        rl.font.size      = Pt(9)
+        rl.font.color.rgb = NAVY
+        rl.font.name      = 'Calibri'
+        p_val = cell.add_paragraph(value if value else ' ')
+        p_val.paragraph_format.space_after  = Pt(4)
+        p_val.paragraph_format.space_before = Pt(0)
+        rv = p_val.runs[0]
+        rv.font.size = Pt(11)
+        rv.font.name = 'Calibri'
+        add_para_underline(p_val, color='999999', sz='6')
+        clear_cell_borders(cell)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 1. LETTERHEAD — 2-col table: logo | contact
+    # ════════════════════════════════════════════════════════════════════
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'assets', 'img', 'logo.png')
+
+    hdr_tbl = doc.add_table(rows=1, cols=2)
+    hdr_tbl.autofit = False
+    hdr_tbl.columns[0].width = Inches(3.1)
+    hdr_tbl.columns[1].width = Inches(3.97)
+    for row in hdr_tbl.rows:
+        for cell in row.cells:
+            clear_cell_borders(cell)
+
+    # left cell — logo
+    left_cell = hdr_tbl.cell(0, 0)
+    left_cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
+    lp = left_cell.paragraphs[0]
+    lp.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    lp.paragraph_format.space_after = Pt(0)
+    try:
+        if os.path.exists(logo_path):
+            lp.add_run().add_picture(logo_path, width=Inches(2.8))
+        else:
+            r = lp.add_run('LIMBS ORTHOPAEDIC LTD')
+            r.font.bold = True
+            r.font.size = Pt(18)
+            r.font.color.rgb = NAVY
+    except Exception:
+        r = lp.add_run('LIMBS ORTHOPAEDIC LTD')
         r.font.bold = True
-        r.font.size = Pt(11)
-        r.font.color.rgb = RGBColor(255, 255, 255)
-        # Navy background
-        shading_elm = OxmlElement('w:shd')
-        shading_elm.set(qn('w:fill'), '1B2A5E')
-        hdr_cells[i]._element.get_or_add_tcPr().append(shading_elm)
-    
-    items = receipt.items.all()
-    # Ensure at least 4 rows
-    num_rows = max(4, len(items))
-    for i in range(num_rows):
-        row_cells = items_table.add_row().cells
+        r.font.size = Pt(18)
+        r.font.color.rgb = NAVY
+
+    # right cell — contact details
+    right_cell = hdr_tbl.cell(0, 1)
+    right_cell.vertical_alignment = WD_ALIGN_VERTICAL.TOP
+    contact_lines = [
+        ('ICIPE ROAD, KASARANI, NAIROBI',              True,  False),
+        ('P. O. Box 2229 - 00200, Nairobi.',           False, False),
+        ('Tel: 0714663594, 0719628276, 0705347657',    False, True),
+        ('Email: limbsorthopaedic21@gmail.com',        False, True),
+        ('Website: www.limbsorthopaedic.org',          False, True),
+    ]
+    for idx, (txt, bold, underline) in enumerate(contact_lines):
+        p = right_cell.paragraphs[0] if idx == 0 else right_cell.add_paragraph()
+        p.paragraph_format.space_after  = Pt(1)
+        p.paragraph_format.space_before = Pt(0)
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        r = p.add_run(txt)
+        r.font.size      = Pt(10)
+        r.font.bold      = bold
+        r.font.underline = underline
+        r.font.name      = 'Calibri'
+        r.font.color.rgb = NAVY
+
+    # ── teal divider ─────────────────────────────────────────────────────
+    add_teal_rule(doc)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 2. TITLE
+    # ════════════════════════════════════════════════════════════════════
+    p_title = doc.add_paragraph()
+    p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_title.paragraph_format.space_before = Pt(8)
+    p_title.paragraph_format.space_after  = Pt(12)
+    rt = p_title.add_run('PAYMENT RECEIPT')
+    rt.font.bold      = True
+    rt.font.size      = Pt(20)
+    rt.font.color.rgb = NAVY
+    rt.font.name      = 'Calibri'
+
+    # ════════════════════════════════════════════════════════════════════
+    # 3. RECEIVED FROM / RECEIPT NO / DATE
+    # ════════════════════════════════════════════════════════════════════
+    tbl1 = doc.add_table(rows=1, cols=3)
+    tbl1.autofit = False
+    tbl1.columns[0].width = Inches(3.5)
+    tbl1.columns[1].width = Inches(1.9)
+    tbl1.columns[2].width = Inches(1.67)
+    add_field_cell(tbl1.cell(0, 0), 'RECEIVED FROM', '')
+    add_field_cell(tbl1.cell(0, 1), 'RECEIPT NO.', receipt.receipt_number)
+    add_field_cell(tbl1.cell(0, 2), 'DATE', receipt.created_at.strftime('%d/%m/%Y'))
+
+    sp1 = doc.add_paragraph()
+    sp1.paragraph_format.space_after = Pt(4)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 4. PATIENT NAME / PHONE / FILE NO
+    # ════════════════════════════════════════════════════════════════════
+    tbl2 = doc.add_table(rows=1, cols=3)
+    tbl2.autofit = False
+    tbl2.columns[0].width = Inches(2.36)
+    tbl2.columns[1].width = Inches(2.36)
+    tbl2.columns[2].width = Inches(2.35)
+    add_field_cell(tbl2.cell(0, 0), 'PATIENT / CLIENT NAME', receipt.patient_name)
+    add_field_cell(tbl2.cell(0, 1), 'PHONE NUMBER', receipt.patient_phone)
+    add_field_cell(tbl2.cell(0, 2), 'FILE / ACCOUNT NO.', '')
+
+    sp2 = doc.add_paragraph()
+    sp2.paragraph_format.space_after = Pt(8)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 5. ITEMS TABLE
+    # ════════════════════════════════════════════════════════════════════
+    items = list(receipt.items.all())
+    num_data_rows = max(4, len(items))
+
+    i_tbl = doc.add_table(rows=1 + num_data_rows + 1, cols=4)
+    i_tbl.autofit = False
+    i_tbl.columns[0].width = Inches(0.55)
+    i_tbl.columns[1].width = Inches(4.0)
+    i_tbl.columns[2].width = Inches(1.6)
+    i_tbl.columns[3].width = Inches(0.92)
+
+    # header row
+    hdr_cells = i_tbl.rows[0].cells
+    for idx, txt in enumerate(['#', 'DESCRIPTION / PARTICULARS', 'MODE OF PAYMENT', 'AMOUNT (KES)']):
+        hdr_cells[idx].text = ''
+        p = hdr_cells[idx].paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = p.add_run(txt)
+        r.font.bold      = True
+        r.font.size      = Pt(10)
+        r.font.color.rgb = WHITE
+        r.font.name      = 'Calibri'
+        shade_cell(hdr_cells[idx], '1B2A5E')
+        hdr_cells[idx].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # data rows
+    for i in range(num_data_rows):
+        row_cells = i_tbl.rows[1 + i].cells
         if i < len(items):
             item = items[i]
-            row_cells[0].text = str(i+1)
+            row_cells[0].text = str(i + 1)
             row_cells[1].text = item.description
-            row_cells[2].text = item.mode_of_payment
-            row_cells[3].text = f"{item.amount:,.2f}"
+            row_cells[2].text = item.mode_of_payment or ''
+            row_cells[3].text = f'{item.amount:,.2f}'
         else:
-            row_cells[0].text = str(i+1)
-            
-        for idx, cell in enumerate(row_cells):
-            if idx == 0:
-                cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
-    # Total Row
-    tot_row = items_table.add_row().cells
-    tot_row[1].merge(tot_row[2]) # merge description and mode
-    tot_row[1].text = "TOTAL"
-    tot_row[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    tot_row[1].paragraphs[0].runs[0].font.bold = True
-    tot_row[1].paragraphs[0].runs[0].font.size = Pt(12)
-    tot_row[1].paragraphs[0].runs[0].font.color.rgb = NAVY
-    
-    tot_row[3].text = f"{receipt.total_amount:,.2f}"
-    tot_row[3].paragraphs[0].runs[0].font.bold = True
-    
-    # Light background for total row
-    shading_elm = OxmlElement('w:shd')
-    shading_elm.set(qn('w:fill'), 'EAF6FA')
-    tot_row[1]._element.get_or_add_tcPr().append(shading_elm)
-    shading_elm2 = OxmlElement('w:shd')
-    shading_elm2.set(qn('w:fill'), 'EAF6FA')
-    tot_row[3]._element.get_or_add_tcPr().append(shading_elm2)
-    
-    doc.add_paragraph()
-    doc.add_paragraph()
-    
-    # Amount in words
-    table_amt = doc.add_table(rows=1, cols=1)
-    table_amt.autofit = False
-    table_amt.columns[0].width = Inches(10.0)
-    add_field_cell(table_amt.cell(0,0), "AMOUNT IN WORDS", receipt.amount_in_words)
-    
-    doc.add_paragraph()
-    doc.add_paragraph()
-    
-    # Signatures
-    table_sig = doc.add_table(rows=1, cols=3)
-    table_sig.autofit = False
-    table_sig.columns[0].width = Inches(3.4)
-    table_sig.columns[1].width = Inches(3.2)
-    table_sig.columns[2].width = Inches(3.4)
-    add_field_cell(table_sig.cell(0,0), "RECEIVED BY (Name & Signature)", "")
-    add_field_cell(table_sig.cell(0,1), "OFFICIAL STAMP", "")
-    add_field_cell(table_sig.cell(0,2), "CLIENT SIGNATURE", "")
-    
-    doc.add_paragraph()
-    
-    # Footer message
-    p_foot = doc.add_paragraph("Thank you for choosing Limbs Orthopaedic Ltd — Independence starts with limbs.")
+            row_cells[0].text = str(i + 1)
+        row_cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+        row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        for cell in row_cells:
+            for p in cell.paragraphs:
+                for run in p.runs:
+                    run.font.size = Pt(10)
+                    run.font.name = 'Calibri'
+
+    # total row
+    tot_cells = i_tbl.rows[1 + num_data_rows].cells
+    merged = tot_cells[0].merge(tot_cells[1]).merge(tot_cells[2])
+    merged.text = 'TOTAL'
+    p_tot = merged.paragraphs[0]
+    p_tot.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    r_tot = p_tot.runs[0]
+    r_tot.font.bold      = True
+    r_tot.font.size      = Pt(11)
+    r_tot.font.color.rgb = NAVY
+    r_tot.font.name      = 'Calibri'
+    shade_cell(merged, LIGHT_BG)
+    shade_cell(tot_cells[3], LIGHT_BG)
+    tot_cells[3].text = f'{receipt.total_amount:,.2f}'
+    tot_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    rtv = tot_cells[3].paragraphs[0].runs[0]
+    rtv.font.bold = True
+    rtv.font.size = Pt(11)
+    rtv.font.name = 'Calibri'
+
+    sp3 = doc.add_paragraph()
+    sp3.paragraph_format.space_after = Pt(6)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 6. AMOUNT IN WORDS
+    # ════════════════════════════════════════════════════════════════════
+    tbl_amt = doc.add_table(rows=1, cols=1)
+    tbl_amt.autofit = False
+    tbl_amt.columns[0].width = USABLE_W
+    add_field_cell(tbl_amt.cell(0, 0), 'AMOUNT IN WORDS',
+                   receipt.amount_in_words if receipt.amount_in_words else ' ')
+
+    sp4 = doc.add_paragraph()
+    sp4.paragraph_format.space_after = Pt(16)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 7. SIGNATURES
+    # ════════════════════════════════════════════════════════════════════
+    tbl_sig = doc.add_table(rows=1, cols=3)
+    tbl_sig.autofit = False
+    tbl_sig.columns[0].width = Inches(2.36)
+    tbl_sig.columns[1].width = Inches(2.35)
+    tbl_sig.columns[2].width = Inches(2.36)
+    add_field_cell(tbl_sig.cell(0, 0), 'RECEIVED BY (Name & Signature)', '')
+    add_field_cell(tbl_sig.cell(0, 1), 'OFFICIAL STAMP', '')
+    add_field_cell(tbl_sig.cell(0, 2), 'CLIENT SIGNATURE', '')
+
+    sp5 = doc.add_paragraph()
+    sp5.paragraph_format.space_after = Pt(8)
+
+    # ════════════════════════════════════════════════════════════════════
+    # 8. FOOTER
+    # ════════════════════════════════════════════════════════════════════
+    p_foot = doc.add_paragraph()
     p_foot.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_foot = p_foot.runs[0]
-    r_foot.font.italic = True
-    r_foot.font.size = Pt(11)
+    p_foot.paragraph_format.space_before = Pt(4)
+    r_foot = p_foot.add_run(
+        'Thank you for choosing Limbs Orthopaedic Ltd \u2014 Independence starts with limbs.')
+    r_foot.font.italic    = True
+    r_foot.font.size      = Pt(10)
     r_foot.font.color.rgb = GREY
-    
-    # Prepare response
-    filename = f"Receipt_{receipt.receipt_number}.docx"
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    r_foot.font.name      = 'Calibri'
+
+    # ── stream response ──────────────────────────────────────────────────
+    filename = f'Receipt_{receipt.receipt_number}.docx'
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    )
     response['Content-Disposition'] = f'attachment; filename={filename}'
-    
     doc.save(response)
     return response
