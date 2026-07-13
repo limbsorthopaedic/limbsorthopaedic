@@ -1026,16 +1026,37 @@ def admin_save_receipt(request):
             receipt.items.all().delete()
             
         else:
-            # Create new receipt
-            # Generate unique receipt number and tracking code
+            # Generate a unique receipt number that is safe even when receipts are deleted.
+            # We find the highest existing sequence number for this month and increment it,
+            # then loop until we land on a number that doesn't already exist.
+            import uuid
             now = timezone.now()
             year_month = now.strftime('%Y%m')
-            
-            # Simple receipt number generation based on count
-            count = Receipt.objects.filter(created_at__year=now.year, created_at__month=now.month).count() + 1
-            receipt_number = f"REC-{year_month}-{count:04d}"
-            
-            import uuid
+            prefix = f"REC-{year_month}-"
+
+            # Find the highest sequence already used this month
+            existing = (
+                Receipt.objects
+                .filter(receipt_number__startswith=prefix)
+                .values_list('receipt_number', flat=True)
+            )
+            max_seq = 0
+            for num in existing:
+                try:
+                    seq = int(num[len(prefix):])
+                    if seq > max_seq:
+                        max_seq = seq
+                except (ValueError, IndexError):
+                    pass
+
+            # Keep incrementing until we find a slot that isn't taken
+            candidate = max_seq + 1
+            while True:
+                receipt_number = f"{prefix}{candidate:04d}"
+                if not Receipt.objects.filter(receipt_number=receipt_number).exists():
+                    break
+                candidate += 1
+
             tracking_code = uuid.uuid4().hex[:10].upper()
             
             receipt = Receipt.objects.create(
