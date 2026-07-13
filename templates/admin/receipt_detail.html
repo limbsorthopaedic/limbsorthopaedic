@@ -222,12 +222,12 @@
         </a>
         <a href="{% url 'admin_receipt_download' receipt.id %}" class="btn btn-success">
             <span class="material-icons">download</span>
-            Download Word Doc
+            Download Word DOCX
         </a>
-        <button onclick="window.print()" class="btn btn-primary">
-            <span class="material-icons">print</span>
-            Print View
-        </button>
+        <!--<button onclick="window.print()" class="btn btn-primary">-->
+        <!--    <span class="material-icons">print</span>-->
+        <!--    Print View-->
+        <!--</button>-->
         <form method="POST" action="{% url 'admin_receipt_delete' receipt.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this receipt?');">
             {% csrf_token %}
             <button type="submit" class="btn" style="background: #e74c3c; color: white;">
