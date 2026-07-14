@@ -1319,8 +1319,16 @@ def admin_receipt_download(request, receipt_id):
     i_tbl.columns[2].width = Inches(1.40)
     i_tbl.columns[3].width = Inches(0.90)
 
-    # Also lock the table width so Word doesn't stretch it
-    tbl_pr = i_tbl._element.get_or_add_tblPr()
+    # Lock the table width so Word doesn't stretch it
+    # CT_Tbl has no get_or_add_tblPr() — manipulate XML directly instead
+    tbl_elm = i_tbl._element
+    tbl_pr = tbl_elm.find(qn('w:tblPr'))
+    if tbl_pr is None:
+        tbl_pr = OxmlElement('w:tblPr')
+        tbl_elm.insert(0, tbl_pr)
+    # Remove any existing tblW to avoid duplicates
+    for existing_w in tbl_pr.findall(qn('w:tblW')):
+        tbl_pr.remove(existing_w)
     tblW = OxmlElement('w:tblW')
     tblW.set(qn('w:w'), str(COL0_W + COL1_W + COL2_W + COL3_W))
     tblW.set(qn('w:type'), 'dxa')
