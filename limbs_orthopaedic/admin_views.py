@@ -1225,8 +1225,8 @@ def admin_receipt_download(request, receipt_id):
     contact_lines = [
         ('ICIPE ROAD, KASARANI, NAIROBI',              True,  False),
         ('P. O. Box 2229 - 00200, Nairobi.',           False, False),
-        ('Tel: 0714663594, 0719628276, 0705347657',    False, True),
-        ('Email: limbsorthopaedic21@gmail.com',        False, True),
+        ('Tel: 0714663594, 0719628276, 0705347657',    False, False),
+        ('Email: limbsorthopaedic21@gmail.com',        False, False),
         ('Website: www.limbsorthopaedic.org',          False, True),
     ]
     for idx, (txt, bold, underline) in enumerate(contact_lines):
@@ -1295,10 +1295,16 @@ def admin_receipt_download(request, receipt_id):
 
     i_tbl = doc.add_table(rows=1 + num_data_rows + 1, cols=4)
     i_tbl.autofit = False
-    i_tbl.columns[0].width = Inches(0.55)
-    i_tbl.columns[1].width = Inches(4.0)
-    i_tbl.columns[2].width = Inches(1.6)
-    i_tbl.columns[3].width = Inches(0.92)
+    # '#' extremely narrow — only holds 1-2 digit numbers
+    i_tbl.columns[0].width = Inches(0.20)
+    # Description wide — most text lives here
+    i_tbl.columns[1].width = Inches(4.57)
+    i_tbl.columns[2].width = Inches(1.45)
+    i_tbl.columns[3].width = Inches(0.85)
+
+    # Alternating row colours  (even rows = white, odd rows = very light blue)
+    ROW_EVEN = 'FFFFFF'
+    ROW_ODD  = 'EAF4FB'
 
     # header row
     hdr_cells = i_tbl.rows[0].cells
@@ -1317,6 +1323,7 @@ def admin_receipt_download(request, receipt_id):
     # data rows
     for i in range(num_data_rows):
         row_cells = i_tbl.rows[1 + i].cells
+        row_color = ROW_ODD if i % 2 else ROW_EVEN   # 0-indexed → row 0 = white, row 1 = light blue
         if i < len(items):
             item = items[i]
             row_cells[0].text = str(i + 1)
@@ -1328,6 +1335,7 @@ def admin_receipt_download(request, receipt_id):
         row_cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
         for cell in row_cells:
+            shade_cell(cell, row_color)          # alternating colour
             for p in cell.paragraphs:
                 for run in p.runs:
                     run.font.size = Pt(10)
