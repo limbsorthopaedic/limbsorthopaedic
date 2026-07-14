@@ -1291,22 +1291,47 @@ def admin_receipt_download(request, receipt_id):
     # 5. ITEMS TABLE
     # ════════════════════════════════════════════════════════════════════
     items = list(receipt.items.all())
-    num_data_rows = max(4, len(items))
+    num_data_rows = max(5, len(items))     # minimum 5 blank rows
+
+    # Helper: force a cell's width at the XML level (bypasses Word autofit).
+    # width_twips: 1 inch = 1440 twips
+    def force_cell_width_twips(cell, width_twips):
+        tcPr = cell._element.get_or_add_tcPr()
+        # Remove any existing tcW
+        for existing in tcPr.findall(qn('w:tcW')):
+            tcPr.remove(existing)
+        tcW = OxmlElement('w:tcW')
+        tcW.set(qn('w:w'), str(width_twips))
+        tcW.set(qn('w:type'), 'dxa')       # dxa = twentieths of a point
+        tcPr.append(tcW)
+
+    # Column widths in twips  (1 inch = 1440 twips)
+    COL0_W =  72    # '#'  ≈ 0.05"  — as narrow as physically possible
+    COL1_W = 6480   # Description ≈ 4.50"
+    COL2_W = 2016   # Mode of payment ≈ 1.40"
+    COL3_W = 1296   # Amount ≈ 0.90"
 
     i_tbl = doc.add_table(rows=1 + num_data_rows + 1, cols=4)
     i_tbl.autofit = False
-    # '#' extremely narrow — only holds 1-2 digit numbers
-    i_tbl.columns[0].width = Inches(0.20)
-    # Description wide — most text lives here
-    i_tbl.columns[1].width = Inches(4.57)
-    i_tbl.columns[2].width = Inches(1.45)
-    i_tbl.columns[3].width = Inches(0.85)
+    # Set grid-level widths (used as a hint by Word)
+    i_tbl.columns[0].width = COL0_W * 635    # EMU conversion (approx)
+    i_tbl.columns[1].width = Inches(4.50)
+    i_tbl.columns[2].width = Inches(1.40)
+    i_tbl.columns[3].width = Inches(0.90)
 
-    # Alternating row colours  (even rows = white, odd rows = very light blue)
+    # Also lock the table width so Word doesn't stretch it
+    tbl_pr = i_tbl._element.get_or_add_tblPr()
+    tblW = OxmlElement('w:tblW')
+    tblW.set(qn('w:w'), str(COL0_W + COL1_W + COL2_W + COL3_W))
+    tblW.set(qn('w:type'), 'dxa')
+    tbl_pr.append(tblW)
+
+    # Alternating row colours
     ROW_EVEN = 'FFFFFF'
     ROW_ODD  = 'EAF4FB'
+    TOTAL_BG = '32c3e2'       # teal total row
 
-    # header row
+    # ── header row ───────────────────────────────────────────────────────
     hdr_cells = i_tbl.rows[0].cells
     for idx, txt in enumerate(['#', 'DESCRIPTION / PARTICULARS', 'MODE OF PAYMENT', 'AMOUNT (KES)']):
         hdr_cells[idx].text = ''
@@ -1319,11 +1344,14 @@ def admin_receipt_download(request, receipt_id):
         r.font.name      = 'Calibri'
         shade_cell(hdr_cells[idx], '1B2A5E')
         hdr_cells[idx].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+        # Force each header cell width via XML
+        col_widths = [COL0_W, COL1_W, COL2_W, COL3_W]
+        force_cell_width_twips(hdr_cells[idx], col_widths[idx])
 
-    # data rows
+    # ── data rows ────────────────────────────────────────────────────────
     for i in range(num_data_rows):
         row_cells = i_tbl.rows[1 + i].cells
-        row_color = ROW_ODD if i % 2 else ROW_EVEN   # 0-indexed → row 0 = white, row 1 = light blue
+        row_color = ROW_ODD if i % 2 else ROW_EVEN
         if i < len(items):
             item = items[i]
             row_cells[0].text = str(i + 1)
@@ -1334,14 +1362,16 @@ def admin_receipt_download(request, receipt_id):
             row_cells[0].text = str(i + 1)
         row_cells[0].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
         row_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        for cell in row_cells:
-            shade_cell(cell, row_color)          # alternating colour
+        col_widths = [COL0_W, COL1_W, COL2_W, COL3_W]
+        for cidx, cell in enumerate(row_cells):
+            shade_cell(cell, row_color)
+            force_cell_width_twips(cell, col_widths[cidx])   # force width on every cell
             for p in cell.paragraphs:
                 for run in p.runs:
                     run.font.size = Pt(10)
                     run.font.name = 'Calibri'
 
-    # total row
+    # ── total row ────────────────────────────────────────────────────────
     tot_cells = i_tbl.rows[1 + num_data_rows].cells
     merged = tot_cells[0].merge(tot_cells[1]).merge(tot_cells[2])
     merged.text = 'TOTAL'
@@ -1352,8 +1382,10 @@ def admin_receipt_download(request, receipt_id):
     r_tot.font.size      = Pt(11)
     r_tot.font.color.rgb = NAVY
     r_tot.font.name      = 'Calibri'
-    shade_cell(merged, LIGHT_BG)
-    shade_cell(tot_cells[3], LIGHT_BG)
+    shade_cell(merged, TOTAL_BG)
+    shade_cell(tot_cells[3], TOTAL_BG)
+    force_cell_width_twips(merged, COL0_W + COL1_W + COL2_W)
+    force_cell_width_twips(tot_cells[3], COL3_W)
     tot_cells[3].text = f'{receipt.total_amount:,.2f}'
     tot_cells[3].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
     rtv = tot_cells[3].paragraphs[0].runs[0]
