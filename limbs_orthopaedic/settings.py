@@ -79,7 +79,7 @@ INSTALLED_APPS = [
     'staff_chat',
     'analytics',
     'gallery',
-    'careers',
+    'careers.apps.CareersConfig',
     'limbs_cyber',
     'lol_register',
 
